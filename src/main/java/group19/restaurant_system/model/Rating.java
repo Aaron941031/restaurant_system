@@ -1,25 +1,54 @@
 package group19.restaurant_system.model;
 
-import java.sql.Timestamp;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "ratings")
 public class Rating {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer ratingId;
-    private Integer userId;
-    private Integer restaurantId;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId", nullable = false)
+    private User user;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "restaurantId", nullable = false)
+    private Restaurant restaurant;
+    
+    @Column(nullable = false)
     private Integer score;
+    
+    @Column(columnDefinition = "TEXT")
     private String comment;
-    private Timestamp ratedAt;
+    
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime ratedAt;
 
-    public Rating() {}
+    public Rating() {
+        this.ratedAt = LocalDateTime.now();
+    }
 
+    public Rating(User user, Restaurant restaurant, Integer score, String comment) {
+        this.user = user;
+        this.restaurant = restaurant;
+        this.score = score;
+        this.comment = comment;
+        this.ratedAt = LocalDateTime.now();
+    }
+
+    // Getters and Setters
     public Integer getRatingId() { return ratingId; }
     public void setRatingId(Integer ratingId) { this.ratingId = ratingId; }
 
-    public Integer getUserId() { return userId; }
-    public void setUserId(Integer userId) { this.userId = userId; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
-    public Integer getRestaurantId() { return restaurantId; }
-    public void setRestaurantId(Integer restaurantId) { this.restaurantId = restaurantId; }
+    public Restaurant getRestaurant() { return restaurant; }
+    public void setRestaurant(Restaurant restaurant) { this.restaurant = restaurant; }
 
     public Integer getScore() { return score; }
     public void setScore(Integer score) { this.score = score; }
@@ -27,15 +56,15 @@ public class Rating {
     public String getComment() { return comment; }
     public void setComment(String comment) { this.comment = comment; }
 
-    public Timestamp getRatedAt() { return ratedAt; }
-    public void setRatedAt(Timestamp ratedAt) { this.ratedAt = ratedAt; }
+    public LocalDateTime getRatedAt() { return ratedAt; }
+    public void setRatedAt(LocalDateTime ratedAt) { this.ratedAt = ratedAt; }
 
     @Override
     public String toString() {
         return "Rating{" +
                 "ratingId=" + ratingId +
-                ", userId=" + userId +
-                ", restaurantId=" + restaurantId +
+                ", userId=" + user.getUserId() +
+                ", restaurantId=" + restaurant.getRestaurantId() +
                 ", score=" + score +
                 ", comment='" + comment + '\'' +
                 ", ratedAt=" + ratedAt +

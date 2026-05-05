@@ -1,27 +1,46 @@
 package group19.restaurant_system.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "user_exclusions")
 public class UserExclusion {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer exclusionId;
-    private Integer userId;
-    private Integer categoryId;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId", nullable = false)
+    private User user;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoryId", nullable = false)
+    private Dish dish;
 
     public UserExclusion() {}
 
+    public UserExclusion(User user, Dish dish) {
+        this.user = user;
+        this.dish = dish;
+    }
+
+    // Getters and Setters
     public Integer getExclusionId() { return exclusionId; }
     public void setExclusionId(Integer exclusionId) { this.exclusionId = exclusionId; }
 
-    public Integer getUserId() { return userId; }
-    public void setUserId(Integer userId) { this.userId = userId; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
-    public Integer getCategoryId() { return categoryId; }
-    public void setCategoryId(Integer categoryId) { this.categoryId = categoryId; }
+    public Dish getDish() { return dish; }
+    public void setDish(Dish dish) { this.dish = dish; }
 
     @Override
     public String toString() {
         return "UserExclusion{" +
                 "exclusionId=" + exclusionId +
-                ", userId=" + userId +
-                ", categoryId=" + categoryId +
+                ", userId=" + user.getUserId() +
+                ", categoryId=" + dish.getCategoryId() +
                 '}';
     }
 }

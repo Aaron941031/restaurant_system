@@ -1,30 +1,62 @@
 package group19.restaurant_system.model;
 
-import java.sql.Timestamp;
-import java.sql.Date;
+import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "records")
 public class Record {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer recordId;
-    private Integer userId;
-    private Integer restaurantId;
-    private Date visitDate;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId", nullable = false)
+    private User user;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "restaurantId", nullable = false)
+    private Restaurant restaurant;
+    
+    @Column(nullable = false)
+    private LocalDate visitDate;
+    
+    @Column(nullable = false)
     private String mealName;
+    
+    @Column(columnDefinition = "TEXT")
     private String note;
-    private Timestamp createdAt;
+    
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-    public Record() {}
+    public Record() {
+        this.createdAt = LocalDateTime.now();
+    }
 
+    public Record(User user, Restaurant restaurant, LocalDate visitDate, String mealName, String note) {
+        this.user = user;
+        this.restaurant = restaurant;
+        this.visitDate = visitDate;
+        this.mealName = mealName;
+        this.note = note;
+        this.createdAt = LocalDateTime.now();
+    }
+
+    // Getters and Setters
     public Integer getRecordId() { return recordId; }
     public void setRecordId(Integer recordId) { this.recordId = recordId; }
 
-    public Integer getUserId() { return userId; }
-    public void setUserId(Integer userId) { this.userId = userId; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
-    public Integer getRestaurantId() { return restaurantId; }
-    public void setRestaurantId(Integer restaurantId) { this.restaurantId = restaurantId; }
+    public Restaurant getRestaurant() { return restaurant; }
+    public void setRestaurant(Restaurant restaurant) { this.restaurant = restaurant; }
 
-    public Date getVisitDate() { return visitDate; }
-    public void setVisitDate(Date visitDate) { this.visitDate = visitDate; }
+    public LocalDate getVisitDate() { return visitDate; }
+    public void setVisitDate(LocalDate visitDate) { this.visitDate = visitDate; }
 
     public String getMealName() { return mealName; }
     public void setMealName(String mealName) { this.mealName = mealName; }
@@ -32,15 +64,15 @@ public class Record {
     public String getNote() { return note; }
     public void setNote(String note) { this.note = note; }
 
-    public Timestamp getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     @Override
     public String toString() {
         return "Record{" +
                 "recordId=" + recordId +
-                ", userId=" + userId +
-                ", restaurantId=" + restaurantId +
+                ", userId=" + user.getUserId() +
+                ", restaurantId=" + restaurant.getRestaurantId() +
                 ", visitDate=" + visitDate +
                 ", mealName='" + mealName + '\'' +
                 ", note='" + note + '\'' +

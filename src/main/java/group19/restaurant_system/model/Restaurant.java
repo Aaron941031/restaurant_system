@@ -1,16 +1,48 @@
 package group19.restaurant_system.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "restaurants")
 public class Restaurant {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer restaurantId;
+    
+    @Column(nullable = false)
     private String name;
+    
+    @Column(nullable = false)
     private String category;
+    
+    @Column(nullable = false)
     private String priceRange;
+    
+    @Column(nullable = false)
     private Double avgScore;
+    
+    @Column(nullable = false)
     private Integer ratingCount;
+    
+    @Column(nullable = false)
     private String locationAt;
 
-    public Restaurant() {}
+    public Restaurant() {
+        this.avgScore = 0.0;
+        this.ratingCount = 0;
+    }
 
+    public Restaurant(String name, String category, String priceRange, String locationAt) {
+        this.name = name;
+        this.category = category;
+        this.priceRange = priceRange;
+        this.locationAt = locationAt;
+        this.avgScore = 0.0;
+        this.ratingCount = 0;
+    }
+
+    // Getters and Setters
     public Integer getRestaurantId() { return restaurantId; }
     public void setRestaurantId(Integer restaurantId) { this.restaurantId = restaurantId; }
 

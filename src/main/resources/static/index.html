@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>餐廳推薦與揪團系統</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <h1>Restaurant System</h1>
+        <p class="subtitle">餐廳推薦與揪團平台</p>
+        <nav>
+            <a href="#auth">登入註冊</a>
+            <a href="#restaurants">餐廳管理</a>
+            <a href="#recommend">推薦系統</a>
+            <a href="#groups">揪團系統</a>
+            <a href="#history">歷史紀錄</a>
+        </nav>
+        <div class="session-card">
+            <p>目前狀態</p>
+            <strong id="session-user">未登入</strong>
+            <small id="session-token">Token: -</small>
+        </div>
+    </aside>
+
+    <main class="content">
+        <header class="topbar">
+            <h2>後端 API 控制台</h2>
+            <button id="refresh-all-btn" class="ghost-btn">重新整理資料</button>
+        </header>
+
+        <section id="auth" class="panel">
+            <h3>登入 / 註冊</h3>
+            <div class="grid two">
+                <form id="register-form" class="card">
+                    <h4>註冊</h4>
+                    <label>名稱<input required name="name" placeholder="new_user"></label>
+                    <label>Email<input required type="email" name="email" placeholder="you@example.com"></label>
+                    <label>密碼<input required type="password" name="password" placeholder="••••••••"></label>
+                    <button type="submit">註冊</button>
+                </form>
+
+                <form id="login-form" class="card">
+                    <h4>登入</h4>
+                    <label>名稱<input required name="name" placeholder="new_user"></label>
+                    <label>密碼<input required type="password" name="password" placeholder="••••••••"></label>
+                    <button type="submit">登入</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="restaurants" class="panel">
+            <h3>餐廳管理與評分</h3>
+            <div class="grid two">
+                <form id="restaurant-form" class="card">
+                    <h4>新增餐廳</h4>
+                    <label>名稱<input required name="name" placeholder="海風食堂"></label>
+                    <label>分類<input required name="category" placeholder="日式"></label>
+                    <label>價位<input required name="priceRange" placeholder="$$"></label>
+                    <label>地點<input required name="locationAt" placeholder="台北市大安區"></label>
+                    <button type="submit">建立餐廳</button>
+                </form>
+
+                <form id="rating-form" class="card">
+                    <h4>新增評分</h4>
+                    <label>餐廳 ID<input required type="number" name="restaurantId" min="1" placeholder="1"></label>
+                    <label>分數 (1-5)<input required type="number" name="score" min="1" max="5" placeholder="5"></label>
+                    <label>評論<input name="comment" placeholder="很好吃"></label>
+                    <button type="submit">送出評分</button>
+                </form>
+            </div>
+            <div class="card">
+                <div class="card-head">
+                    <h4>餐廳清單</h4>
+                    <button id="load-restaurants-btn" class="ghost-btn">載入</button>
+                </div>
+                <div id="restaurants-table"></div>
+            </div>
+        </section>
+
+        <section id="recommend" class="panel">
+            <h3>推薦系統</h3>
+            <div class="grid two">
+                <form id="exclusion-form" class="card">
+                    <h4>新增排除類別</h4>
+                    <label>類別 ID<input required type="number" name="categoryId" min="1" placeholder="1"></label>
+                    <button type="submit">加入排除</button>
+                    <button type="button" id="load-exclusions-btn" class="ghost-btn">查看排除清單</button>
+                </form>
+                <div class="card">
+                    <h4>個人推薦</h4>
+                    <button id="load-recommend-btn">取得推薦</button>
+                    <div id="recommend-list"></div>
+                </div>
+            </div>
+            <div class="card">
+                <h4>排除類別清單</h4>
+                <div id="exclusions-list"></div>
+            </div>
+        </section>
+
+        <section id="groups" class="panel">
+            <h3>揪團系統</h3>
+            <div class="grid two">
+                <div class="card">
+                    <h4>建立群組</h4>
+                    <button id="create-group-btn">建立</button>
+                    <p id="group-current">尚未建立群組</p>
+                </div>
+                <form id="join-group-form" class="card">
+                    <h4>加入群組</h4>
+                    <label>邀請碼<input required name="inviteCode" placeholder="ABC123"></label>
+                    <button type="submit">加入</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="history" class="panel">
+            <h3>歷史紀錄</h3>
+            <div class="grid two">
+                <form id="history-form" class="card">
+                    <h4>新增紀錄</h4>
+                    <label>餐廳 ID<input required type="number" name="restaurantId" min="1" placeholder="1"></label>
+                    <label>日期<input required type="date" name="visitDate"></label>
+                    <label>餐點<input required name="mealName" placeholder="晚餐套餐"></label>
+                    <label>備註<input name="note" placeholder="同事聚餐"></label>
+                    <button type="submit">儲存紀錄</button>
+                </form>
+                <div class="card">
+                    <h4>我的歷史紀錄</h4>
+                    <button id="load-history-btn">載入歷史</button>
+                    <div id="history-list"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+<script src="/app.js"></script>
+</body>
+</html>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Group Recommender</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="app">
+    <header>
+        <h1>Restaurant Recommender + Group Session</h1>
+        <p>Spring Boot frontend demo with in-memory APIs</p>
+    </header>
+
+    <section class="card" id="auth-card">
+        <h2>1) Register / Login</h2>
+        <div class="grid">
+            <div>
+                <h3>Register</h3>
+                <input id="reg-name" placeholder="Username">
+                <input id="reg-email" placeholder="Email">
+                <input id="reg-password" type="password" placeholder="Password">
+                <button id="register-btn">Register</button>
+            </div>
+            <div>
+                <h3>Login</h3>
+                <input id="login-name" placeholder="Username">
+                <input id="login-password" type="password" placeholder="Password">
+                <button id="login-btn">Login</button>
+            </div>
+        </div>
+        <p id="current-user">Not logged in</p>
+    </section>
+
+    <section class="card">
+        <h2>2) Exclusion + Personal Recommendation</h2>
+        <div class="row">
+            <select id="dish-select"></select>
+            <button id="add-exclusion-btn">Add Exclusion</button>
+            <button id="recommend-btn">Get Recommendations</button>
+        </div>
+        <ul id="recommend-list"></ul>
+    </section>
+
+    <section class="card">
+        <h2>3) Rate Restaurant</h2>
+        <div class="row">
+            <select id="restaurant-select"></select>
+            <select id="score-select">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5" selected>5</option>
+            </select>
+            <input id="rating-comment" placeholder="Comment">
+            <button id="rate-btn">Submit Rating</button>
+        </div>
+        <ul id="rating-list"></ul>
+    </section>
+
+    <section class="card">
+        <h2>4) Group Session</h2>
+        <div class="row">
+            <button id="create-group-btn">Create Group</button>
+            <input id="invite-code" placeholder="Invite code">
+            <button id="join-group-btn">Join Group</button>
+            <button id="group-recommend-btn">Group Recommend</button>
+        </div>
+        <p id="group-info">No active group</p>
+        <ul id="group-recommend-list"></ul>
+    </section>
+
+    <section class="card">
+        <h2>5) Save & View History</h2>
+        <div class="row">
+            <select id="history-restaurant-select"></select>
+            <input id="history-meal" placeholder="Meal name">
+            <input id="history-note" placeholder="Note">
+            <button id="save-history-btn">Save History</button>
+            <button id="load-history-btn">Load History</button>
+        </div>
+        <ul id="history-list"></ul>
+    </section>
+
+    <p id="message"></p>
+</main>
+<script src="app.js"></script>
+</body>
+</html>

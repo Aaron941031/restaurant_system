@@ -61,6 +61,7 @@ public class RestaurantService {
         restaurantRepository.save(restaurant);
     }
 
+    @Transactional
     public List<Restaurant> getRecommendedRestaurants(Integer userId) throws Exception {
         // Get user's excluded categories
         List<UserExclusion> exclusions = userExclusionRepository.findByUserUserId(userId);
@@ -88,7 +89,8 @@ public class RestaurantService {
                 .collect(Collectors.toList());
     }
 
-    public List<Restaurant> getGroupRecommendations(Integer sessionId, 
+    @Transactional
+    public List<Restaurant> getGroupRecommendations(Integer sessionId,
                                                     List<Integer> memberIds,
                                                     UserExclusionRepository userExclusionRepository) throws Exception {
         // Collect all excluded categories from all members

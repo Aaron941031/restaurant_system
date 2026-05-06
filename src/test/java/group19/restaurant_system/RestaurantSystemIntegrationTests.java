@@ -44,6 +44,18 @@ public class RestaurantSystemIntegrationTests {
     
     @Autowired
     private DishRepository dishRepository;
+    
+    @Autowired
+    private RatingRepository ratingRepository;
+    
+    @Autowired
+    private RecordRepository recordRepository;
+    
+    @Autowired
+    private UserExclusionRepository userExclusionRepository;
+    
+    @Autowired
+    private GroupSessionRepository groupSessionRepository;
 
     private User testUser;
     private Restaurant testRestaurant;
@@ -51,10 +63,14 @@ public class RestaurantSystemIntegrationTests {
 
     @BeforeEach
     public void setup() throws Exception {
-        // Clear existing data
-        userRepository.deleteAll();
-        restaurantRepository.deleteAll();
-        dishRepository.deleteAll();
+        // Clear existing data in FK-safe order
+        ratingRepository.deleteAllInBatch();
+        recordRepository.deleteAllInBatch();
+        userExclusionRepository.deleteAllInBatch();
+        groupSessionRepository.deleteAllInBatch();
+        restaurantRepository.deleteAllInBatch();
+        dishRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
         
         // Create test user
         testUser = new User("testuser", "test@example.com", "hashed_password");

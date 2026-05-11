@@ -1,36 +1,39 @@
+// State管理
 const state = {
     token: localStorage.getItem("rs_token") || "",
     userId: localStorage.getItem("rs_userId") || "",
     userName: localStorage.getItem("rs_userName") || "",
-    currentGroupId: ""
+    currentPage: "auth",
+    restaurants: [],
+    dishes: [],
+    currentExclusions: []
 };
 
-const $ = (selector) => document.querySelector(selector);
-
-function setSession(token, userId, userName) {
-    state.token = token || "";
-    state.userId = userId || "";
-    state.userName = userName || "";
-    localStorage.setItem("rs_token", state.token);
-    localStorage.setItem("rs_userId", String(state.userId || ""));
-    localStorage.setItem("rs_userName", state.userName || "");
-    renderSession();
+// 頁面導航
+function goPage(pageName) {
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+    
+    const page = document.getElementById(`page-${pageName}`);
+    if (page) {
+        page.classList.add('active');
+        state.currentPage = pageName;
+        
+        // 根據頁面類別初始化
+        if (pageName === 'restaurants') {
+            loadRestaurants();
+        } else if (pageName === 'rate' || pageName === 'history') {
+            loadRestaurantSelects();
+        } else if (pageName === 'recommend') {
+            loadDishes();
+            loadExclusions();
+        }
+    }
+    window.scrollTo(0, 0);
 }
 
-function renderSession() {
-    $("#session-user").textContent = state.userName ? `${state.userName} (#${state.userId})` : "未登入";
-    $("#session-token").textContent = `Token: ${state.token ? `${state.token.slice(0, 20)}...` : "-"}`;
-}
-
-function showToast(message, type = "success") {
-    const toast = $("#toast");
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
-    setTimeout(() => {
-        toast.className = "toast hidden";
-    }, 2600);
-}
-
+// API 請求
 async function request(path, options = {}) {
     const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
     if (state.token) headers.Authorization = `Bearer ${state.token}`;
@@ -38,90 +41,143 @@ async function request(path, options = {}) {
     const response = await fetch(path, { ...options, headers });
     const payload = await response.json();
     if (!response.ok || payload.success === false) {
-        throw new Error(payload.message || "Request failed");
+        throw new Error(payload.message || "請求失敗");
     }
     return payload.data;
 }
 
+// 顯示提示訊息
+function showToast(message, type = "success") {
+    const toast = document.getElementById("toast");
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    setTimeout(() => {
+        toast.classList.add("hidden");
+    }, 2600);
+}
+
+// 表單數據轉JSON
 function formDataToJson(form) {
     const fd = new FormData(form);
     return Object.fromEntries(fd.entries());
 }
 
-function renderTable(container, rows) {
-    if (!rows.length) {
-        container.innerHTML = "<p>目前沒有資料</p>";
-        return;
+// 更新 Session 信息
+function updateSession() {
+    const info = document.getElementById("session-info");
+    if (state.userName) {
+        info.textContent = `👤 ${state.userName}`;
+    } else {
+        info.textContent = "未登入";
     }
-    const headers = Object.keys(rows[0]);
-    container.innerHTML = `
-        <table>
-            <thead><tr>${headers.map((h) => `<th>${h}</th>`).join("")}</tr></thead>
-            <tbody>
-                ${rows.map((r) => `<tr>${headers.map((h) => `<td>${r[h] ?? ""}</td>`).join("")}</tr>`).join("")}
-            </tbody>
-        </table>
-    `;
 }
 
-async function handleRegister(e) {
+// 設置 Session
+function setSession(token, userId, userName) {
+    state.token = token || "";
+    state.userId = userId || "";
+    state.userName = userName || "";
+    localStorage.setItem("rs_token", state.token);
+    localStorage.setItem("rs_userId", String(state.userId || ""));
+    localStorage.setItem("rs_userName", state.userName || "");
+    updateSession();
+}
+
+// 登出
+function logout() {
+    setSession("", "", "");
+    state.currentExclusions = [];
+    goPage("auth");
+    showToast("已登出", "success");
+}
+
+// ============ 認證功能 ============
+
+document.getElementById("register-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     try {
         const body = formDataToJson(e.target);
-        await request("/auth/register", { method: "POST", body: JSON.stringify(body) });
-        showToast("註冊成功，請登入");
-        e.target.reset();
+        const data = await request("/auth/register", { method: "POST", body: JSON.stringify(body) });
+        setSession(data.token, data.userId, data.name);
+        showToast("註冊成功！歡迎 " + data.name, "success");
+        goPage("menu");
     } catch (err) {
         showToast(err.message, "error");
     }
-}
+});
 
-async function handleLogin(e) {
+document.getElementById("login-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     try {
         const body = formDataToJson(e.target);
         const data = await request("/auth/login", { method: "POST", body: JSON.stringify(body) });
         setSession(data.token, data.userId, data.name);
-        showToast("登入成功");
+        showToast("登入成功！", "success");
+        goPage("menu");
     } catch (err) {
         showToast(err.message, "error");
     }
-}
+});
+
+// ============ 餐廳功能 ============
 
 async function loadRestaurants() {
     try {
-        const restaurants = await request("/restaurant/all");
-        const rows = restaurants.map((r) => ({
-            ID: r.restaurantId,
-            名稱: r.name,
-            分類: r.category,
-            價位: r.priceRange,
-            評分: r.avgScore,
-            評分數: r.ratingCount,
-            地點: r.locationAt
-        }));
-        renderTable($("#restaurants-table"), rows);
+        state.restaurants = await request("/restaurant/all");
+        renderRestaurants();
     } catch (err) {
         showToast(err.message, "error");
     }
 }
 
-async function handleCreateRestaurant(e) {
+function renderRestaurants() {
+    const container = document.getElementById("restaurants-list");
+    if (!state.restaurants.length) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🍽</div>暫無餐廳</div>';
+        return;
+    }
+    container.innerHTML = state.restaurants.map(r => `
+        <div class="list-item">
+            <div class="list-item-title">${r.name}</div>
+            <div class="list-item-meta">
+                <strong>${r.category}</strong> | ${r.priceRange} | ⭐ ${r.avgScore} (${r.ratingCount}人)
+            </div>
+            <div class="list-item-meta">📍 ${r.locationAt}</div>
+        </div>
+    `).join("");
+}
+
+document.getElementById("restaurant-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     try {
         const body = formDataToJson(e.target);
-        body.avgScore = 0.0;
+        body.avgScore = 0;
         body.ratingCount = 0;
         await request("/restaurant/save", { method: "POST", body: JSON.stringify(body) });
-        showToast("餐廳建立成功");
+        showToast("餐廳已新增", "success");
         e.target.reset();
         loadRestaurants();
     } catch (err) {
         showToast(err.message, "error");
     }
+});
+
+async function loadRestaurantSelects() {
+    try {
+        await loadRestaurants();
+        const options = state.restaurants.map(r => 
+            `<option value="${r.restaurantId}">${r.name} (${r.category})</option>`
+        ).join("");
+        document.getElementById("rate-restaurant-select").innerHTML = options;
+        document.getElementById("history-restaurant-select").innerHTML = options;
+    } catch (err) {
+        showToast(err.message, "error");
+    }
 }
 
-async function handleRateRestaurant(e) {
+// ============ 評分功能 ============
+
+document.getElementById("rating-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     try {
         if (!state.token) throw new Error("請先登入");
@@ -129,23 +185,46 @@ async function handleRateRestaurant(e) {
         body.restaurantId = Number(body.restaurantId);
         body.score = Number(body.score);
         await request("/restaurant/rate", { method: "POST", body: JSON.stringify(body) });
-        showToast("評分送出成功");
+        showToast("評分已送出", "success");
         e.target.reset();
         loadRestaurants();
     } catch (err) {
         showToast(err.message, "error");
     }
+});
+
+// ============ 推薦功能 ============
+
+async function loadDishes() {
+    try {
+        const dishes = await request("/dish/all");
+        state.dishes = dishes;
+        const select = document.getElementById("exclusion-category");
+        const options = dishes.map(d => 
+            `<option value="${d.categoryId}">${d.name}</option>`
+        ).join("");
+        select.innerHTML = '<option value="">選擇要排除的分類</option>' + options;
+    } catch (err) {
+        showToast(err.message, "error");
+    }
 }
 
-async function handleAddExclusion(e) {
-    e.preventDefault();
+async function addExclusion() {
     try {
         if (!state.token) throw new Error("請先登入");
-        const body = formDataToJson(e.target);
-        await request(`/user/exclusion?categoryId=${encodeURIComponent(body.categoryId)}`, { method: "POST" });
-        showToast("已加入排除類別");
-        e.target.reset();
+        const categoryId = Number(document.getElementById("exclusion-category").value);
+        if (!categoryId) throw new Error("請選擇分類");
+        
+        await request(`/user/exclusion?categoryId=${categoryId}`, { method: "POST" });
+        
+        // 添加到本地狀態
+        const dish = state.dishes.find(d => d.categoryId === categoryId);
+        if (dish && !state.currentExclusions.find(e => e.categoryId === categoryId)) {
+            state.currentExclusions.push(dish);
+        }
+        
         loadExclusions();
+        showToast("已加入排除類別", "success");
     } catch (err) {
         showToast(err.message, "error");
     }
@@ -155,353 +234,145 @@ async function loadExclusions() {
     try {
         if (!state.token) throw new Error("請先登入");
         const exclusions = await request("/user/exclusions");
-        if (!exclusions.length) {
-            $("#exclusions-list").innerHTML = "<p>尚無排除類別</p>";
-            return;
-        }
-        $("#exclusions-list").innerHTML = exclusions
-            .map((ex) => `<span class="chip">#${ex.dish.categoryId} ${ex.dish.name}</span>`)
-            .join("");
+        state.currentExclusions = exclusions;
+        renderExclusions();
     } catch (err) {
         showToast(err.message, "error");
     }
 }
 
-async function loadRecommendations() {
+function renderExclusions() {
+    const container = document.getElementById("exclusion-display");
+    if (!state.currentExclusions.length) {
+        container.innerHTML = '<p style="color: #999;">無</p>';
+        return;
+    }
+    container.innerHTML = state.currentExclusions.map(e => 
+        `<div class="list-item" style="margin-bottom: 8px;">${e.dish ? e.dish.name : e.categoryId}</div>`
+    ).join("");
+}
+
+async function getRecommendations() {
     try {
         if (!state.token) throw new Error("請先登入");
-        const rec = await request("/recommend/personal");
-        if (!rec.length) {
-            $("#recommend-list").innerHTML = "<p>目前沒有推薦資料</p>";
+        const recs = await request("/recommend/personal");
+        
+        const container = document.getElementById("recommend-list");
+        if (!recs.length) {
+            container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⭐</div>暫無推薦</div>';
             return;
         }
-        const rows = rec.map((r) => `<li>${r.name} (${r.category}) - ${r.avgScore} 分</li>`).join("");
-        $("#recommend-list").innerHTML = `<ul>${rows}</ul>`;
+        
+        container.innerHTML = recs.map(r => `
+            <div class="list-item">
+                <div class="list-item-title">${r.name}</div>
+                <div class="list-item-meta">
+                    分類：<strong>${r.category}</strong> | 評分：⭐ ${r.avgScore.toFixed(1)} | ${r.priceRange}
+                </div>
+            </div>
+        `).join("");
     } catch (err) {
         showToast(err.message, "error");
     }
 }
+
+// ============ 揪團功能 ============
 
 async function createGroup() {
     try {
         if (!state.token) throw new Error("請先登入");
         const session = await request("/groups/create", { method: "POST" });
-        state.currentGroupId = session.sessionId;
-        $("#group-current").textContent = `群組 #${session.sessionId}，邀請碼：${session.inviteCode}`;
-        showToast("群組建立成功");
+        
+        const display = document.getElementById("group-display");
+        display.innerHTML = `
+            <div>
+                <strong>群組已建立！</strong>
+                <p style="margin-top: 10px; font-size: 14px;">
+                    📌 群組編號：<code style="background: #f0f0f0; padding: 2px 5px; border-radius: 3px;">${session.sessionId}</code>
+                </p>
+                <p style="margin-top: 8px; font-size: 14px;">
+                    🔗 邀請碼：<code style="background: #f0f0f0; padding: 2px 5px; border-radius: 3px;">${session.inviteCode}</code>
+                </p>
+                <p style="margin-top: 12px; font-size: 12px; color: #999;">分享邀請碼給朋友加入</p>
+            </div>
+        `;
+        showToast("群組已建立", "success");
     } catch (err) {
         showToast(err.message, "error");
     }
 }
 
-async function handleJoinGroup(e) {
+document.getElementById("join-group-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     try {
         if (!state.token) throw new Error("請先登入");
         const body = formDataToJson(e.target);
-        const session = await request(`/groups/join?inviteCode=${encodeURIComponent(body.inviteCode)}`, { method: "POST" });
-        state.currentGroupId = session.sessionId;
-        $("#group-current").textContent = `已加入群組 #${session.sessionId}，邀請碼：${session.inviteCode}`;
-        showToast("加入群組成功");
+        const session = await request(`/groups/join?inviteCode=${body.inviteCode}`, { method: "POST" });
+        
+        const display = document.getElementById("group-display");
+        display.innerHTML = `
+            <div>
+                <strong>✅ 已加入群組</strong>
+                <p style="margin-top: 10px; font-size: 14px;">
+                    群組編號：${session.sessionId} | 邀請碼：${session.inviteCode}
+                </p>
+            </div>
+        `;
+        showToast("已加入群組", "success");
+        e.target.reset();
     } catch (err) {
         showToast(err.message, "error");
     }
-}
+});
 
-async function handleSaveHistory(e) {
+// ============ 歷史紀錄功能 ============
+
+document.getElementById("history-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     try {
         if (!state.token) throw new Error("請先登入");
         const body = formDataToJson(e.target);
         body.restaurantId = Number(body.restaurantId);
+        
         await request("/history/save", { method: "POST", body: JSON.stringify(body) });
-        showToast("歷史紀錄已儲存");
+        showToast("紀錄已保存", "success");
         e.target.reset();
         loadHistory();
     } catch (err) {
         showToast(err.message, "error");
     }
-}
+});
 
 async function loadHistory() {
     try {
         if (!state.token) throw new Error("請先登入");
         const history = await request("/history/me");
+        
+        const container = document.getElementById("history-list");
         if (!history.length) {
-            $("#history-list").innerHTML = "<p>目前沒有歷史紀錄</p>";
+            container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📅</div>暫無紀錄</div>';
             return;
         }
-        const rows = history.map((h) => ({
-            ID: h.recordId,
-            餐廳ID: h.restaurant?.restaurantId || "",
-            餐點: h.mealName,
-            日期: h.visitDate,
-            備註: h.note
-        }));
-        renderTable($("#history-list"), rows);
+        
+        container.innerHTML = history.map(h => `
+            <div class="list-item">
+                <div class="list-item-title">${h.mealName || "未命名"}</div>
+                <div class="list-item-meta">
+                    🏪 餐廳ID：${h.restaurantId} | 📅 ${h.visitDate}
+                </div>
+                <div class="list-item-meta">${h.note || "無備註"}</div>
+            </div>
+        `).join("");
     } catch (err) {
         showToast(err.message, "error");
     }
 }
 
-function bindEvents() {
-    $("#register-form").addEventListener("submit", handleRegister);
-    $("#login-form").addEventListener("submit", handleLogin);
-    $("#restaurant-form").addEventListener("submit", handleCreateRestaurant);
-    $("#rating-form").addEventListener("submit", handleRateRestaurant);
-    $("#load-restaurants-btn").addEventListener("click", loadRestaurants);
-    $("#exclusion-form").addEventListener("submit", handleAddExclusion);
-    $("#load-exclusions-btn").addEventListener("click", loadExclusions);
-    $("#load-recommend-btn").addEventListener("click", loadRecommendations);
-    $("#create-group-btn").addEventListener("click", createGroup);
-    $("#join-group-form").addEventListener("submit", handleJoinGroup);
-    $("#history-form").addEventListener("submit", handleSaveHistory);
-    $("#load-history-btn").addEventListener("click", loadHistory);
-    $("#refresh-all-btn").addEventListener("click", () => {
-        loadRestaurants();
-        if (state.token) {
-            loadExclusions();
-            loadRecommendations();
-            loadHistory();
-        }
-    });
+// ============ 初始化 ============
+
+updateSession();
+
+// 如果已登入，進入菜單頁面
+if (state.token && state.userName) {
+    goPage("menu");
 }
-
-function setDefaultDate() {
-    const today = new Date().toISOString().slice(0, 10);
-    $("#history-form input[name='visitDate']").value = today;
-}
-
-function init() {
-    bindEvents();
-    setDefaultDate();
-    renderSession();
-    loadRestaurants();
-}
-
-init();
-const state = {
-    user: null,
-    sessionId: null
-};
-
-const byId = (id) => document.getElementById(id);
-
-async function api(path, options = {}) {
-    const response = await fetch(`/api${path}`, {
-        headers: { "Content-Type": "application/json" },
-        ...options
-    });
-    const data = await response.json();
-    if (!response.ok) {
-        throw new Error(data.error || "Request failed");
-    }
-    return data;
-}
-
-function showMessage(message, isError = false) {
-    const el = byId("message");
-    el.textContent = message;
-    el.style.color = isError ? "#dc2626" : "#059669";
-}
-
-function requireLogin() {
-    if (!state.user) {
-        throw new Error("Please login first.");
-    }
-}
-
-async function loadBaseData() {
-    const [dishes, restaurants] = await Promise.all([
-        api("/dishes"),
-        api("/restaurants")
-    ]);
-
-    const dishSelect = byId("dish-select");
-    dishSelect.innerHTML = dishes.map(d => `<option value="${d.categoryId}">${d.name}</option>`).join("");
-
-    const options = restaurants.map(r => `<option value="${r.restaurantId}">${r.name} (${r.category})</option>`).join("");
-    byId("restaurant-select").innerHTML = options;
-    byId("history-restaurant-select").innerHTML = options;
-}
-
-function renderList(elementId, rows) {
-    byId(elementId).innerHTML = rows.map(r => `<li>${r}</li>`).join("");
-}
-
-async function register() {
-    try {
-        const user = await api("/auth/register", {
-            method: "POST",
-            body: JSON.stringify({
-                name: byId("reg-name").value.trim(),
-                email: byId("reg-email").value.trim(),
-                password: byId("reg-password").value
-            })
-        });
-        showMessage(user.message);
-    } catch (err) {
-        showMessage(err.message, true);
-    }
-}
-
-async function login() {
-    try {
-        const result = await api("/auth/login", {
-            method: "POST",
-            body: JSON.stringify({
-                name: byId("login-name").value.trim(),
-                password: byId("login-password").value
-            })
-        });
-        state.user = result.user;
-        byId("current-user").textContent = `Logged in: ${result.user.name} (userId=${result.user.userId})`;
-        showMessage(result.message);
-    } catch (err) {
-        showMessage(err.message, true);
-    }
-}
-
-async function addExclusion() {
-    try {
-        requireLogin();
-        const categoryId = Number(byId("dish-select").value);
-        await api("/user/exclusion", {
-            method: "POST",
-            body: JSON.stringify({
-                userId: state.user.userId,
-                categoryId
-            })
-        });
-        showMessage("Exclusion saved.");
-    } catch (err) {
-        showMessage(err.message, true);
-    }
-}
-
-async function recommend() {
-    try {
-        requireLogin();
-        const rows = await api(`/recommend?userId=${state.user.userId}`);
-        renderList("recommend-list", rows.map(r => `${r.name} | ${r.category} | score: ${r.avgScore}`));
-        showMessage("Recommendations loaded.");
-    } catch (err) {
-        showMessage(err.message, true);
-    }
-}
-
-async function submitRating() {
-    try {
-        requireLogin();
-        const restaurantId = Number(byId("restaurant-select").value);
-        const score = Number(byId("score-select").value);
-        const comment = byId("rating-comment").value;
-        await api("/rate", {
-            method: "POST",
-            body: JSON.stringify({
-                userId: state.user.userId,
-                restaurantId,
-                score,
-                comment
-            })
-        });
-        const ratings = await api(`/restaurant/${restaurantId}/ratings`);
-        renderList("rating-list", ratings.map(r => `user ${r.userId}: ${r.score}★ - ${r.comment}`));
-        showMessage("Rating submitted.");
-    } catch (err) {
-        showMessage(err.message, true);
-    }
-}
-
-async function createGroup() {
-    try {
-        requireLogin();
-        const group = await api("/groups/create", {
-            method: "POST",
-            body: JSON.stringify({ creatorId: state.user.userId })
-        });
-        state.sessionId = group.sessionId;
-        byId("group-info").textContent = `Session ${group.sessionId}, invite: ${group.inviteCode}`;
-        byId("invite-code").value = group.inviteCode;
-        showMessage("Group created.");
-    } catch (err) {
-        showMessage(err.message, true);
-    }
-}
-
-async function joinGroup() {
-    try {
-        requireLogin();
-        const inviteCode = byId("invite-code").value.trim();
-        await api("/groups/join", {
-            method: "POST",
-            body: JSON.stringify({ userId: state.user.userId, inviteCode })
-        });
-        showMessage("Joined group.");
-    } catch (err) {
-        showMessage(err.message, true);
-    }
-}
-
-async function groupRecommend() {
-    try {
-        if (!state.sessionId) {
-            throw new Error("Create a group first in this browser.");
-        }
-        const rows = await api(`/groups/${state.sessionId}/recommend`);
-        renderList("group-recommend-list", rows.map(r => `${r.name} | ${r.category} | score: ${r.avgScore}`));
-        showMessage("Group recommendations loaded.");
-    } catch (err) {
-        showMessage(err.message, true);
-    }
-}
-
-async function saveHistory() {
-    try {
-        requireLogin();
-        await api("/history/save", {
-            method: "POST",
-            body: JSON.stringify({
-                userId: state.user.userId,
-                restaurantId: Number(byId("history-restaurant-select").value),
-                mealName: byId("history-meal").value.trim(),
-                note: byId("history-note").value.trim(),
-                visitDate: new Date().toISOString().slice(0, 10)
-            })
-        });
-        showMessage("History saved.");
-    } catch (err) {
-        showMessage(err.message, true);
-    }
-}
-
-async function loadHistory() {
-    try {
-        requireLogin();
-        const rows = await api(`/history/me?userId=${state.user.userId}`);
-        renderList("history-list", rows.map(r => `restaurant ${r.restaurantId} | ${r.visitDate} | ${r.mealName} | ${r.note}`));
-        showMessage("History loaded.");
-    } catch (err) {
-        showMessage(err.message, true);
-    }
-}
-
-function bindEvents() {
-    byId("register-btn").addEventListener("click", register);
-    byId("login-btn").addEventListener("click", login);
-    byId("add-exclusion-btn").addEventListener("click", addExclusion);
-    byId("recommend-btn").addEventListener("click", recommend);
-    byId("rate-btn").addEventListener("click", submitRating);
-    byId("create-group-btn").addEventListener("click", createGroup);
-    byId("join-group-btn").addEventListener("click", joinGroup);
-    byId("group-recommend-btn").addEventListener("click", groupRecommend);
-    byId("save-history-btn").addEventListener("click", saveHistory);
-    byId("load-history-btn").addEventListener("click", loadHistory);
-}
-
-async function init() {
-    bindEvents();
-    await loadBaseData();
-}
-
-init().catch(err => showMessage(err.message, true));

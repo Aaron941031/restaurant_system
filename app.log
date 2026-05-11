@@ -1,0 +1,946 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------------< group19:restaurant_system >----------------------
+[INFO] Building restaurant_system 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.5.0:clean (default-clean) @ restaurant_system ---
+[INFO] Deleting /Users/tristan/Documents/JavaProjects/restaurant_system/target
+[INFO] 
+[INFO] >>> spring-boot:4.0.5:run (default-cli) > test-compile @ restaurant_system >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ restaurant_system ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 3 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ restaurant_system ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 40 source files with javac [debug parameters release 21] to target/classes
+[INFO] /Users/tristan/Documents/JavaProjects/restaurant_system/src/main/java/group19/restaurant_system/util/JwtTokenProvider.java: /Users/tristan/Documents/JavaProjects/restaurant_system/src/main/java/group19/restaurant_system/util/JwtTokenProvider.java uses or overrides a deprecated API.
+[INFO] /Users/tristan/Documents/JavaProjects/restaurant_system/src/main/java/group19/restaurant_system/util/JwtTokenProvider.java: Recompile with -Xlint:deprecation for details.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ restaurant_system ---
+[INFO] skip non existing resourceDirectory /Users/tristan/Documents/JavaProjects/restaurant_system/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ restaurant_system ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 2 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] <<< spring-boot:4.0.5:run (default-cli) < test-compile @ restaurant_system <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:4.0.5:run (default-cli) @ restaurant_system ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-05-10T21:57:52.597+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] g.r.RestaurantSystemApplication          : Starting RestaurantSystemApplication using Java 21.0.8 with PID 90013 (/Users/tristan/Documents/JavaProjects/restaurant_system/target/classes started by tristan in /Users/tristan/Documents/JavaProjects/restaurant_system)
+2026-05-10T21:57:52.598+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] g.r.RestaurantSystemApplication          : No active profile set, falling back to 1 default profile: "default"
+2026-05-10T21:57:52.614+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-05-10T21:57:52.615+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-05-10T21:57:52.816+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-10T21:57:52.837+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 17 ms. Found 8 JPA repository interfaces.
+2026-05-10T21:57:53.013+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-05-10T21:57:53.018+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-10T21:57:53.018+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-05-10T21:57:53.028+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 413 ms
+2026-05-10T21:57:53.084+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-05-10T21:57:53.100+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.7.Final
+2026-05-10T21:57:53.228+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-10T21:57:53.237+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-05-10T21:57:53.299+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@70adba5d
+2026-05-10T21:57:53.299+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-05-10T21:57:53.324+08:00  WARN 90013 --- [restaurant_system] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-10T21:57:53.329+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/restaurant_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 9.6
+	Default catalog/schema: restaurant_db/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-10T21:57:53.644+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-10T21:57:53.831+08:00  WARN 90013 --- [restaurant_system] [  restartedMain] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+    alter table group_sessions 
+       drop 
+       foreign key FKs7ochbl73bjr9x89i2of7xhr1" via JDBC [Can't DROP 'FKs7ochbl73bjr9x89i2of7xhr1'; check that column/key exists]
+
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "
+    alter table group_sessions 
+       drop 
+       foreign key FKs7ochbl73bjr9x89i2of7xhr1" via JDBC [Can't DROP 'FKs7ochbl73bjr9x89i2of7xhr1'; check that column/key exists]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:81) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.Helper.applySqlString(Helper.java:218) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.Helper.applySqlStrings(Helper.java:204) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.applyConstraintDropping(SchemaDropperImpl.java:473) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.dropConstraintsTablesSequences(SchemaDropperImpl.java:237) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.dropFromMetadata(SchemaDropperImpl.java:210) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.performDrop(SchemaDropperImpl.java:182) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.doDrop(SchemaDropperImpl.java:152) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.doDrop(SchemaDropperImpl.java:112) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:227) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$1(SchemaManagementToolCoordinator.java:101) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at java.base/java.util.HashMap.forEach(HashMap.java:1429) ~[na:na]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:100) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:35) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:33) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:323) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryRegistry.instantiateSessionFactory(SessionFactoryRegistry.java:64) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:437) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1456) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:93) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:443) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:436) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:411) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:419) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:977) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.0.5.jar:4.0.5]
+	at group19.restaurant_system.RestaurantSystemApplication.main(RestaurantSystemApplication.java:10) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.0.5.jar:4.0.5]
+Caused by: java.sql.SQLSyntaxErrorException: Can't DROP 'FKs7ochbl73bjr9x89i2of7xhr1'; check that column/key exists
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.StatementImpl.executeInternal(StatementImpl.java:839) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.StatementImpl.execute(StatementImpl.java:687) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:95) ~[HikariCP-7.0.2.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-7.0.2.jar:na]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:76) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	... 43 common frames omitted
+
+2026-05-10T21:57:53.833+08:00  WARN 90013 --- [restaurant_system] [  restartedMain] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+    alter table ratings 
+       drop 
+       foreign key FKntiwrmxidegn417oxunmtnjpa" via JDBC [Can't DROP 'FKntiwrmxidegn417oxunmtnjpa'; check that column/key exists]
+
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "
+    alter table ratings 
+       drop 
+       foreign key FKntiwrmxidegn417oxunmtnjpa" via JDBC [Can't DROP 'FKntiwrmxidegn417oxunmtnjpa'; check that column/key exists]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:81) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.Helper.applySqlString(Helper.java:218) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.Helper.applySqlStrings(Helper.java:204) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.applyConstraintDropping(SchemaDropperImpl.java:473) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.dropConstraintsTablesSequences(SchemaDropperImpl.java:237) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.dropFromMetadata(SchemaDropperImpl.java:210) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.performDrop(SchemaDropperImpl.java:182) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.doDrop(SchemaDropperImpl.java:152) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.doDrop(SchemaDropperImpl.java:112) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:227) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$1(SchemaManagementToolCoordinator.java:101) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at java.base/java.util.HashMap.forEach(HashMap.java:1429) ~[na:na]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:100) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:35) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:33) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:323) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryRegistry.instantiateSessionFactory(SessionFactoryRegistry.java:64) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:437) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1456) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:93) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:443) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:436) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:411) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:419) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:977) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.0.5.jar:4.0.5]
+	at group19.restaurant_system.RestaurantSystemApplication.main(RestaurantSystemApplication.java:10) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.0.5.jar:4.0.5]
+Caused by: java.sql.SQLSyntaxErrorException: Can't DROP 'FKntiwrmxidegn417oxunmtnjpa'; check that column/key exists
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.StatementImpl.executeInternal(StatementImpl.java:839) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.StatementImpl.execute(StatementImpl.java:687) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:95) ~[HikariCP-7.0.2.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-7.0.2.jar:na]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:76) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	... 43 common frames omitted
+
+2026-05-10T21:57:53.834+08:00  WARN 90013 --- [restaurant_system] [  restartedMain] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+    alter table ratings 
+       drop 
+       foreign key FKb3354ee2xxvdrbyq9f42jdayd" via JDBC [Can't DROP 'FKb3354ee2xxvdrbyq9f42jdayd'; check that column/key exists]
+
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "
+    alter table ratings 
+       drop 
+       foreign key FKb3354ee2xxvdrbyq9f42jdayd" via JDBC [Can't DROP 'FKb3354ee2xxvdrbyq9f42jdayd'; check that column/key exists]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:81) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.Helper.applySqlString(Helper.java:218) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.Helper.applySqlStrings(Helper.java:204) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.applyConstraintDropping(SchemaDropperImpl.java:473) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.dropConstraintsTablesSequences(SchemaDropperImpl.java:237) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.dropFromMetadata(SchemaDropperImpl.java:210) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.performDrop(SchemaDropperImpl.java:182) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.doDrop(SchemaDropperImpl.java:152) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.doDrop(SchemaDropperImpl.java:112) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:227) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$1(SchemaManagementToolCoordinator.java:101) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at java.base/java.util.HashMap.forEach(HashMap.java:1429) ~[na:na]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:100) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:35) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:33) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:323) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryRegistry.instantiateSessionFactory(SessionFactoryRegistry.java:64) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:437) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1456) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:93) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:443) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:436) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:411) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:419) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:977) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.0.5.jar:4.0.5]
+	at group19.restaurant_system.RestaurantSystemApplication.main(RestaurantSystemApplication.java:10) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.0.5.jar:4.0.5]
+Caused by: java.sql.SQLSyntaxErrorException: Can't DROP 'FKb3354ee2xxvdrbyq9f42jdayd'; check that column/key exists
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.StatementImpl.executeInternal(StatementImpl.java:839) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.StatementImpl.execute(StatementImpl.java:687) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:95) ~[HikariCP-7.0.2.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-7.0.2.jar:na]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:76) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	... 43 common frames omitted
+
+2026-05-10T21:57:53.836+08:00  WARN 90013 --- [restaurant_system] [  restartedMain] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+    alter table records 
+       drop 
+       foreign key FK9ogw9hgm9k79xjgdi42knwwr5" via JDBC [Can't DROP 'FK9ogw9hgm9k79xjgdi42knwwr5'; check that column/key exists]
+
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "
+    alter table records 
+       drop 
+       foreign key FK9ogw9hgm9k79xjgdi42knwwr5" via JDBC [Can't DROP 'FK9ogw9hgm9k79xjgdi42knwwr5'; check that column/key exists]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:81) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.Helper.applySqlString(Helper.java:218) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.Helper.applySqlStrings(Helper.java:204) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.applyConstraintDropping(SchemaDropperImpl.java:473) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.dropConstraintsTablesSequences(SchemaDropperImpl.java:237) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.dropFromMetadata(SchemaDropperImpl.java:210) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.performDrop(SchemaDropperImpl.java:182) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.doDrop(SchemaDropperImpl.java:152) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.doDrop(SchemaDropperImpl.java:112) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:227) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$1(SchemaManagementToolCoordinator.java:101) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at java.base/java.util.HashMap.forEach(HashMap.java:1429) ~[na:na]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:100) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:35) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:33) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:323) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryRegistry.instantiateSessionFactory(SessionFactoryRegistry.java:64) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:437) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1456) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:93) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:443) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:436) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:411) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:419) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:977) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.0.5.jar:4.0.5]
+	at group19.restaurant_system.RestaurantSystemApplication.main(RestaurantSystemApplication.java:10) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.0.5.jar:4.0.5]
+Caused by: java.sql.SQLSyntaxErrorException: Can't DROP 'FK9ogw9hgm9k79xjgdi42knwwr5'; check that column/key exists
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.StatementImpl.executeInternal(StatementImpl.java:839) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.StatementImpl.execute(StatementImpl.java:687) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:95) ~[HikariCP-7.0.2.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-7.0.2.jar:na]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:76) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	... 43 common frames omitted
+
+2026-05-10T21:57:53.837+08:00  WARN 90013 --- [restaurant_system] [  restartedMain] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+    alter table records 
+       drop 
+       foreign key FK6p95uajgka0j0dc9vlbjw1sf1" via JDBC [Can't DROP 'FK6p95uajgka0j0dc9vlbjw1sf1'; check that column/key exists]
+
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "
+    alter table records 
+       drop 
+       foreign key FK6p95uajgka0j0dc9vlbjw1sf1" via JDBC [Can't DROP 'FK6p95uajgka0j0dc9vlbjw1sf1'; check that column/key exists]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:81) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.Helper.applySqlString(Helper.java:218) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.Helper.applySqlStrings(Helper.java:204) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.applyConstraintDropping(SchemaDropperImpl.java:473) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.dropConstraintsTablesSequences(SchemaDropperImpl.java:237) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.dropFromMetadata(SchemaDropperImpl.java:210) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.performDrop(SchemaDropperImpl.java:182) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.doDrop(SchemaDropperImpl.java:152) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.doDrop(SchemaDropperImpl.java:112) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:227) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$1(SchemaManagementToolCoordinator.java:101) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at java.base/java.util.HashMap.forEach(HashMap.java:1429) ~[na:na]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:100) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:35) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:33) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:323) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryRegistry.instantiateSessionFactory(SessionFactoryRegistry.java:64) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:437) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1456) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:93) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:443) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:436) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:411) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:419) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:977) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.0.5.jar:4.0.5]
+	at group19.restaurant_system.RestaurantSystemApplication.main(RestaurantSystemApplication.java:10) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.0.5.jar:4.0.5]
+Caused by: java.sql.SQLSyntaxErrorException: Can't DROP 'FK6p95uajgka0j0dc9vlbjw1sf1'; check that column/key exists
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.StatementImpl.executeInternal(StatementImpl.java:839) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.StatementImpl.execute(StatementImpl.java:687) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:95) ~[HikariCP-7.0.2.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-7.0.2.jar:na]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:76) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	... 43 common frames omitted
+
+2026-05-10T21:57:53.838+08:00  WARN 90013 --- [restaurant_system] [  restartedMain] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+    alter table user_exclusions 
+       drop 
+       foreign key FKh0wqfxe5h68yr7gyur6jh0xs5" via JDBC [Can't DROP 'FKh0wqfxe5h68yr7gyur6jh0xs5'; check that column/key exists]
+
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "
+    alter table user_exclusions 
+       drop 
+       foreign key FKh0wqfxe5h68yr7gyur6jh0xs5" via JDBC [Can't DROP 'FKh0wqfxe5h68yr7gyur6jh0xs5'; check that column/key exists]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:81) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.Helper.applySqlString(Helper.java:218) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.Helper.applySqlStrings(Helper.java:204) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.applyConstraintDropping(SchemaDropperImpl.java:473) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.dropConstraintsTablesSequences(SchemaDropperImpl.java:237) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.dropFromMetadata(SchemaDropperImpl.java:210) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.performDrop(SchemaDropperImpl.java:182) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.doDrop(SchemaDropperImpl.java:152) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.doDrop(SchemaDropperImpl.java:112) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:227) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$1(SchemaManagementToolCoordinator.java:101) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at java.base/java.util.HashMap.forEach(HashMap.java:1429) ~[na:na]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:100) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:35) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:33) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:323) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryRegistry.instantiateSessionFactory(SessionFactoryRegistry.java:64) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:437) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1456) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:93) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:443) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:436) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:411) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:419) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:977) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.0.5.jar:4.0.5]
+	at group19.restaurant_system.RestaurantSystemApplication.main(RestaurantSystemApplication.java:10) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.0.5.jar:4.0.5]
+Caused by: java.sql.SQLSyntaxErrorException: Can't DROP 'FKh0wqfxe5h68yr7gyur6jh0xs5'; check that column/key exists
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.StatementImpl.executeInternal(StatementImpl.java:839) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.StatementImpl.execute(StatementImpl.java:687) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:95) ~[HikariCP-7.0.2.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-7.0.2.jar:na]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:76) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	... 43 common frames omitted
+
+2026-05-10T21:57:53.839+08:00  WARN 90013 --- [restaurant_system] [  restartedMain] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+    alter table user_exclusions 
+       drop 
+       foreign key FKb61judcwtb40benn9g0jv4bwh" via JDBC [Can't DROP 'FKb61judcwtb40benn9g0jv4bwh'; check that column/key exists]
+
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "
+    alter table user_exclusions 
+       drop 
+       foreign key FKb61judcwtb40benn9g0jv4bwh" via JDBC [Can't DROP 'FKb61judcwtb40benn9g0jv4bwh'; check that column/key exists]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:81) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.Helper.applySqlString(Helper.java:218) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.Helper.applySqlStrings(Helper.java:204) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.applyConstraintDropping(SchemaDropperImpl.java:473) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.dropConstraintsTablesSequences(SchemaDropperImpl.java:237) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.dropFromMetadata(SchemaDropperImpl.java:210) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.performDrop(SchemaDropperImpl.java:182) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.doDrop(SchemaDropperImpl.java:152) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.doDrop(SchemaDropperImpl.java:112) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:227) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$1(SchemaManagementToolCoordinator.java:101) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at java.base/java.util.HashMap.forEach(HashMap.java:1429) ~[na:na]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:100) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:35) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:33) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:323) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryRegistry.instantiateSessionFactory(SessionFactoryRegistry.java:64) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:437) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1456) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:93) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:443) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:436) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:411) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:419) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:977) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.0.5.jar:4.0.5]
+	at group19.restaurant_system.RestaurantSystemApplication.main(RestaurantSystemApplication.java:10) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.0.5.jar:4.0.5]
+Caused by: java.sql.SQLSyntaxErrorException: Can't DROP 'FKb61judcwtb40benn9g0jv4bwh'; check that column/key exists
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.StatementImpl.executeInternal(StatementImpl.java:839) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.StatementImpl.execute(StatementImpl.java:687) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:95) ~[HikariCP-7.0.2.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-7.0.2.jar:na]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:76) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	... 43 common frames omitted
+
+2026-05-10T21:57:53.841+08:00  WARN 90013 --- [restaurant_system] [  restartedMain] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+    drop table if exists dishes" via JDBC [Cannot drop table 'dishes' referenced by a foreign key constraint 'user_exclusions_ibfk_2' on table 'user_exclusions'.]
+
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "
+    drop table if exists dishes" via JDBC [Cannot drop table 'dishes' referenced by a foreign key constraint 'user_exclusions_ibfk_2' on table 'user_exclusions'.]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:81) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.Helper.applySqlString(Helper.java:218) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.Helper.applySqlStrings(Helper.java:204) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.dropTables(SchemaDropperImpl.java:376) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.dropConstraintsTablesSequences(SchemaDropperImpl.java:248) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.dropFromMetadata(SchemaDropperImpl.java:210) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.performDrop(SchemaDropperImpl.java:182) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.doDrop(SchemaDropperImpl.java:152) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl.doDrop(SchemaDropperImpl.java:112) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:227) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$1(SchemaManagementToolCoordinator.java:101) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at java.base/java.util.HashMap.forEach(HashMap.java:1429) ~[na:na]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:100) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:35) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:33) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:323) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryRegistry.instantiateSessionFactory(SessionFactoryRegistry.java:64) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:437) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1456) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:93) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:443) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:436) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:411) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:419) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:977) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.0.5.jar:4.0.5]
+	at group19.restaurant_system.RestaurantSystemApplication.main(RestaurantSystemApplication.java:10) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.0.5.jar:4.0.5]
+Caused by: java.sql.SQLException: Cannot drop table 'dishes' referenced by a foreign key constraint 'user_exclusions_ibfk_2' on table 'user_exclusions'.
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:121) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.StatementImpl.executeInternal(StatementImpl.java:839) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.StatementImpl.execute(StatementImpl.java:687) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:95) ~[HikariCP-7.0.2.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-7.0.2.jar:na]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:76) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	... 43 common frames omitted
+
+2026-05-10T21:57:53.886+08:00  WARN 90013 --- [restaurant_system] [  restartedMain] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+    create table dishes (
+        category_id integer not null auto_increment,
+        name varchar(255) not null,
+        primary key (category_id)
+    ) engine=InnoDB" via JDBC [Table 'dishes' already exists]
+
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "
+    create table dishes (
+        category_id integer not null auto_increment,
+        name varchar(255) not null,
+        primary key (category_id)
+    ) engine=InnoDB" via JDBC [Table 'dishes' already exists]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:81) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.Helper.applySqlString(Helper.java:218) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.Helper.applySqlStrings(Helper.java:204) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaCreatorImpl.createTables(SchemaCreatorImpl.java:404) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaCreatorImpl.createSequencesTablesConstraints(SchemaCreatorImpl.java:320) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaCreatorImpl.createFromMetadata(SchemaCreatorImpl.java:215) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaCreatorImpl.performCreation(SchemaCreatorImpl.java:151) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaCreatorImpl.doCreation(SchemaCreatorImpl.java:121) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaCreatorImpl.doCreation(SchemaCreatorImpl.java:97) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:239) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$1(SchemaManagementToolCoordinator.java:101) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at java.base/java.util.HashMap.forEach(HashMap.java:1429) ~[na:na]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:100) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:35) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:33) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:323) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryRegistry.instantiateSessionFactory(SessionFactoryRegistry.java:64) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:437) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1456) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:93) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:443) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:436) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:411) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:419) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:977) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.0.5.jar:4.0.5]
+	at group19.restaurant_system.RestaurantSystemApplication.main(RestaurantSystemApplication.java:10) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.0.5.jar:4.0.5]
+Caused by: java.sql.SQLSyntaxErrorException: Table 'dishes' already exists
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.StatementImpl.executeInternal(StatementImpl.java:839) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.StatementImpl.execute(StatementImpl.java:687) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:95) ~[HikariCP-7.0.2.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-7.0.2.jar:na]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:76) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	... 43 common frames omitted
+
+2026-05-10T21:57:53.973+08:00  WARN 90013 --- [restaurant_system] [  restartedMain] o.h.t.s.i.ExceptionHandlerLoggedImpl     : GenerationTarget encountered exception accepting command : Error executing DDL "
+    alter table user_exclusions 
+       add constraint FKh0wqfxe5h68yr7gyur6jh0xs5 
+       foreign key (category_id) 
+       references dishes (category_id)" via JDBC [Failed to add the foreign key constraint. Missing column 'category_id' for constraint 'FKh0wqfxe5h68yr7gyur6jh0xs5' in the referenced table 'dishes']
+
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "
+    alter table user_exclusions 
+       add constraint FKh0wqfxe5h68yr7gyur6jh0xs5 
+       foreign key (category_id) 
+       references dishes (category_id)" via JDBC [Failed to add the foreign key constraint. Missing column 'category_id' for constraint 'FKh0wqfxe5h68yr7gyur6jh0xs5' in the referenced table 'dishes']
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:81) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.Helper.applySqlString(Helper.java:218) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.Helper.applySqlStrings(Helper.java:204) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaCreatorImpl.createForeignKeys(SchemaCreatorImpl.java:281) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaCreatorImpl.createFromMetadata(SchemaCreatorImpl.java:227) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaCreatorImpl.performCreation(SchemaCreatorImpl.java:151) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaCreatorImpl.doCreation(SchemaCreatorImpl.java:121) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.internal.SchemaCreatorImpl.doCreation(SchemaCreatorImpl.java:97) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:239) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$1(SchemaManagementToolCoordinator.java:101) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at java.base/java.util.HashMap.forEach(HashMap.java:1429) ~[na:na]
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:100) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:35) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:33) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:323) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.internal.SessionFactoryRegistry.instantiateSessionFactory(SessionFactoryRegistry.java:64) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:437) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1456) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:93) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:443) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:436) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:411) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:419) ~[spring-orm-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201) ~[spring-beans-7.0.6.jar:7.0.6]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:977) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-7.0.6.jar:7.0.6]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.0.5.jar:4.0.5]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.0.5.jar:4.0.5]
+	at group19.restaurant_system.RestaurantSystemApplication.main(RestaurantSystemApplication.java:10) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.0.5.jar:4.0.5]
+Caused by: java.sql.SQLException: Failed to add the foreign key constraint. Missing column 'category_id' for constraint 'FKh0wqfxe5h68yr7gyur6jh0xs5' in the referenced table 'dishes'
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:121) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.StatementImpl.executeInternal(StatementImpl.java:839) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.mysql.cj.jdbc.StatementImpl.execute(StatementImpl.java:687) ~[mysql-connector-j-9.6.0.jar:9.6.0]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:95) ~[HikariCP-7.0.2.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-7.0.2.jar:na]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:76) ~[hibernate-core-7.2.7.Final.jar:7.2.7.Final]
+	... 42 common frames omitted
+
+2026-05-10T21:57:53.982+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-10T21:57:54.019+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-10T21:57:54.361+08:00  WARN 90013 --- [restaurant_system] [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-10T21:57:54.382+08:00  WARN 90013 --- [restaurant_system] [  restartedMain] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 28763309-d495-4006-91bc-cfc781893e5d
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-05-10T21:57:54.385+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-05-10T21:57:54.433+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] o.s.b.w.a.WelcomePageHandlerMapping      : Adding welcome page: class path resource [static/index.html]
+2026-05-10T21:57:54.521+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-05-10T21:57:54.523+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] g.r.RestaurantSystemApplication          : Started RestaurantSystemApplication in 2.035 seconds (process running for 2.183)
+2026-05-10T22:01:27.428+08:00  INFO 90013 --- [restaurant_system] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-10T22:01:27.429+08:00  INFO 90013 --- [restaurant_system] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-05-10T22:01:27.430+08:00  INFO 90013 --- [restaurant_system] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-05-10T22:04:58.625+08:00  INFO 90013 --- [restaurant_system] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2026-05-10T22:04:58.662+08:00  INFO 90013 --- [restaurant_system] [       Thread-1] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-10T22:04:58.671+08:00  INFO 90013 --- [restaurant_system] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-05-10T22:04:58.678+08:00  INFO 90013 --- [restaurant_system] [       Thread-1] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-10T22:04:58.689+08:00  INFO 90013 --- [restaurant_system] [       Thread-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-05-10T22:04:58.713+08:00  INFO 90013 --- [restaurant_system] [       Thread-1] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-05-10T22:04:58.887+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] g.r.RestaurantSystemApplication          : Starting RestaurantSystemApplication using Java 21.0.8 with PID 90013 (/Users/tristan/Documents/JavaProjects/restaurant_system/target/classes started by tristan in /Users/tristan/Documents/JavaProjects/restaurant_system)
+2026-05-10T22:04:58.887+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] g.r.RestaurantSystemApplication          : No active profile set, falling back to 1 default profile: "default"
+2026-05-10T22:04:59.139+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-10T22:04:59.155+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 14 ms. Found 8 JPA repository interfaces.
+2026-05-10T22:04:59.258+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-05-10T22:04:59.259+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-10T22:04:59.259+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-05-10T22:04:59.265+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 375 ms
+2026-05-10T22:04:59.314+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-05-10T22:04:59.333+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-10T22:04:59.334+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-05-10T22:04:59.345+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection com.mysql.cj.jdbc.ConnectionImpl@507bf576
+2026-05-10T22:04:59.346+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-05-10T22:04:59.348+08:00  WARN 90013 --- [restaurant_system] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-10T22:04:59.350+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/restaurant_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 9.6
+	Default catalog/schema: restaurant_db/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-10T22:04:59.424+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-10T22:04:59.957+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-10T22:05:00.059+08:00  WARN 90013 --- [restaurant_system] [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-10T22:05:00.072+08:00  WARN 90013 --- [restaurant_system] [  restartedMain] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 46009b6a-1307-484d-85e8-8ef5a243a193
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-05-10T22:05:00.072+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-05-10T22:05:00.098+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] o.s.b.w.a.WelcomePageHandlerMapping      : Adding welcome page: class path resource [static/index.html]
+2026-05-10T22:05:00.162+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-05-10T22:05:00.163+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] g.r.RestaurantSystemApplication          : Started RestaurantSystemApplication in 1.306 seconds (process running for 427.821)
+2026-05-10T22:05:00.164+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-05-10T22:05:04.733+08:00  INFO 90013 --- [restaurant_system] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-10T22:05:04.733+08:00  INFO 90013 --- [restaurant_system] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-05-10T22:05:04.734+08:00  INFO 90013 --- [restaurant_system] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-05-10T22:15:17.473+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=2m17s960ms).
+2026-05-10T22:31:33.826+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=15m46s345ms).
+2026-05-10T22:49:35.309+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m31s453ms).
+2026-05-10T23:05:53.694+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m18s385ms).
+2026-05-10T23:23:11.221+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m47s520ms).
+2026-05-10T23:34:48.724+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=11m7s491ms).
+2026-05-10T23:51:29.333+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=15m33s279ms).
+2026-05-11T00:08:43.928+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m44s594ms).
+2026-05-11T00:14:23.930+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=4m39s996ms).
+2026-05-11T00:31:44.464+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=17m20s534ms).
+2026-05-11T00:49:33.933+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m49s458ms).
+2026-05-11T01:05:02.486+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=15m28s553ms).
+2026-05-11T01:09:25.286+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=3m52s792ms).
+2026-05-11T01:11:54.100+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=2m28s814ms).
+2026-05-11T01:15:28.148+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=3m4s45ms).
+2026-05-11T01:32:37.714+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=17m9s566ms).
+2026-05-11T01:48:38.728+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=15m31s3ms).
+2026-05-11T02:06:11.205+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=17m2s464ms).
+2026-05-11T02:16:35.751+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=9m54s529ms).
+2026-05-11T02:33:17.342+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m41s591ms).
+2026-05-11T02:35:40.684+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=45s726ms).
+2026-05-11T02:55:32.590+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m415ms).
+2026-05-11T03:11:16.095+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=15m43s505ms).
+2026-05-11T03:17:14.232+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=4m48s497ms).
+2026-05-11T03:21:00.108+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=3m15s864ms).
+2026-05-11T03:21:58.616+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=58s507ms).
+2026-05-11T03:41:30.450+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=17m15s108ms).
+2026-05-11T03:58:09.358+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m8s903ms).
+2026-05-11T03:59:49.829+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=1m10s471ms).
+2026-05-11T04:06:02.937+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=1m43s390ms).
+2026-05-11T04:23:14.864+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m11s338ms).
+2026-05-11T04:38:09.038+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=14m24s157ms).
+2026-05-11T04:54:36.951+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=15m57s902ms).
+2026-05-11T05:11:53.073+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m7s581ms).
+2026-05-11T05:22:42.529+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=10m19s449ms).
+2026-05-11T05:39:00.058+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m17s529ms).
+2026-05-11T05:59:38.236+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=17m18s784ms).
+2026-05-11T06:16:32.238+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=15m53s387ms).
+2026-05-11T06:23:41.696+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=6m39s448ms).
+2026-05-11T06:40:36.550+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m54s854ms).
+2026-05-11T06:58:21.124+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m44s554ms).
+2026-05-11T07:15:07.392+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m46s268ms).
+2026-05-11T07:24:49.066+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=9m11s667ms).
+2026-05-11T07:40:19.712+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=15m30s646ms).
+2026-05-11T07:56:22.601+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=15m32s886ms).
+2026-05-11T08:13:34.177+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m41s565ms).
+2026-05-11T08:25:26.701+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=11m52s524ms).
+2026-05-11T08:41:34.286+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=15m37s582ms).
+2026-05-11T08:58:32.359+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m28s62ms).
+2026-05-11T09:14:37.903+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m5s544ms).
+2026-05-11T09:26:31.097+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=10m43s459ms).
+2026-05-11T09:45:25.662+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=18m24s554ms).
+2026-05-11T09:53:23.449+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=7m27s768ms).
+2026-05-11T10:12:46.526+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=17m18s367ms).
+2026-05-11T10:27:33.615+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=14m47s89ms).
+2026-05-11T10:43:37.211+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=15m33s572ms).
+2026-05-11T11:00:24.793+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m17s577ms).
+2026-05-11T11:16:40.293+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=15m45s488ms).
+2026-05-11T11:26:51.237+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=10m10s944ms).
+2026-05-11T11:43:38.140+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=15m42s311ms).
+2026-05-11T12:01:04.903+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m56s755ms).
+2026-05-11T12:13:00.524+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=10m55s602ms).
+2026-05-11T12:28:43.696+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=15m43s172ms).
+2026-05-11T12:46:54.003+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=17m40s295ms).
+2026-05-11T13:03:24.894+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m891ms).
+2026-05-11T13:20:16.063+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=15m42s959ms).
+2026-05-11T13:29:58.670+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=9m12s592ms).
+2026-05-11T13:50:54.773+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m26s29ms).
+2026-05-11T14:07:30.647+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m5s862ms).
+2026-05-11T14:24:52.873+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m22s91ms).
+2026-05-11T14:30:30.959+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=4m38s83ms).
+2026-05-11T14:47:34.562+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m33s599ms).
+2026-05-11T15:04:31.538+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m26s965ms).
+2026-05-11T15:21:53.509+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m51s960ms).
+2026-05-11T15:31:44.126+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=9m20s605ms).
+2026-05-11T15:49:25.581+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m9s11ms).
+2026-05-11T16:07:30.248+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=18m4s667ms).
+2026-05-11T16:23:58.801+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=15m58s542ms).
+2026-05-11T16:32:58.423+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=8m29s615ms).
+2026-05-11T16:50:41.225+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=17m12s792ms).
+2026-05-11T17:06:58.798+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m17s573ms).
+2026-05-11T17:23:48.401+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m19s593ms).
+2026-05-11T17:33:35.976+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=9m47s575ms).
+2026-05-11T17:51:01.905+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m55s923ms).
+2026-05-11T18:07:32.157+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=15m30s222ms).
+2026-05-11T18:13:13.998+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=5m11s829ms).
+2026-05-11T18:19:32.866+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=5m48s865ms).
+2026-05-11T18:34:43.788+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=12m39s361ms).
+2026-05-11T18:51:44.596+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m30s800ms).
+2026-05-11T19:08:51.076+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=16m36s469ms).
+2026-05-11T19:26:03.570+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=17m12s495ms).
+2026-05-11T19:35:54.284+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=7m49s314ms).
+2026-05-11T19:54:05.612+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=18m11s328ms).
+2026-05-11T20:11:38.260+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=17m2s637ms).
+2026-05-11T20:25:31.841+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=13m53s580ms).
+2026-05-11T20:28:41.710+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=1m36s107ms).
+2026-05-11T20:31:53.126+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=2m41s410ms).
+2026-05-11T21:36:52.148+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=58s516ms).
+2026-05-11T21:40:59.917+08:00  WARN 90013 --- [restaurant_system] [l-2:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Thread starvation or clock leap detected (housekeeper delta=3m37s763ms).
+2026-05-11T22:00:12.456+08:00  INFO 90013 --- [restaurant_system] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (1 addition, 0 deletions, 0 modifications)
+2026-05-11T22:00:12.467+08:00  INFO 90013 --- [restaurant_system] [       Thread-5] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-11T22:00:12.471+08:00  INFO 90013 --- [restaurant_system] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-05-11T22:00:12.477+08:00  INFO 90013 --- [restaurant_system] [       Thread-5] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-11T22:00:12.482+08:00  INFO 90013 --- [restaurant_system] [       Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-05-11T22:00:12.483+08:00  INFO 90013 --- [restaurant_system] [       Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-05-11T22:00:12.540+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] g.r.RestaurantSystemApplication          : Starting RestaurantSystemApplication using Java 21.0.8 with PID 90013 (/Users/tristan/Documents/JavaProjects/restaurant_system/target/classes started by tristan in /Users/tristan/Documents/JavaProjects/restaurant_system)
+2026-05-11T22:00:12.540+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] g.r.RestaurantSystemApplication          : No active profile set, falling back to 1 default profile: "default"
+2026-05-11T22:00:12.615+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-11T22:00:12.621+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 5 ms. Found 8 JPA repository interfaces.
+2026-05-11T22:00:12.661+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-05-11T22:00:12.661+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-11T22:00:12.661+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-05-11T22:00:12.665+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 124 ms
+2026-05-11T22:00:12.682+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-05-11T22:00:12.697+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-11T22:00:12.697+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Starting...
+2026-05-11T22:00:12.700+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Added connection com.mysql.cj.jdbc.ConnectionImpl@4465ebcc
+2026-05-11T22:00:12.700+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Start completed.
+2026-05-11T22:00:12.701+08:00  WARN 90013 --- [restaurant_system] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-11T22:00:12.701+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/restaurant_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 9.6
+	Default catalog/schema: restaurant_db/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-11T22:00:12.750+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-11T22:00:12.869+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-11T22:00:12.941+08:00  WARN 90013 --- [restaurant_system] [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-11T22:00:12.954+08:00  WARN 90013 --- [restaurant_system] [  restartedMain] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 77b7e5af-2d8d-45b6-a0f9-1169d80f30c3
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-05-11T22:00:12.955+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-05-11T22:00:12.975+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] o.s.b.w.a.WelcomePageHandlerMapping      : Adding welcome page: class path resource [static/index.html]
+2026-05-11T22:00:13.005+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-05-11T22:00:13.006+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] g.r.RestaurantSystemApplication          : Started RestaurantSystemApplication in 0.48 seconds (process running for 12952.667)
+2026-05-11T22:00:13.006+08:00  INFO 90013 --- [restaurant_system] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-05-11T22:19:41.612+08:00  WARN 90013 --- [restaurant_system] [l-3:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Thread starvation or clock leap detected (housekeeper delta=58s623ms).
+2026-05-11T22:21:29.294+08:00  WARN 90013 --- [restaurant_system] [l-3:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Thread starvation or clock leap detected (housekeeper delta=1m17s671ms).
+2026-05-11T22:28:02.307+08:00  WARN 90013 --- [restaurant_system] [l-3:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Thread starvation or clock leap detected (housekeeper delta=6m33s12ms).
+2026-05-11T22:29:26.579+08:00  INFO 90013 --- [restaurant_system] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-11T22:29:26.580+08:00  INFO 90013 --- [restaurant_system] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-05-11T22:29:26.589+08:00  INFO 90013 --- [restaurant_system] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 9 ms
+2026-05-11T22:31:25.701+08:00  INFO 90013 --- [restaurant_system] [ionShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-11T22:31:25.703+08:00  INFO 90013 --- [restaurant_system] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-05-11T22:31:25.705+08:00  INFO 90013 --- [restaurant_system] [ionShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-11T22:31:25.707+08:00  INFO 90013 --- [restaurant_system] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown initiated...
+2026-05-11T22:31:25.708+08:00  INFO 90013 --- [restaurant_system] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown completed.

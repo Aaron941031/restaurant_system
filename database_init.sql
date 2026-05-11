@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS ingredients (
 
 -- Insert sample dish categories
 INSERT IGNORE INTO dishes (name) VALUES 
-('中式', '日式', '韓式', '義大利', '美式', '泰式', '越南', '印度', '西班牙', '法式');
+('中式'), ('日式'), ('韓式'), ('義大利'), ('美式'), ('泰式'), ('越南'), ('印度'), ('西班牙'), ('法式');
 
 -- Insert sample restaurants
 INSERT IGNORE INTO restaurants (name, category, priceRange, avgScore, ratingCount, locationAt) VALUES
@@ -99,7 +99,7 @@ INSERT IGNORE INTO restaurants (name, category, priceRange, avgScore, ratingCoun
 
 -- Insert sample ingredients
 INSERT IGNORE INTO ingredients (name) VALUES
-('雞肉', '豬肉', '牛肉', '羊肉', '海鮮', '魚', '蝦', '貝類', '香菇', '茄子');
+('雞肉'), ('豬肉'), ('牛肉'), ('羊肉'), ('海鮮'), ('魚'), ('蝦'), ('貝類'), ('香菇'), ('茄子');
 
 -- Create indexes
 CREATE INDEX idx_user_name ON users(name);

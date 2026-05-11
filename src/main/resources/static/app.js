@@ -66,7 +66,7 @@ function formDataToJson(form) {
 function updateSession() {
     const info = document.getElementById("session-info");
     if (state.userName) {
-        info.textContent = `👤 ${state.userName}`;
+        info.textContent = `${state.userName}`;
     } else {
         info.textContent = "未登入";
     }
@@ -133,7 +133,7 @@ async function loadRestaurants() {
 function renderRestaurants() {
     const container = document.getElementById("restaurants-list");
     if (!state.restaurants.length) {
-        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🍽</div>暫無餐廳</div>';
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"></div>暫無餐廳</div>';
         return;
     }
     container.innerHTML = state.restaurants.map(r => `
@@ -142,7 +142,7 @@ function renderRestaurants() {
             <div class="list-item-meta">
                 <strong>${r.category}</strong> | ${r.priceRange} | ⭐ ${r.avgScore} (${r.ratingCount}人)
             </div>
-            <div class="list-item-meta">📍 ${r.locationAt}</div>
+            <div class="list-item-meta">${r.locationAt}</div>
         </div>
     `).join("");
 }
@@ -312,7 +312,7 @@ document.getElementById("join-group-form").addEventListener("submit", async (e) 
         const display = document.getElementById("group-display");
         display.innerHTML = `
             <div>
-                <strong>✅ 已加入群組</strong>
+                <strong>已加入群組</strong>
                 <p style="margin-top: 10px; font-size: 14px;">
                     群組編號：${session.sessionId} | 邀請碼：${session.inviteCode}
                 </p>
@@ -350,7 +350,7 @@ async function loadHistory() {
         
         const container = document.getElementById("history-list");
         if (!history.length) {
-            container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📅</div>暫無紀錄</div>';
+            container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"></div>暫無紀錄</div>';
             return;
         }
         
@@ -358,7 +358,7 @@ async function loadHistory() {
             <div class="list-item">
                 <div class="list-item-title">${h.mealName || "未命名"}</div>
                 <div class="list-item-meta">
-                    🏪 餐廳ID：${h.restaurantId} | 📅 ${h.visitDate}
+                    餐廳ID：${h.restaurantId} | ${h.visitDate}
                 </div>
                 <div class="list-item-meta">${h.note || "無備註"}</div>
             </div>

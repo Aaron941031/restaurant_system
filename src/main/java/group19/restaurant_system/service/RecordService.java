@@ -6,7 +6,7 @@ import group19.restaurant_system.model.Restaurant;
 import group19.restaurant_system.repository.RecordRepository;
 import group19.restaurant_system.repository.UserRepository;
 import group19.restaurant_system.repository.RestaurantRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,16 +1,9 @@
 package group19.restaurant_system.model;
 
-import jakarta.persistence.*;
-
-@Entity
-@Table(name = "ingredients")
 public class Ingredient {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer ingredientId;
     
-    @Column(nullable = false, unique = true)
     private String name;
 
     public Ingredient() {}

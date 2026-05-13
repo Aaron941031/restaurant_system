@@ -1,31 +1,19 @@
 package group19.restaurant_system.model;
 
-import jakarta.persistence.*;
-
-@Entity
-@Table(name = "restaurants")
 public class Restaurant {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer restaurantId;
     
-    @Column(nullable = false)
     private String name;
     
-    @Column(nullable = false)
     private String category;
     
-    @Column(nullable = false)
     private String priceRange;
     
-    @Column(nullable = false)
     private Double avgScore;
     
-    @Column(nullable = false)
     private Integer ratingCount;
     
-    @Column(nullable = false)
     private String locationAt;
 
     public Restaurant() {

@@ -1,31 +1,18 @@
 package group19.restaurant_system.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
-
-@Entity
-@Table(name = "ratings")
 public class Rating {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer ratingId;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId", nullable = false)
     private User user;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "restaurantId", nullable = false)
     private Restaurant restaurant;
     
-    @Column(nullable = false)
     private Integer score;
     
-    @Column(columnDefinition = "TEXT")
     private String comment;
     
-    @Column(nullable = false, updatable = false)
     private LocalDateTime ratedAt;
 
     public Rating() {

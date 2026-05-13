@@ -2,7 +2,7 @@ package group19.restaurant_system.service;
 
 import group19.restaurant_system.model.*;
 import group19.restaurant_system.repository.*;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

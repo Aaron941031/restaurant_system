@@ -4,7 +4,7 @@ import group19.restaurant_system.model.GroupSession;
 import group19.restaurant_system.model.User;
 import group19.restaurant_system.repository.GroupSessionRepository;
 import group19.restaurant_system.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

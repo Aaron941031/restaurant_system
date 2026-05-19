@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Local build/cache artifacts
+.m2/
+.DS_Store

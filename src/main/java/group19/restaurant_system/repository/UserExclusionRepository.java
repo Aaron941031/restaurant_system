@@ -25,16 +25,16 @@ public class UserExclusionRepository {
     }
 
     private static final String BASE_SELECT =
-            "SELECT ue.exclusionId, " +
-                    "u.userId AS u_userId, u.name AS u_name, u.email AS u_email, u.password AS u_password, u.createdAt AS u_createdAt, u.updatedAt AS u_updatedAt, " +
-                    "d.categoryId AS d_categoryId, d.name AS d_name " +
+            "SELECT ue.exclusion_id, " +
+                    "u.user_id AS u_userId, u.name AS u_name, u.email AS u_email, u.password AS u_password, u.created_at AS u_createdAt, u.updated_at AS u_updatedAt, " +
+                    "d.category_id AS d_categoryId, d.name AS d_name " +
                     "FROM user_exclusions ue " +
-                    "JOIN users u ON u.userId = ue.userId " +
-                    "JOIN dishes d ON d.categoryId = ue.categoryId ";
+                    "JOIN users u ON u.user_id = ue.user_id " +
+                    "JOIN dishes d ON d.category_id = ue.category_id ";
 
     private final RowMapper<UserExclusion> rowMapper = (rs, rowNum) -> {
         UserExclusion exclusion = new UserExclusion();
-        exclusion.setExclusionId(rs.getInt("exclusionId"));
+        exclusion.setExclusionId(rs.getInt("exclusion_id"));
 
         User user = new User();
         user.setUserId(rs.getInt("u_userId"));
@@ -60,17 +60,17 @@ public class UserExclusionRepository {
     };
 
     public Optional<UserExclusion> findById(Integer exclusionId) {
-        List<UserExclusion> results = jdbcTemplate.query(BASE_SELECT + "WHERE ue.exclusionId = ?", rowMapper, exclusionId);
+        List<UserExclusion> results = jdbcTemplate.query(BASE_SELECT + "WHERE ue.exclusion_id = ?", rowMapper, exclusionId);
         return results.stream().findFirst();
     }
 
     public List<UserExclusion> findByUserUserId(Integer userId) {
-        return jdbcTemplate.query(BASE_SELECT + "WHERE ue.userId = ?", rowMapper, userId);
+        return jdbcTemplate.query(BASE_SELECT + "WHERE ue.user_id = ?", rowMapper, userId);
     }
 
     public boolean existsByUserUserIdAndDishCategoryId(Integer userId, Integer categoryId) {
         Integer count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(1) FROM user_exclusions WHERE userId = ? AND categoryId = ?",
+                "SELECT COUNT(1) FROM user_exclusions WHERE user_id = ? AND category_id = ?",
                 Integer.class,
                 userId,
                 categoryId
@@ -83,7 +83,7 @@ public class UserExclusionRepository {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(
-                        "INSERT INTO user_exclusions (userId, categoryId) VALUES (?, ?)",
+                        "INSERT INTO user_exclusions (user_id, category_id) VALUES (?, ?)",
                         Statement.RETURN_GENERATED_KEYS
                 );
                 ps.setInt(1, exclusion.getUser().getUserId());
@@ -102,7 +102,7 @@ public class UserExclusionRepository {
         }
 
         jdbcTemplate.update(
-                "UPDATE user_exclusions SET userId = ?, categoryId = ? WHERE exclusionId = ?",
+                "UPDATE user_exclusions SET user_id = ?, category_id = ? WHERE exclusion_id = ?",
                 exclusion.getUser().getUserId(),
                 exclusion.getDish().getCategoryId(),
                 exclusion.getExclusionId()
@@ -111,7 +111,7 @@ public class UserExclusionRepository {
     }
 
     public void deleteByUserUserIdAndDishCategoryId(Integer userId, Integer categoryId) {
-        jdbcTemplate.update("DELETE FROM user_exclusions WHERE userId = ? AND categoryId = ?", userId, categoryId);
+        jdbcTemplate.update("DELETE FROM user_exclusions WHERE user_id = ? AND category_id = ?", userId, categoryId);
     }
 
     public void deleteAllInBatch() {

@@ -1,11 +1,21 @@
 package group19.restaurant_system.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "user_exclusions")
 public class UserExclusion {
-    
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer exclusionId;
-    
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
     private Dish dish;
 
     public UserExclusion() {}

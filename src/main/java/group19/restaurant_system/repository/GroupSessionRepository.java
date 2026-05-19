@@ -25,12 +25,12 @@ public class GroupSessionRepository {
 
     private final RowMapper<GroupSession> rowMapper = (rs, rowNum) -> {
         GroupSession session = new GroupSession();
-        session.setSessionId(rs.getInt("sessionId"));
+        session.setSessionId(rs.getInt("session_id"));
         User creator = new User();
-        creator.setUserId(rs.getInt("creatorId"));
+        creator.setUserId(rs.getInt("creator_id"));
         session.setCreator(creator);
-        session.setInviteCode(rs.getString("inviteCode"));
-        Timestamp createdAt = rs.getTimestamp("createdAt");
+        session.setInviteCode(rs.getString("invite_code"));
+        Timestamp createdAt = rs.getTimestamp("created_at");
         if (createdAt != null) {
             session.setCreatedAt(createdAt.toLocalDateTime());
         }
@@ -39,15 +39,15 @@ public class GroupSessionRepository {
     };
 
     public Optional<GroupSession> findById(Integer sessionId) {
-        return queryForOptional("SELECT sessionId, creatorId, inviteCode, createdAt, status FROM group_sessions WHERE sessionId = ?", sessionId);
+        return queryForOptional("SELECT session_id, creator_id, invite_code, created_at, status FROM group_sessions WHERE session_id = ?", sessionId);
     }
 
     public Optional<GroupSession> findByInviteCode(String inviteCode) {
-        return queryForOptional("SELECT sessionId, creatorId, inviteCode, createdAt, status FROM group_sessions WHERE inviteCode = ?", inviteCode);
+        return queryForOptional("SELECT session_id, creator_id, invite_code, created_at, status FROM group_sessions WHERE invite_code = ?", inviteCode);
     }
 
     public boolean existsByInviteCode(String inviteCode) {
-        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(1) FROM group_sessions WHERE inviteCode = ?", Integer.class, inviteCode);
+        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(1) FROM group_sessions WHERE invite_code = ?", Integer.class, inviteCode);
         return count != null && count > 0;
     }
 
@@ -56,7 +56,7 @@ public class GroupSessionRepository {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(
-                        "INSERT INTO group_sessions (creatorId, inviteCode, status) VALUES (?, ?, ?)",
+                        "INSERT INTO group_sessions (creator_id, invite_code, status) VALUES (?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS
                 );
                 ps.setInt(1, session.getCreator().getUserId());
@@ -76,7 +76,7 @@ public class GroupSessionRepository {
         }
 
         jdbcTemplate.update(
-                "UPDATE group_sessions SET creatorId = ?, inviteCode = ?, status = ? WHERE sessionId = ?",
+                "UPDATE group_sessions SET creator_id = ?, invite_code = ?, status = ? WHERE session_id = ?",
                 session.getCreator().getUserId(),
                 session.getInviteCode(),
                 session.getStatus(),

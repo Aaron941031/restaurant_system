@@ -157,32 +157,55 @@
             </form>
         </div>
 
-        <!-- 推薦 -->
-        <div id="page-recommend" class="page">
-            <div class="title">個人推薦</div>
+       <!-- 推薦 -->
 
-            <div class="form-group">
-                <label>排除分類</label>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <select id="exclusion-category" style="flex: 1;">
-                        <option value="">選擇要排除的分類</option>
-                    </select>
-                    <button type="button" class="btn-secondary" onclick="addExclusion()" style="flex: 0 0 auto; padding: 11px 16px; white-space: nowrap;">加入</button>
-                </div>
-            </div>
+<div id="page-recommend" class="page">
 
-            <div style="margin: 20px 0;">
-                <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); margin-bottom: 10px;">已排除分類</div>
-                <div id="exclusion-display"></div>
-            </div>
+    <div class="title">個人推薦</div>
 
-            <button type="button" class="btn-primary" onclick="getRecommendations()" style="width: 100%; margin-top: 8px;">取得推薦</button>
-            <div id="recommend-list" style="margin-top: 20px;"></div>
+    <div class="form-group">
 
-            <div class="button-group" style="margin-top: 28px;">
-                <button type="button" class="btn-back" onclick="goPage('menu')">返回</button>
-            </div>
+        <label>排除設定（選填）</label>
+        
+        <!-- 排除食物品項 -->
+        <div style="margin-bottom: 12px;">
+            <label style="font-size: 14px; color: #666; margin-bottom: 4px; display: block;">食物品項（例如：魚肉、洋蔥）</label>
+            <input type="text" id="exclude-ingredients" placeholder="輸入要排除的食物品項，用逗號分隔" style="width: 100%;">
         </div>
+        
+        <!-- 排除餐廳 -->
+        <div style="margin-bottom: 12px;">
+            <label style="font-size: 14px; color: #666; margin-bottom: 4px; display: block;">排除餐廳</label>
+            <select id="exclude-restaurant" style="width: 100%;">
+                <option value="">選擇要排除的餐廳</option>
+            </select>
+        </div>
+        
+        <!-- 排除菜餚 -->
+        <div style="margin-bottom: 12px;">
+            <label style="font-size: 14px; color: #666; margin-bottom: 4px; display: block;">菜餚名稱（例如：壽司、披薩）</label>
+            <input type="text" id="exclude-dishes" placeholder="輸入要排除的菜餚名稱，用逗號分隔" style="width: 100%;">
+        </div>
+
+        <!-- 加入排除按鈕 -->
+        <div style="margin-bottom: 20px;">
+            <button type="button" class="btn-secondary" onclick="addExclusion()" style="width: 100%;">加入排除項目</button>
+        </div>
+
+    </div>
+
+    <div style="margin: 20px 0;">
+        <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); margin-bottom: 10px;">已排除項目</div>
+        <div id="exclusion-display"></div>
+    </div>
+
+    <button type="button" class="btn-primary" onclick="getRecommendations()" style="width: 100%; margin-top: 8px;">取得推薦</button>
+    <div id="recommend-list" style="margin-top: 20px;"></div>
+
+    <div class="button-group" style="margin-top: 28px;">
+        <button type="button" class="btn-back" onclick="goPage('menu')">返回</button>
+    </div>
+</div>
 
         <!-- 揪團 -->
         <div id="page-groups" class="page">

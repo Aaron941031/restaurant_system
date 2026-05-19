@@ -1,4 +1,4 @@
-// State管理
+// 狀態中添加用戶的排除偏好
 const state = {
     token: localStorage.getItem("rs_token") || "",
     userId: localStorage.getItem("rs_userId") || "",
@@ -6,7 +6,8 @@ const state = {
     currentPage: "auth",
     restaurants: [],
     dishes: [],
-    currentExclusions: []
+    currentExclusions: [],
+    userExclusionPreferences: [] // 新增：存儲用戶的原始排除偏好
 };
 
 // 頁面導航
@@ -41,7 +42,12 @@ async function request(path, options = {}) {
     const response = await fetch(path, { ...options, headers });
     const payload = await response.json();
     if (!response.ok || payload.success === false) {
-        throw new Error(payload.message || "請求失敗");
+        const message = payload.message || "請求失敗";
+        if (/User not found|Invalid token|Missing or invalid authorization header/i.test(message)) {
+            clearSession();
+            throw new Error("登入狀態失效，請重新登入");
+        }
+        throw new Error(message);
     }
     return payload.data;
 }
@@ -54,6 +60,19 @@ function showToast(message, type = "success") {
     setTimeout(() => {
         toast.classList.add("hidden");
     }, 2600);
+}
+
+function clearSession() {
+    state.token = "";
+    state.userId = "";
+    state.userName = "";
+    state.currentExclusions = [];
+    state.userExclusionPreferences = [];
+    localStorage.removeItem("rs_token");
+    localStorage.removeItem("rs_userId");
+    localStorage.removeItem("rs_userName");
+    updateSession();
+    goPage("auth");
 }
 
 // 表單數據轉JSON
@@ -87,6 +106,7 @@ function setSession(token, userId, userName) {
 function logout() {
     setSession("", "", "");
     state.currentExclusions = [];
+    state.userExclusionPreferences = []; // 清空用戶排除偏好
     goPage("auth");
     showToast("已登出", "success");
 }
@@ -199,11 +219,14 @@ async function loadDishes() {
     try {
         const dishes = await request("/dish/all");
         state.dishes = dishes;
-        const select = document.getElementById("exclusion-category");
-        const options = dishes.map(d => 
-            `<option value="${d.categoryId}">${d.name}</option>`
+        
+        // 載入餐廳選項
+        await loadRestaurants();
+        const restaurantSelect = document.getElementById("exclude-restaurant");
+        const restaurantOptions = state.restaurants.map(r => 
+            `<option value="${r.restaurantId}">${r.name}</option>`
         ).join("");
-        select.innerHTML = '<option value="">選擇要排除的分類</option>' + options;
+        restaurantSelect.innerHTML = '<option value="">選擇要排除的餐廳</option>' + restaurantOptions;
     } catch (err) {
         showToast(err.message, "error");
     }
@@ -212,29 +235,178 @@ async function loadDishes() {
 async function addExclusion() {
     try {
         if (!state.token) throw new Error("請先登入");
-        const categoryId = Number(document.getElementById("exclusion-category").value);
-        if (!categoryId) throw new Error("請選擇分類");
-        
-        await request(`/user/exclusion?categoryId=${categoryId}`, { method: "POST" });
-        
-        // 添加到本地狀態
-        const dish = state.dishes.find(d => d.categoryId === categoryId);
-        if (dish && !state.currentExclusions.find(e => e.categoryId === categoryId)) {
-            state.currentExclusions.push(dish);
+
+        const ingredientsInput = document.getElementById("exclude-ingredients");
+        const restaurantSelect = document.getElementById("exclude-restaurant");
+        const dishesInput = document.getElementById("exclude-dishes");
+
+        const ingredients = ingredientsInput.value.trim();
+        const restaurantId = restaurantSelect.value;
+        const dishes = dishesInput.value.trim();
+
+        // 至少要有一個排除項目
+        if (!ingredients && !restaurantId && !dishes) {
+            throw new Error("請至少選擇或輸入一個排除項目");
         }
-        
-        loadExclusions();
-        showToast("已加入排除類別", "success");
+
+        let exclusionsAdded = 0;
+
+        // 處理食物品項排除 - 映射到相關分類
+        if (ingredients) {
+            const ingredientList = ingredients.split(',').map(i => i.trim()).filter(i => i);
+            for (const ingredient of ingredientList) {
+                const categoryId = mapIngredientToCategory(ingredient);
+                if (categoryId) {
+                    await request(`/user/exclusion?categoryId=${categoryId}`, { method: "POST" });
+                    // 存儲用戶的原始輸入
+                    state.userExclusionPreferences.push({
+                        type: 'ingredient',
+                        value: ingredient,
+                        categoryId: categoryId
+                    });
+                    exclusionsAdded++;
+                }
+            }
+            ingredientsInput.value = "";
+        }
+
+        // 處理餐廳排除 - 排除該餐廳所屬的分類
+        if (restaurantId) {
+            const restaurant = state.restaurants.find(r => r.restaurantId == restaurantId);
+            if (restaurant) {
+                const categoryId = mapRestaurantNameToCategory(restaurant.name);
+                if (categoryId) {
+                    await request(`/user/exclusion?categoryId=${categoryId}`, { method: "POST" });
+                    // 存儲用戶的原始輸入
+                    state.userExclusionPreferences.push({
+                        type: 'restaurant',
+                        value: restaurant.name,
+                        restaurantId: restaurantId,
+                        categoryId: categoryId
+                    });
+                    exclusionsAdded++;
+                }
+            }
+            restaurantSelect.value = "";
+        }
+
+        // 處理菜餚排除 - 映射到相關分類
+        if (dishes) {
+            const dishList = dishes.split(',').map(d => d.trim()).filter(d => d);
+            for (const dish of dishList) {
+                const categoryId = mapDishNameToCategory(dish);
+                if (categoryId) {
+                    await request(`/user/exclusion?categoryId=${categoryId}`, { method: "POST" });
+                    // 存儲用戶的原始輸入
+                    state.userExclusionPreferences.push({
+                        type: 'dish',
+                        value: dish,
+                        categoryId: categoryId
+                    });
+                    exclusionsAdded++;
+                }
+            }
+            dishesInput.value = "";
+        }
+
+        if (exclusionsAdded > 0) {
+            await loadExclusions();
+            showToast(`已加入 ${exclusionsAdded} 個排除項目`, "success");
+        } else {
+            throw new Error("無法識別輸入的項目，請檢查拼寫");
+        }
+
     } catch (err) {
         showToast(err.message, "error");
     }
 }
 
+// 輔助函數：將食材映射到分類
+function mapIngredientToCategory(ingredient) {
+    const ingredientMap = {
+        '魚': 1, '魚肉': 1, '海鮮': 1, '蝦': 1, '蟹': 1, '貝類': 1,
+        '牛': 2, '牛肉': 2, '豬': 2, '豬肉': 2, '羊': 2, '羊肉': 2, '雞': 2, '雞肉': 2, '鴨': 2, '鴨肉': 2,
+        '洋蔥': 3, '蒜': 3, '薑': 3, '蔬菜': 3, '青菜': 3, '豆腐': 3,
+        '米': 4, '飯': 4, '麵': 4, '麵條': 4, '餃子': 4,
+        '起司': 5, '奶酪': 5, '披薩': 5, '義大利麵': 5,
+        '漢堡': 6, '薯條': 6, '炸物': 6,
+        '壽司': 7, '生魚片': 7, '刺身': 7, '日式': 7,
+        '泡菜': 8, '韓式': 8, '烤肉': 8,
+        '咖哩': 9, '泰式': 9, '冬陰功': 9,
+        '咖啡': 10, '茶': 10, '飲料': 10
+    };
+    
+    // 精確匹配
+    if (ingredientMap[ingredient]) {
+        return ingredientMap[ingredient];
+    }
+    
+    // 模糊匹配
+    for (const [key, value] of Object.entries(ingredientMap)) {
+        if (ingredient.includes(key) || key.includes(ingredient)) {
+            return value;
+        }
+    }
+    
+    return null;
+}
+
+// 輔助函數：將餐廳名稱映射到分類
+function mapRestaurantNameToCategory(restaurantName) {
+    const nameMap = {
+        '壽司': 7, '日式': 7, '日本': 7, '拉麵': 7,
+        '韓式': 8, '烤肉': 8, '泡菜': 8, '韓國': 8,
+        '義大利': 5, '披薩': 5, '義式': 5,
+        '美式': 6, '漢堡': 6, '美式': 6,
+        '中式': 2, '中國': 2, '川菜': 2, '滬菜': 2,
+        '泰式': 9, '泰國': 9, '冬陰功': 9,
+        '咖啡': 10, '星巴克': 10, '飲料': 10
+    };
+    
+    for (const [key, value] of Object.entries(nameMap)) {
+        if (restaurantName.includes(key)) {
+            return value;
+        }
+    }
+    
+    return 2; // 預設為中式
+}
+
+// 輔助函數：將菜餚名稱映射到分類
+function mapDishNameToCategory(dishName) {
+    const dishMap = {
+        '壽司': 7, '生魚片': 7, '刺身': 7, '拉麵': 7, '日式': 7,
+        '泡菜': 8, '烤肉': 8, '韓式': 8, '部隊鍋': 8,
+        '披薩': 5, '義大利麵': 5, '義式': 5, '千層麵': 5,
+        '漢堡': 6, '薯條': 6, '美式': 6, '炸雞': 6,
+        '炒飯': 2, '炒麵': 2, '中式': 2, '宮保雞丁': 2,
+        '咖哩': 9, '泰式': 9, '冬陰功': 9, '泰國菜': 9,
+        '咖啡': 10, '茶': 10, '果汁': 10, '飲料': 10
+    };
+    
+    for (const [key, value] of Object.entries(dishMap)) {
+        if (dishName.includes(key)) {
+            return value;
+        }
+    }
+    
+    return 2; // 預設為中式
+}
+
 async function loadExclusions() {
     try {
-        if (!state.token) throw new Error("請先登入");
         const exclusions = await request("/user/exclusions");
         state.currentExclusions = exclusions;
+        
+        // 如果沒有用戶偏好數據，嘗試從分類數據重建（簡化版本）
+        if (!state.userExclusionPreferences.length && exclusions.length > 0) {
+            state.userExclusionPreferences = exclusions.map(e => ({
+                type: 'category',
+                value: e.dish ? e.dish.name : `分類 ${e.categoryId}`,
+                categoryId: e.dish ? e.dish.categoryId : e.categoryId
+            }));
+        }
+        
         renderExclusions();
     } catch (err) {
         showToast(err.message, "error");
@@ -243,13 +415,35 @@ async function loadExclusions() {
 
 function renderExclusions() {
     const container = document.getElementById("exclusion-display");
-    if (!state.currentExclusions.length) {
+    if (!state.userExclusionPreferences.length) {
         container.innerHTML = '<p style="color: #999;">無</p>';
         return;
     }
-    container.innerHTML = state.currentExclusions.map(e => 
-        `<div class="list-item" style="margin-bottom: 8px;">${e.dish ? e.dish.name : e.categoryId}</div>`
-    ).join("");
+    
+    const exclusionItems = state.userExclusionPreferences.map(pref => {
+        let typeLabel = "";
+        
+        switch (pref.type) {
+            case 'ingredient':
+                typeLabel = "食物品項";
+                break;
+            case 'restaurant':
+                typeLabel = "餐廳";
+                break;
+            case 'dish':
+                typeLabel = "菜餚";
+                break;
+            default:
+                typeLabel = "其他";
+        }
+        
+        return `<div class="list-item" style="margin-bottom: 8px;">
+            <span style="font-size: 12px; color: #666; background: #f0f0f0; padding: 2px 6px; border-radius: 4px; margin-right: 8px;">${typeLabel}</span>
+            ${pref.value}
+        </div>`;
+    });
+    
+    container.innerHTML = exclusionItems.join("");
 }
 
 async function getRecommendations() {

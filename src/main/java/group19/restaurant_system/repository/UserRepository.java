@@ -24,15 +24,15 @@ public class UserRepository {
 
     private final RowMapper<User> rowMapper = (rs, rowNum) -> {
         User user = new User();
-        user.setUserId(rs.getInt("userId"));
+        user.setUserId(rs.getInt("user_id"));
         user.setName(rs.getString("name"));
         user.setEmail(rs.getString("email"));
         user.setPassword(rs.getString("password"));
-        Timestamp createdAt = rs.getTimestamp("createdAt");
+        Timestamp createdAt = rs.getTimestamp("created_at");
         if (createdAt != null) {
             user.setCreatedAt(createdAt.toLocalDateTime());
         }
-        Timestamp updatedAt = rs.getTimestamp("updatedAt");
+        Timestamp updatedAt = rs.getTimestamp("updated_at");
         if (updatedAt != null) {
             user.setUpdatedAt(updatedAt.toLocalDateTime());
         }
@@ -40,15 +40,15 @@ public class UserRepository {
     };
 
     public Optional<User> findById(Integer userId) {
-        return queryForOptional("SELECT userId, name, email, password, createdAt, updatedAt FROM users WHERE userId = ?", userId);
+        return queryForOptional("SELECT user_id, name, email, password, created_at, updated_at FROM users WHERE user_id = ?", userId);
     }
 
     public Optional<User> findByName(String name) {
-        return queryForOptional("SELECT userId, name, email, password, createdAt, updatedAt FROM users WHERE name = ?", name);
+        return queryForOptional("SELECT user_id, name, email, password, created_at, updated_at FROM users WHERE name = ?", name);
     }
 
     public Optional<User> findByEmail(String email) {
-        return queryForOptional("SELECT userId, name, email, password, createdAt, updatedAt FROM users WHERE email = ?", email);
+        return queryForOptional("SELECT user_id, name, email, password, created_at, updated_at FROM users WHERE email = ?", email);
     }
 
     public boolean existsByName(String name) {
@@ -86,7 +86,7 @@ public class UserRepository {
         }
 
         jdbcTemplate.update(
-                "UPDATE users SET name = ?, email = ?, password = ?, updatedAt = CURRENT_TIMESTAMP WHERE userId = ?",
+                "UPDATE users SET name = ?, email = ?, password = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?",
                 user.getName(),
                 user.getEmail(),
                 user.getPassword(),
@@ -96,7 +96,7 @@ public class UserRepository {
     }
 
     public void deleteById(Integer userId) {
-        jdbcTemplate.update("DELETE FROM users WHERE userId = ?", userId);
+        jdbcTemplate.update("DELETE FROM users WHERE user_id = ?", userId);
     }
 
     public void deleteAllInBatch() {

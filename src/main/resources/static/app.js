@@ -244,76 +244,76 @@ async function addExclusion() {
         const restaurantId = restaurantSelect.value;
         const dishes = dishesInput.value.trim();
 
-        // 至少要有一個排除項目
         if (!ingredients && !restaurantId && !dishes) {
             throw new Error("請至少選擇或輸入一個排除項目");
         }
 
         let exclusionsAdded = 0;
+        let notFoundItems = [];
 
-        // 處理食物品項排除 - 映射到相關分類
+        // 食材排除：送到後端模糊比對
         if (ingredients) {
-            const ingredientList = ingredients.split(',').map(i => i.trim()).filter(i => i);
-            for (const ingredient of ingredientList) {
-                const categoryId = mapIngredientToCategory(ingredient);
-                if (categoryId) {
-                    await request(`/user/exclusion?categoryId=${categoryId}`, { method: "POST" });
-                    // 存儲用戶的原始輸入
-                    state.userExclusionPreferences.push({
-                        type: 'ingredient',
-                        value: ingredient,
-                        categoryId: categoryId
-                    });
-                    exclusionsAdded++;
-                }
+            const result = await request("/user/exclusion/ingredient", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ingredients })
+            });
+
+            if (result.added?.length > 0) {
+                exclusionsAdded += result.added.length;
+                result.added.forEach(name => {
+                    state.userExclusionPreferences.push({ type: 'ingredient', value: name });
+                });
+            }
+            if (result.notFound?.length > 0) {
+                notFoundItems.push(...result.notFound);
             }
             ingredientsInput.value = "";
         }
 
-        // 處理餐廳排除 - 排除該餐廳所屬的分類
+        // 餐廳排除：直接用 restaurantId 排除該餐廳的菜系
         if (restaurantId) {
             const restaurant = state.restaurants.find(r => r.restaurantId == restaurantId);
             if (restaurant) {
-                const categoryId = mapRestaurantNameToCategory(restaurant.name);
-                if (categoryId) {
-                    await request(`/user/exclusion?categoryId=${categoryId}`, { method: "POST" });
-                    // 存儲用戶的原始輸入
-                    state.userExclusionPreferences.push({
-                        type: 'restaurant',
-                        value: restaurant.name,
-                        restaurantId: restaurantId,
-                        categoryId: categoryId
-                    });
+                const dish = state.dishes.find(d => d.name === restaurant.category);
+                if (dish) {
+                    await request(`/user/exclusion/category?categoryId=${dish.categoryId}`, { method: "POST" });
+                    state.userExclusionPreferences.push({ type: 'restaurant', value: restaurant.name });
                     exclusionsAdded++;
                 }
             }
             restaurantSelect.value = "";
         }
 
-        // 處理菜餚排除 - 映射到相關分類
+        // 菜餚排除：同樣送到後端比對
         if (dishes) {
-            const dishList = dishes.split(',').map(d => d.trim()).filter(d => d);
-            for (const dish of dishList) {
-                const categoryId = mapDishNameToCategory(dish);
-                if (categoryId) {
-                    await request(`/user/exclusion?categoryId=${categoryId}`, { method: "POST" });
-                    // 存儲用戶的原始輸入
-                    state.userExclusionPreferences.push({
-                        type: 'dish',
-                        value: dish,
-                        categoryId: categoryId
-                    });
-                    exclusionsAdded++;
-                }
+            const result = await request("/user/exclusion/ingredient", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ingredients: dishes })
+            });
+
+            if (result.added?.length > 0) {
+                exclusionsAdded += result.added.length;
+                result.added.forEach(name => {
+                    state.userExclusionPreferences.push({ type: 'dish', value: name });
+                });
+            }
+            if (result.notFound?.length > 0) {
+                notFoundItems.push(...result.notFound);
             }
             dishesInput.value = "";
         }
 
         if (exclusionsAdded > 0) {
             await loadExclusions();
-            showToast(`已加入 ${exclusionsAdded} 個排除項目`, "success");
+            let message = `已加入 ${exclusionsAdded} 個排除項目`;
+            if (notFoundItems.length > 0) {
+                message += `，資料庫中找不到：${notFoundItems.join('、')}`;
+            }
+            showToast(message, "success");
         } else {
-            throw new Error("無法識別輸入的項目，請檢查拼寫");
+            throw new Error(`資料庫中找不到這些項目：${notFoundItems.join('、')}`);
         }
 
     } catch (err) {
@@ -321,76 +321,25 @@ async function addExclusion() {
     }
 }
 
-// 輔助函數：將食材映射到分類
-function mapIngredientToCategory(ingredient) {
-    const ingredientMap = {
-        '魚': 1, '魚肉': 1, '海鮮': 1, '蝦': 1, '蟹': 1, '貝類': 1,
-        '牛': 2, '牛肉': 2, '豬': 2, '豬肉': 2, '羊': 2, '羊肉': 2, '雞': 2, '雞肉': 2, '鴨': 2, '鴨肉': 2,
-        '洋蔥': 3, '蒜': 3, '薑': 3, '蔬菜': 3, '青菜': 3, '豆腐': 3,
-        '米': 4, '飯': 4, '麵': 4, '麵條': 4, '餃子': 4,
-        '起司': 5, '奶酪': 5, '披薩': 5, '義大利麵': 5,
-        '漢堡': 6, '薯條': 6, '炸物': 6,
-        '壽司': 7, '生魚片': 7, '刺身': 7, '日式': 7,
-        '泡菜': 8, '韓式': 8, '烤肉': 8,
-        '咖哩': 9, '泰式': 9, '冬陰功': 9,
-        '咖啡': 10, '茶': 10, '飲料': 10
-    };
-    
-    // 精確匹配
-    if (ingredientMap[ingredient]) {
-        return ingredientMap[ingredient];
-    }
-    
-    // 模糊匹配
-    for (const [key, value] of Object.entries(ingredientMap)) {
-        if (ingredient.includes(key) || key.includes(ingredient)) {
-            return value;
-        }
-    }
-    
-    return null;
+// normalizeInputText 只保留基本清理，分割邏輯移到後端
+function normalizeInputText(text) {
+    if (!text) return '';
+    return text.trim();
 }
 
-// 輔助函數：將餐廳名稱映射到分類
-function mapRestaurantNameToCategory(restaurantName) {
-    const nameMap = {
-        '壽司': 7, '日式': 7, '日本': 7, '拉麵': 7,
-        '韓式': 8, '烤肉': 8, '泡菜': 8, '韓國': 8,
-        '義大利': 5, '披薩': 5, '義式': 5,
-        '美式': 6, '漢堡': 6, '美式': 6,
-        '中式': 2, '中國': 2, '川菜': 2, '滬菜': 2,
-        '泰式': 9, '泰國': 9, '冬陰功': 9,
-        '咖啡': 10, '星巴克': 10, '飲料': 10
-    };
-    
-    for (const [key, value] of Object.entries(nameMap)) {
-        if (restaurantName.includes(key)) {
-            return value;
-        }
-    }
-    
-    return 2; // 預設為中式
-}
+// mapIngredientToCategory、mapRestaurantNameToCategory、mapDishNameToCategory 全部刪除
 
-// 輔助函數：將菜餚名稱映射到分類
-function mapDishNameToCategory(dishName) {
-    const dishMap = {
-        '壽司': 7, '生魚片': 7, '刺身': 7, '拉麵': 7, '日式': 7,
-        '泡菜': 8, '烤肉': 8, '韓式': 8, '部隊鍋': 8,
-        '披薩': 5, '義大利麵': 5, '義式': 5, '千層麵': 5,
-        '漢堡': 6, '薯條': 6, '美式': 6, '炸雞': 6,
-        '炒飯': 2, '炒麵': 2, '中式': 2, '宮保雞丁': 2,
-        '咖哩': 9, '泰式': 9, '冬陰功': 9, '泰國菜': 9,
-        '咖啡': 10, '茶': 10, '果汁': 10, '飲料': 10
-    };
-    
-    for (const [key, value] of Object.entries(dishMap)) {
-        if (dishName.includes(key)) {
-            return value;
-        }
-    }
-    
-    return 2; // 預設為中式
+// 輔助函數：標準化排除輸入文字
+function normalizeInputText(text) {
+    if (!text) return '';
+    return text
+        .trim()
+        .replace(/[，；;。！?…！]/g, '')  // 移除標點，不要轉成逗號（分割已在上層做）
+        .replace(/[""''"']/g, '')
+        .replace(/[()（）]/g, '')
+        .replace(/　/g, '')               // 全形空格直接移除
+        .replace(/\s+/g, '')              // 中文詞彙間不需要空格
+        // 移除 .toLowerCase()，雖對中文無害但無意義
 }
 
 async function loadExclusions() {
@@ -482,10 +431,10 @@ async function createGroup() {
             <div>
                 <strong>群組已建立！</strong>
                 <p style="margin-top: 10px; font-size: 14px;">
-                    📌 群組編號：<code style="background: #f0f0f0; padding: 2px 5px; border-radius: 3px;">${session.sessionId}</code>
+                    群組編號：<code style="background: #f0f0f0; padding: 2px 5px; border-radius: 3px;">${session.sessionId}</code>
                 </p>
                 <p style="margin-top: 8px; font-size: 14px;">
-                    🔗 邀請碼：<code style="background: #f0f0f0; padding: 2px 5px; border-radius: 3px;">${session.inviteCode}</code>
+                    邀請碼：<code style="background: #f0f0f0; padding: 2px 5px; border-radius: 3px;">${session.inviteCode}</code>
                 </p>
                 <p style="margin-top: 12px; font-size: 12px; color: #999;">分享邀請碼給朋友加入</p>
             </div>

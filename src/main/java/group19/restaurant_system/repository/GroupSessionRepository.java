@@ -56,12 +56,13 @@ public class GroupSessionRepository {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(
-                        "INSERT INTO group_sessions (creator_id, invite_code, status) VALUES (?, ?, ?)",
+                        "INSERT INTO group_sessions (creator_id, invite_code, status, created_at) VALUES (?, ?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS
                 );
                 ps.setInt(1, session.getCreator().getUserId());
                 ps.setString(2, session.getInviteCode());
                 ps.setString(3, session.getStatus());
+                ps.setTimestamp(4, Timestamp.valueOf(session.getCreatedAt()));
                 return ps;
             }, keyHolder);
 

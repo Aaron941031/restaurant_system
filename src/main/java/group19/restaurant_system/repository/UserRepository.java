@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,12 +67,16 @@ public class UserRepository {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(
-                        "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
+                        "INSERT INTO users (name, email, password, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS
                 );
                 ps.setString(1, user.getName());
                 ps.setString(2, user.getEmail());
                 ps.setString(3, user.getPassword());
+                LocalDateTime createdAt = user.getCreatedAt() != null ? user.getCreatedAt() : LocalDateTime.now();
+                LocalDateTime updatedAt = user.getUpdatedAt() != null ? user.getUpdatedAt() : LocalDateTime.now();
+                ps.setTimestamp(4, Timestamp.valueOf(createdAt));
+                ps.setTimestamp(5, Timestamp.valueOf(updatedAt));
                 return ps;
             }, keyHolder);
 

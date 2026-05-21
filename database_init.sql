@@ -101,6 +101,38 @@ INSERT IGNORE INTO restaurants (name, category, priceRange, avgScore, ratingCoun
 INSERT IGNORE INTO ingredients (name) VALUES
 ('雞肉'), ('豬肉'), ('牛肉'), ('羊肉'), ('海鮮'), ('魚'), ('蝦'), ('貝類'), ('香菇'), ('茄子');
 
+-- 新增餐廳食材關聯表
+CREATE TABLE IF NOT EXISTS restaurant_ingredients (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    restaurantId INT NOT NULL,
+    ingredientId INT NOT NULL,
+    UNIQUE KEY unique_restaurant_ingredient (restaurantId, ingredientId),
+    FOREIGN KEY (restaurantId) REFERENCES restaurants(restaurantId) ON DELETE CASCADE,
+    FOREIGN KEY (ingredientId) REFERENCES ingredients(ingredientId) ON DELETE CASCADE
+);
+
+-- user_exclusions 支援食材排除
+ALTER TABLE user_exclusions 
+    MODIFY COLUMN categoryId INT DEFAULT NULL,
+    ADD COLUMN ingredientId INT DEFAULT NULL,
+    ADD FOREIGN KEY (ingredientId) REFERENCES ingredients(ingredientId) ON DELETE CASCADE;
+
+-- 範例資料：餐廳食材關聯（根據你的餐廳範例資料）
+INSERT IGNORE INTO ingredients (name) VALUES
+('雞肉'),('豬肉'),('牛肉'),('羊肉'),('海鮮'),('魚'),('蝦'),('貝類'),
+('香菇'),('茄子'),('泡菜'),('起司'),('牛奶'),('奶油'),('咖哩');
+
+INSERT IGNORE INTO restaurant_ingredients (restaurantId, ingredientId) VALUES
+(1, 6),(1, 7),(1, 8),   -- 三號亭：魚、蝦、貝類
+(2, 1),(2, 2),(2, 3),   -- 老北京人家：雞肉、豬肉、牛肉
+(3, 3),(3, 1),          -- 韓炭焼肉：牛肉、雞肉
+(4, 11),(4, 12),        -- Trattoria Roma：泡菜(no)、起司
+(5, 3),(5, 1),          -- 五星漢堡：牛肉、雞肉
+(6, 15),(6, 7),         -- 泰灣小館：咖哩、蝦
+(7, 6),(7, 7),          -- 河粉仔：魚、蝦
+(8, 15),(8, 4),         -- Curry House：咖哩、羊肉
+(9, 5),(9, 6),          -- La Taperia：海鮮、魚
+(10, 13),(10, 14);      -- Petit Bistro：牛奶、奶油
 -- Create indexes
 CREATE INDEX idx_user_name ON users(name);
 CREATE INDEX idx_user_email ON users(email);

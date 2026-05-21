@@ -36,6 +36,14 @@
 
 詳細的實體關聯模型 (ERD) 與資料表設計，請參閱本專案的系統設計說明文件
 
+###🤝 團隊協同開發規範 (Workflow)
+
+為了避免跨系統 (Mac/Windows) 開發時發生衝突，請遵守以下雙軌同步機制：
+程式碼同步 (走 GitHub)
+任何 Controller、Service 或 application.properties 的修改，必須透過 Git 提交並 Push。其他組員每日開工前務必執行 git pull。
+資料同步 (走 TiDB 雲端)
+本專案資料庫已實現即時同步！ 只要伺服器成功連上雲端，你在本地網頁上新增的餐廳或註冊的帳號，其他組員重新整理網頁就能立刻看到，不需透過 Git 傳遞 .sql 檔案。
+
 ### 🚀 快速啟動 (Getting Started)
 
 #### 1. 環境準備
@@ -48,14 +56,14 @@
 2. 匯入專案中提供的初始化 SQL 腳本 (`schema.sql` 或 `init.sql`) 來建立資料表。
 
 #### 3. 設定環境變數
-進入 `src/main/resources/application.properties`，修改為你的 MySQL 帳號密碼：
+進入 `src/main/resources/application.properties`，修改雲端資料庫共用配置：
 
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/restaurant_db
-spring.datasource.username=你的MySQL帳號
-spring.datasource.password=你的MySQL密碼
+``` MySQL Database Configuration
+spring.datasource.url=jdbc:mysql://gateway01.ap-northeast-1.prod.aws.tidbcloud.com:4000/restaurant_db?useSSL=true&serverTimezone=UTC
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.username=tTYiHKVTocAGmB8.root
+spring.datasource.password=qGnMEr4vD7oGRzVE
 ```
-
 #### 4. 啟動應用程式
 在 VS Code 中開啟專案，執行 `RestaurantApplication.java` 即可啟動本地伺服器。預設將運行於 `http://localhost:8080`。
 ---

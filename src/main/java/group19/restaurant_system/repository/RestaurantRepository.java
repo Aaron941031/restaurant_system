@@ -28,27 +28,27 @@ public class RestaurantRepository {
 
     private final RowMapper<Restaurant> rowMapper = (rs, rowNum) -> {
         Restaurant restaurant = new Restaurant();
-        restaurant.setRestaurantId(rs.getInt("restaurant_id"));
+        restaurant.setRestaurantId(rs.getInt("restaurantId"));
         restaurant.setName(rs.getString("name"));
         restaurant.setCategory(rs.getString("category"));
-        restaurant.setPriceRange(rs.getString("price_range"));
-        restaurant.setAvgScore(rs.getDouble("avg_score"));
-        restaurant.setRatingCount(rs.getInt("rating_count"));
-        restaurant.setLocationAt(rs.getString("location_at"));
+        restaurant.setPriceRange(rs.getString("priceRange"));
+        restaurant.setAvgScore(rs.getDouble("avgScore"));
+        restaurant.setRatingCount(rs.getInt("ratingCount"));
+        restaurant.setLocationAt(rs.getString("locationAt"));
         return restaurant;
     };
 
     public Optional<Restaurant> findById(Integer restaurantId) {
-        return queryForOptional("SELECT restaurant_id, name, category, price_range, avg_score, rating_count, location_at FROM restaurants WHERE restaurant_id = ?", restaurantId);
+        return queryForOptional("SELECT restaurantId, name, category, priceRange, avgScore, ratingCount, locationAt FROM restaurants WHERE restaurantId = ?", restaurantId);
     }
 
     public List<Restaurant> findAll() {
-        return jdbcTemplate.query("SELECT restaurant_id, name, category, price_range, avg_score, rating_count, location_at FROM restaurants", rowMapper);
+        return jdbcTemplate.query("SELECT restaurantId, name, category, priceRange, avgScore, ratingCount, locationAt FROM restaurants", rowMapper);
     }
 
     public List<Restaurant> findByCategoryOrderByAvgScoreDesc(String category) {
         return jdbcTemplate.query(
-                "SELECT restaurant_id, name, category, price_range, avg_score, rating_count, location_at FROM restaurants WHERE category = ? ORDER BY avg_score DESC",
+                "SELECT restaurantId, name, category, priceRange, avgScore, ratingCount, locationAt FROM restaurants WHERE category = ? ORDER BY avgScore DESC",
                 rowMapper,
                 category
         );
@@ -60,7 +60,7 @@ public class RestaurantRepository {
         }
         if (excludedCategories.isEmpty()) {
             return jdbcTemplate.query(
-                    "SELECT restaurant_id, name, category, price_range, avg_score, rating_count, location_at FROM restaurants ORDER BY avg_score DESC LIMIT ?",
+                    "SELECT restaurantId, name, category, priceRange, avgScore, ratingCount, locationAt FROM restaurants ORDER BY avgScore DESC LIMIT ?",
                     rowMapper,
                     limit
             );
@@ -71,8 +71,8 @@ public class RestaurantRepository {
         params.addValue("limit", limit);
 
         return namedParameterJdbcTemplate.query(
-                "SELECT restaurant_id, name, category, price_range, avg_score, rating_count, location_at FROM restaurants " +
-                        "WHERE category NOT IN (:excludedCategories) ORDER BY avg_score DESC LIMIT :limit",
+                "SELECT restaurantId, name, category, priceRange, avgScore, ratingCount, locationAt FROM restaurants " +
+                        "WHERE category NOT IN (:excludedCategories) ORDER BY avgScore DESC LIMIT :limit",
                 params,
                 rowMapper
         );
@@ -80,7 +80,7 @@ public class RestaurantRepository {
 
     public List<Restaurant> findAllByOrderByAvgScoreDesc() {
         return jdbcTemplate.query(
-                "SELECT restaurant_id, name, category, price_range, avg_score, rating_count, location_at FROM restaurants ORDER BY avg_score DESC",
+                "SELECT restaurantId, name, category, priceRange, avgScore, ratingCount, locationAt FROM restaurants ORDER BY avgScore DESC",
                 rowMapper
         );
     }
@@ -90,7 +90,7 @@ public class RestaurantRepository {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(
-                        "INSERT INTO restaurants (name, category, price_range, avg_score, rating_count, location_at) VALUES (?, ?, ?, ?, ?, ?)",
+                        "INSERT INTO restaurants (name, category, priceRange, avgScore, ratingCount, locationAt) VALUES (?, ?, ?, ?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS
                 );
                 ps.setString(1, restaurant.getName());
@@ -113,7 +113,7 @@ public class RestaurantRepository {
         }
 
         jdbcTemplate.update(
-                "UPDATE restaurants SET name = ?, category = ?, price_range = ?, avg_score = ?, rating_count = ?, location_at = ? WHERE restaurant_id = ?",
+                "UPDATE restaurants SET name = ?, category = ?, priceRange = ?, avgScore = ?, ratingCount = ?, locationAt = ? WHERE restaurantId = ?",
                 restaurant.getName(),
                 restaurant.getCategory(),
                 restaurant.getPriceRange(),
@@ -126,7 +126,7 @@ public class RestaurantRepository {
     }
 
     public void deleteById(Integer restaurantId) {
-        jdbcTemplate.update("DELETE FROM restaurants WHERE restaurant_id = ?", restaurantId);
+        jdbcTemplate.update("DELETE FROM restaurants WHERE restaurantId = ?", restaurantId);
     }
 
     public void deleteAllInBatch() {

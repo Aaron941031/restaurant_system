@@ -23,21 +23,21 @@ public class DishRepository {
 
     private final RowMapper<Dish> rowMapper = (rs, rowNum) -> {
         Dish dish = new Dish();
-        dish.setCategoryId(rs.getInt("category_id"));
+        dish.setCategoryId(rs.getInt("categoryId"));
         dish.setName(rs.getString("name"));
         return dish;
     };
 
     public List<Dish> findAll() {
-        return jdbcTemplate.query("SELECT category_id, name FROM dishes ORDER BY category_id", rowMapper);
+        return jdbcTemplate.query("SELECT categoryId, name FROM dishes ORDER BY categoryId", rowMapper);
     }
 
     public Optional<Dish> findById(Integer categoryId) {
-        return queryForOptional("SELECT category_id, name FROM dishes WHERE category_id = ?", categoryId);
+        return queryForOptional("SELECT categoryId, name FROM dishes WHERE categoryId = ?", categoryId);
     }
 
     public Optional<Dish> findByName(String name) {
-        return queryForOptional("SELECT category_id, name FROM dishes WHERE name = ?", name);
+        return queryForOptional("SELECT categoryId, name FROM dishes WHERE name = ?", name);
     }
 
     public boolean existsByName(String name) {
@@ -67,12 +67,12 @@ public class DishRepository {
             return dish;
         }
 
-        jdbcTemplate.update("UPDATE dishes SET name = ? WHERE category_id = ?", dish.getName(), dish.getCategoryId());
+        jdbcTemplate.update("UPDATE dishes SET name = ? WHERE categoryId = ?", dish.getName(), dish.getCategoryId());
         return findById(dish.getCategoryId()).orElse(dish);
     }
 
     public void deleteById(Integer categoryId) {
-        jdbcTemplate.update("DELETE FROM dishes WHERE category_id = ?", categoryId);
+        jdbcTemplate.update("DELETE FROM dishes WHERE categoryId = ?", categoryId);
     }
 
     public void deleteAllInBatch() {

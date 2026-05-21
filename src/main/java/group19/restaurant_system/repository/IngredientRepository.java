@@ -23,21 +23,21 @@ public class IngredientRepository {
 
     private final RowMapper<Ingredient> rowMapper = (rs, rowNum) -> {
         Ingredient ingredient = new Ingredient();
-        ingredient.setIngredientId(rs.getInt("ingredient_id"));
+        ingredient.setIngredientId(rs.getInt("ingredientId"));
         ingredient.setName(rs.getString("name"));
         return ingredient;
     };
 
     public List<Ingredient> findAll() {
-        return jdbcTemplate.query("SELECT ingredient_id, name FROM ingredients ORDER BY ingredient_id", rowMapper);
+        return jdbcTemplate.query("SELECT ingredientId, name FROM ingredients ORDER BY ingredientId", rowMapper);
     }
 
     public Optional<Ingredient> findById(Integer ingredientId) {
-        return queryForOptional("SELECT ingredient_id, name FROM ingredients WHERE ingredient_id = ?", ingredientId);
+        return queryForOptional("SELECT ingredientId, name FROM ingredients WHERE ingredientId = ?", ingredientId);
     }
 
     public Optional<Ingredient> findByName(String name) {
-        return queryForOptional("SELECT ingredient_id, name FROM ingredients WHERE name = ?", name);
+        return queryForOptional("SELECT ingredientId, name FROM ingredients WHERE name = ?", name);
     }
 
     public boolean existsByName(String name) {
@@ -67,12 +67,12 @@ public class IngredientRepository {
             return ingredient;
         }
 
-        jdbcTemplate.update("UPDATE ingredients SET name = ? WHERE ingredient_id = ?", ingredient.getName(), ingredient.getIngredientId());
+        jdbcTemplate.update("UPDATE ingredients SET name = ? WHERE ingredientId = ?", ingredient.getName(), ingredient.getIngredientId());
         return findById(ingredient.getIngredientId()).orElse(ingredient);
     }
 
     public void deleteById(Integer ingredientId) {
-        jdbcTemplate.update("DELETE FROM ingredients WHERE ingredient_id = ?", ingredientId);
+        jdbcTemplate.update("DELETE FROM ingredients WHERE ingredientId = ?", ingredientId);
     }
 
     public void deleteAllInBatch() {

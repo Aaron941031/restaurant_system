@@ -26,24 +26,24 @@ public class RecordRepository {
     }
 
     private static final String BASE_SELECT =
-            "SELECT r.record_id, r.visit_date, r.meal_name, r.note, r.created_at, " +
-                    "u.user_id AS u_userId, u.name AS u_name, u.email AS u_email, u.password AS u_password, u.created_at AS u_createdAt, u.updated_at AS u_updatedAt, " +
-                    "res.restaurant_id AS res_restaurantId, res.name AS res_name, res.category AS res_category, res.price_range AS res_priceRange, " +
-                    "res.avg_score AS res_avgScore, res.rating_count AS res_ratingCount, res.location_at AS res_locationAt " +
+            "SELECT r.recordId, r.visitDate, r.mealName, r.note, r.createdAt, " +
+                    "u.userId AS u_userId, u.name AS u_name, u.email AS u_email, u.password AS u_password, u.created_at AS u_createdAt, u.updated_at AS u_updatedAt, " +
+                    "res.restaurantId AS res_restaurantId, res.name AS res_name, res.category AS res_category, res.priceRange AS res_priceRange, " +
+                    "res.avgScore AS res_avgScore, res.ratingCount AS res_ratingCount, res.locationAt AS res_locationAt " +
                     "FROM records r " +
-                    "JOIN users u ON u.user_id = r.user_id " +
-                    "JOIN restaurants res ON res.restaurant_id = r.restaurant_id ";
+                    "JOIN users u ON u.userId = r.userId " +
+                    "JOIN restaurants res ON res.restaurantId = r.restaurantId ";
 
     private final RowMapper<Record> rowMapper = (rs, rowNum) -> {
         Record record = new Record();
-        record.setRecordId(rs.getInt("record_id"));
-        Date visitDate = rs.getDate("visit_date");
+        record.setRecordId(rs.getInt("recordId"));
+        Date visitDate = rs.getDate("visitDate");
         if (visitDate != null) {
             record.setVisitDate(visitDate.toLocalDate());
         }
-        record.setMealName(rs.getString("meal_name"));
+        record.setMealName(rs.getString("mealName"));
         record.setNote(rs.getString("note"));
-        Timestamp createdAt = rs.getTimestamp("created_at");
+        Timestamp createdAt = rs.getTimestamp("createdAt");
         if (createdAt != null) {
             record.setCreatedAt(createdAt.toLocalDateTime());
         }
@@ -77,13 +77,13 @@ public class RecordRepository {
     };
 
     public Optional<Record> findById(Integer recordId) {
-        List<Record> results = jdbcTemplate.query(BASE_SELECT + "WHERE r.record_id = ?", rowMapper, recordId);
+        List<Record> results = jdbcTemplate.query(BASE_SELECT + "WHERE r.recordId = ?", rowMapper, recordId);
         return results.stream().findFirst();
     }
 
     public List<Record> findByUserUserIdOrderByCreatedAtDesc(Integer userId) {
         return jdbcTemplate.query(
-                BASE_SELECT + "WHERE r.user_id = ? ORDER BY r.created_at DESC",
+                BASE_SELECT + "WHERE r.userId = ? ORDER BY r.createdAt DESC",
                 rowMapper,
                 userId
         );
@@ -94,7 +94,7 @@ public class RecordRepository {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(
-                        "INSERT INTO records (user_id, restaurant_id, visit_date, meal_name, note) VALUES (?, ?, ?, ?, ?)",
+                        "INSERT INTO records (userId, restaurantId, visitDate, mealName, note) VALUES (?, ?, ?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS
                 );
                 ps.setInt(1, record.getUser().getUserId());
@@ -116,7 +116,7 @@ public class RecordRepository {
         }
 
         jdbcTemplate.update(
-                "UPDATE records SET user_id = ?, restaurant_id = ?, visit_date = ?, meal_name = ?, note = ? WHERE record_id = ?",
+                "UPDATE records SET userId = ?, restaurantId = ?, visitDate = ?, mealName = ?, note = ? WHERE recordId = ?",
                 record.getUser().getUserId(),
                 record.getRestaurant().getRestaurantId(),
                 Date.valueOf(record.getVisitDate()),
@@ -129,7 +129,7 @@ public class RecordRepository {
 
     public void delete(Record record) {
         if (record != null && record.getRecordId() != null) {
-            jdbcTemplate.update("DELETE FROM records WHERE record_id = ?", record.getRecordId());
+            jdbcTemplate.update("DELETE FROM records WHERE recordId = ?", record.getRecordId());
         }
     }
 

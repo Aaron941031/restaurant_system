@@ -102,7 +102,7 @@ INSERT IGNORE INTO ingredients (name) VALUES
 ('雞肉'), ('豬肉'), ('牛肉'), ('羊肉'), ('海鮮'), ('魚'), ('蝦'), ('貝類'), ('香菇'), ('茄子');
 
 -- 新增餐廳食材關聯表
-CREATE TABLE IF NOT EXISTS restaurant_ingredients (
+CREATE TABLE IF NOT EXISTS restaurantIngredients (
     id INT PRIMARY KEY AUTO_INCREMENT,
     restaurantId INT NOT NULL,
     ingredientId INT NOT NULL,

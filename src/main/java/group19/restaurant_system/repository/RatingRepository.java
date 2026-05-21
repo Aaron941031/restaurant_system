@@ -25,20 +25,20 @@ public class RatingRepository {
     }
 
     private static final String BASE_SELECT =
-            "SELECT r.rating_id, r.score, r.comment, r.rated_at, " +
-                    "u.user_id AS u_userId, u.name AS u_name, u.email AS u_email, u.password AS u_password, u.created_at AS u_createdAt, u.updated_at AS u_updatedAt, " +
-                    "res.restaurant_id AS res_restaurantId, res.name AS res_name, res.category AS res_category, res.price_range AS res_priceRange, " +
-                    "res.avg_score AS res_avgScore, res.rating_count AS res_ratingCount, res.location_at AS res_locationAt " +
+            "SELECT r.ratingId, r.score, r.comment, r.ratedAt, " +
+                    "u.userId AS u_userId, u.name AS u_name, u.email AS u_email, u.password AS u_password, u.createdAt AS u_createdAt, u.updatedAt AS u_updatedAt, " +
+                    "res.restaurantId AS res_restaurantId, res.name AS res_name, res.category AS res_category, res.priceRange AS res_priceRange, " +
+                    "res.avgScore AS res_avgScore, res.ratingCount AS res_ratingCount, res.locationAt AS res_locationAt " +
                     "FROM ratings r " +
-                    "JOIN users u ON u.user_id = r.user_id " +
-                    "JOIN restaurants res ON res.restaurant_id = r.restaurant_id ";
+                    "JOIN users u ON u.userId = r.userId " +
+                    "JOIN restaurants res ON res.restaurantId = r.restaurantId ";
 
     private final RowMapper<Rating> rowMapper = (rs, rowNum) -> {
         Rating rating = new Rating();
-        rating.setRatingId(rs.getInt("rating_id"));
+        rating.setRatingId(rs.getInt("ratingId"));
         rating.setScore(rs.getInt("score"));
         rating.setComment(rs.getString("comment"));
-        Timestamp ratedAt = rs.getTimestamp("rated_at");
+        Timestamp ratedAt = rs.getTimestamp("ratedAt");
         if (ratedAt != null) {
             rating.setRatedAt(ratedAt.toLocalDateTime());
         }
@@ -72,21 +72,21 @@ public class RatingRepository {
     };
 
     public Optional<Rating> findById(Integer ratingId) {
-        List<Rating> results = jdbcTemplate.query(BASE_SELECT + "WHERE r.rating_id = ?", rowMapper, ratingId);
+        List<Rating> results = jdbcTemplate.query(BASE_SELECT + "WHERE r.ratingId = ?", rowMapper, ratingId);
         return results.stream().findFirst();
     }
 
     public List<Rating> findByRestaurantRestaurantId(Integer restaurantId) {
-        return jdbcTemplate.query(BASE_SELECT + "WHERE r.restaurant_id = ? ORDER BY r.rated_at DESC", rowMapper, restaurantId);
+        return jdbcTemplate.query(BASE_SELECT + "WHERE r.restaurantId = ? ORDER BY r.ratedAt DESC", rowMapper, restaurantId);
     }
 
     public List<Rating> findByUserUserId(Integer userId) {
-        return jdbcTemplate.query(BASE_SELECT + "WHERE r.user_id = ? ORDER BY r.rated_at DESC", rowMapper, userId);
+        return jdbcTemplate.query(BASE_SELECT + "WHERE r.userId = ? ORDER BY r.ratedAt DESC", rowMapper, userId);
     }
 
     public boolean existsByUserUserIdAndRestaurantRestaurantId(Integer userId, Integer restaurantId) {
         Integer count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(1) FROM ratings WHERE user_id = ? AND restaurant_id = ?",
+                "SELECT COUNT(1) FROM ratings WHERE userId = ? AND restaurantId = ?",
                 Integer.class,
                 userId,
                 restaurantId
@@ -99,7 +99,7 @@ public class RatingRepository {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(
-                        "INSERT INTO ratings (user_id, restaurant_id, score, comment, rated_at) VALUES (?, ?, ?, ?, ?)",
+                        "INSERT INTO ratings (userId, restaurantId, score, comment, ratedAt) VALUES (?, ?, ?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS
                 );
                 ps.setInt(1, rating.getUser().getUserId());
@@ -121,7 +121,7 @@ public class RatingRepository {
         }
 
         jdbcTemplate.update(
-                "UPDATE ratings SET user_id = ?, restaurant_id = ?, score = ?, comment = ? WHERE rating_id = ?",
+                "UPDATE ratings SET userId = ?, restaurantId = ?, score = ?, comment = ? WHERE ratingId = ?",
                 rating.getUser().getUserId(),
                 rating.getRestaurant().getRestaurantId(),
                 rating.getScore(),
@@ -133,7 +133,7 @@ public class RatingRepository {
 
     public void delete(Rating rating) {
         if (rating != null && rating.getRatingId() != null) {
-            jdbcTemplate.update("DELETE FROM ratings WHERE rating_id = ?", rating.getRatingId());
+            jdbcTemplate.update("DELETE FROM ratings WHERE ratingId = ?", rating.getRatingId());
         }
     }
 

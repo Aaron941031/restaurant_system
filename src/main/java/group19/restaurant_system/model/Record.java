@@ -13,11 +13,11 @@ public class Record {
     private Integer recordId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "userId", nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "restaurant_id", nullable = false)
+    @JoinColumn(name = "restaurantId", nullable = false)
     private Restaurant restaurant;
 
     @Column(nullable = false)

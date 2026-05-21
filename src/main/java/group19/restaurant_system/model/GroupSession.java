@@ -12,7 +12,7 @@ public class GroupSession {
     private Integer sessionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "creator_id", nullable = false)
+    @JoinColumn(name = "creatorId", nullable = false)
     private User creator;
 
     @Column(nullable = false, unique = true)

@@ -5,10 +5,12 @@ import group19.restaurant_system.model.UserExclusion;
 import group19.restaurant_system.model.User;
 import group19.restaurant_system.model.Dish;
 import group19.restaurant_system.model.Ingredient;
+import group19.restaurant_system.model.Restaurant;
 import group19.restaurant_system.repository.UserExclusionRepository;
 import group19.restaurant_system.repository.UserRepository;
 import group19.restaurant_system.repository.DishRepository;
 import group19.restaurant_system.repository.IngredientRepository;
+import group19.restaurant_system.repository.RestaurantRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,9 @@ public class UserExclusionService {
 
     @Autowired
     private IngredientRepository ingredientRepository;
+
+    @Autowired
+    private RestaurantRepository restaurantRepository;
 
     public List<UserExclusion> getUserExclusions(Integer userId) {
         return userExclusionRepository.findByUserUserId(userId);
@@ -100,6 +105,27 @@ public class UserExclusionService {
         return new ExclusionBatchResult(added, existing, notFound);
     }
 
+    @Transactional
+    public UserExclusion addRestaurantExclusion(Integer userId, Integer restaurantId) throws Exception {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (!userOpt.isPresent()) {
+            throw new Exception("User not found");
+        }
+
+        Optional<Restaurant> restaurantOpt = restaurantRepository.findById(restaurantId);
+        if (!restaurantOpt.isPresent()) {
+            throw new Exception("Restaurant not found");
+        }
+
+        Optional<UserExclusion> existing = userExclusionRepository.findByUserUserIdAndRestaurantId(userId, restaurantId);
+        if (existing.isPresent()) {
+            return existing.get();
+        }
+
+        UserExclusion exclusion = new UserExclusion(userOpt.get(), restaurantOpt.get());
+        return userExclusionRepository.save(exclusion);
+    }
+
     private List<String> parseIngredientNames(String ingredientsText) {
         if (ingredientsText == null) {
             return new ArrayList<>();
@@ -130,5 +156,23 @@ public class UserExclusionService {
         }
         
         userExclusionRepository.deleteByUserUserIdAndDishCategoryId(userId, categoryId);
+    }
+
+    @Transactional
+    public void removeIngredientExclusion(Integer userId, Integer ingredientId) throws Exception {
+        if (!userExclusionRepository.existsByUserUserIdAndIngredientId(userId, ingredientId)) {
+            throw new Exception("Exclusion not found");
+        }
+
+        userExclusionRepository.deleteByUserUserIdAndIngredientId(userId, ingredientId);
+    }
+
+    @Transactional
+    public void removeRestaurantExclusion(Integer userId, Integer restaurantId) throws Exception {
+        if (!userExclusionRepository.existsByUserUserIdAndRestaurantId(userId, restaurantId)) {
+            throw new Exception("Exclusion not found");
+        }
+
+        userExclusionRepository.deleteByUserUserIdAndRestaurantId(userId, restaurantId);
     }
 }

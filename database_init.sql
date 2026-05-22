@@ -45,10 +45,16 @@ CREATE TABLE IF NOT EXISTS ratings (
 CREATE TABLE IF NOT EXISTS user_exclusions (
     exclusionId INT PRIMARY KEY AUTO_INCREMENT,
     userId INT NOT NULL,
-    categoryId INT NOT NULL,
+    categoryId INT DEFAULT NULL,
+    ingredientId INT DEFAULT NULL,
+    restaurantId INT DEFAULT NULL,
     UNIQUE KEY unique_exclusion (userId, categoryId),
+    UNIQUE KEY unique_exclusion_ingredient (userId, ingredientId),
+    UNIQUE KEY unique_exclusion_restaurant (userId, restaurantId),
     FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE,
-    FOREIGN KEY (categoryId) REFERENCES dishes(categoryId) ON DELETE CASCADE
+    FOREIGN KEY (categoryId) REFERENCES dishes(categoryId) ON DELETE CASCADE,
+    FOREIGN KEY (ingredientId) REFERENCES ingredients(ingredientId) ON DELETE CASCADE,
+    FOREIGN KEY (restaurantId) REFERENCES restaurants(restaurantId) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create group_sessions table
@@ -114,8 +120,8 @@ CREATE TABLE IF NOT EXISTS restaurantIngredients (
 -- user_exclusions 支援食材排除
 ALTER TABLE user_exclusions 
     MODIFY COLUMN categoryId INT DEFAULT NULL,
-    ADD COLUMN ingredientId INT DEFAULT NULL,
-    ADD FOREIGN KEY (ingredientId) REFERENCES ingredients(ingredientId) ON DELETE CASCADE;
+    ADD COLUMN IF NOT EXISTS ingredientId INT DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS restaurantId INT DEFAULT NULL;
 
 -- 範例資料：餐廳食材關聯（根據你的餐廳範例資料）
 INSERT IGNORE INTO ingredients (name) VALUES

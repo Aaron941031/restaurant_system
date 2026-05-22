@@ -5,9 +5,13 @@ const state = {
     userName: localStorage.getItem("rs_userName") || "",
     currentPage: "auth",
     restaurants: [],
-    dishes: [],
     currentExclusions: [],
-    userExclusionPreferences: [] // 新增：存儲用戶的原始排除偏好
+    userExclusionPreferences: [], // 新增：存儲用戶的原始排除偏好
+    exclusionOptions: {
+        ingredients: [],
+        dishes: [],
+        restaurants: []
+    }
 };
 
 // 頁面導航
@@ -27,8 +31,8 @@ function goPage(pageName) {
         } else if (pageName === 'rate' || pageName === 'history') {
             loadRestaurantSelects();
         } else if (pageName === 'recommend') {
-            loadDishes();
-            loadExclusions();
+            loadExclusionOptions();
+            hideExclusions();
         }
     }
     window.scrollTo(0, 0);
@@ -215,20 +219,76 @@ document.getElementById("rating-form").addEventListener("submit", async (e) => {
 
 // ============ 推薦功能 ============
 
-async function loadDishes() {
+async function loadExclusionOptions() {
     try {
-        const dishes = await request("/api/dish/all");
-        state.dishes = dishes;
-        
-        // 載入餐廳選項
-        await loadRestaurants();
-        const restaurantSelect = document.getElementById("exclude-restaurant");
-        const restaurantOptions = state.restaurants.map(r => 
-            `<option value="${r.restaurantId}">${r.name}</option>`
-        ).join("");
-        restaurantSelect.innerHTML = '<option value="">選擇要排除的餐廳</option>' + restaurantOptions;
+        const [ingredients, dishes, restaurants] = await Promise.all([
+            request("/api/ingredient/all"),
+            request("/api/dish/all"),
+            request("/api/restaurant/all")
+        ]);
+
+        state.exclusionOptions = {
+            ingredients,
+            dishes,
+            restaurants
+        };
+
+        updateExclusionItemList();
     } catch (err) {
         showToast(err.message, "error");
+    }
+}
+
+function getSelectedValues(select) {
+    return Array.from(select.selectedOptions).map(option => option.value);
+}
+
+function getExclusionTypeMeta(type) {
+    switch (type) {
+        case "ingredient":
+            return { label: "選擇要排除的食材", key: "ingredients", idKey: "ingredientId" };
+        case "dish":
+            return { label: "選擇要排除的菜系", key: "dishes", idKey: "categoryId" };
+        case "restaurant":
+            return { label: "選擇要排除的餐廳", key: "restaurants", idKey: "restaurantId" };
+        default:
+            return { label: "選擇要排除的項目", key: "ingredients", idKey: "ingredientId" };
+    }
+}
+
+function updateExclusionItemList() {
+    const typeSelect = document.getElementById("exclude-type");
+    const itemsSelect = document.getElementById("exclude-items");
+    const itemsLabel = document.getElementById("exclude-items-label");
+    if (!typeSelect || !itemsSelect || !itemsLabel) return;
+
+    const type = typeSelect.value;
+    const meta = getExclusionTypeMeta(type);
+    const options = state.exclusionOptions[meta.key] || [];
+
+    itemsLabel.textContent = meta.label;
+    if (!options.length) {
+        itemsSelect.innerHTML = '<option value="">載入中...</option>';
+        return;
+    }
+
+    itemsSelect.innerHTML = options
+        .map(item => `<option value="${item[meta.idKey]}">${item.name}</option>`)
+        .join("");
+}
+
+function hideExclusions() {
+    const section = document.getElementById("exclusion-section");
+    if (section) {
+        section.classList.add("hidden");
+    }
+}
+
+async function showExclusions() {
+    await loadExclusions();
+    const section = document.getElementById("exclusion-section");
+    if (section) {
+        section.classList.remove("hidden");
     }
 }
 
@@ -236,28 +296,29 @@ async function addExclusion() {
     try {
         if (!state.token) throw new Error("請先登入");
 
-        const ingredientsInput = document.getElementById("exclude-ingredients");
-        const restaurantSelect = document.getElementById("exclude-restaurant");
-        const dishesInput = document.getElementById("exclude-dishes");
+        const typeSelect = document.getElementById("exclude-type");
+        const itemsSelect = document.getElementById("exclude-items");
+        const type = typeSelect.value;
+        const selectedIds = getSelectedValues(itemsSelect);
 
-        const ingredients = ingredientsInput.value.trim();
-        const restaurantId = restaurantSelect.value;
-        const dishes = dishesInput.value.trim();
-
-        if (!ingredients && !restaurantId && !dishes) {
-            throw new Error("請至少選擇或輸入一個排除項目");
+        if (!selectedIds.length) {
+            throw new Error("請至少選擇一個排除項目");
         }
 
         let exclusionsAdded = 0;
         let existingCount = 0;
         let notFoundItems = [];
 
-        // 食材排除：送到後端模糊比對
-        if (ingredients) {
+        if (type === "ingredient") {
+            const ingredients = selectedIds
+                .map(id => state.exclusionOptions.ingredients.find(item => String(item.ingredientId) === id))
+                .filter(Boolean)
+                .map(item => item.name);
+
             const result = await request("/api/user/exclusion/ingredient", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ingredients })
+                body: JSON.stringify({ ingredients: ingredients.join(",") })
             });
 
             exclusionsAdded += result.added?.length || 0;
@@ -265,41 +326,23 @@ async function addExclusion() {
             if (result.notFound?.length > 0) {
                 notFoundItems.push(...result.notFound);
             }
-            ingredientsInput.value = "";
-        }
-
-        // 餐廳排除：直接用 restaurantId 排除該餐廳的菜系
-        if (restaurantId) {
-            const restaurant = state.restaurants.find(r => r.restaurantId == restaurantId);
-            if (restaurant) {
-                const dish = state.dishes.find(d => d.name === restaurant.category);
-                if (dish) {
-                    await request(`/api/user/exclusion/category?categoryId=${dish.categoryId}`, { method: "POST" });
-                    exclusionsAdded++;
-                }
+        } else if (type === "dish") {
+            for (const categoryId of selectedIds) {
+                await request(`/api/user/exclusion/category?categoryId=${categoryId}`, { method: "POST" });
+                exclusionsAdded++;
             }
-            restaurantSelect.value = "";
-        }
-
-        // 菜餚排除：同樣送到後端比對
-        if (dishes) {
-            const result = await request("/api/user/exclusion/ingredient", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ingredients: dishes })
-            });
-
-            exclusionsAdded += result.added?.length || 0;
-            existingCount += result.existing?.length || 0;
-            if (result.notFound?.length > 0) {
-                notFoundItems.push(...result.notFound);
+        } else if (type === "restaurant") {
+            for (const restaurantId of selectedIds) {
+                await request(`/api/user/exclusion/restaurant?restaurantId=${restaurantId}`, { method: "POST" });
+                exclusionsAdded++;
             }
-            dishesInput.value = "";
         }
 
-        if (exclusionsAdded > 0 || existingCount > 0) {
-            await loadExclusions();
-            let messageParts = [];
+        if (exclusionsAdded > 0 || existingCount > 0 || notFoundItems.length > 0) {
+            if (!document.getElementById("exclusion-section")?.classList.contains("hidden")) {
+                await loadExclusions();
+            }
+            const messageParts = [];
             if (exclusionsAdded > 0) {
                 messageParts.push(`已加入 ${exclusionsAdded} 個排除項目`);
             }
@@ -311,7 +354,7 @@ async function addExclusion() {
             }
             showToast(messageParts.join('，'), "success");
         } else {
-            throw new Error(`資料庫中找不到這些項目：${notFoundItems.join('、')}`);
+            throw new Error("沒有新增任何排除項目");
         }
 
     } catch (err) {
@@ -353,6 +396,14 @@ async function loadExclusions() {
                 };
             }
 
+            if (e.restaurant && e.restaurant.name) {
+                return {
+                    type: 'restaurant',
+                    value: e.restaurant.name,
+                    restaurantId: e.restaurant.restaurantId
+                };
+            }
+
             return {
                 type: 'other',
                 value: `排除項目 ${e.exclusionId}`
@@ -377,7 +428,7 @@ function renderExclusions() {
         
         switch (pref.type) {
             case 'ingredient':
-                typeLabel = "食物品項";
+                typeLabel = "食材";
                 break;
             case 'category':
                 typeLabel = "菜系";
@@ -385,20 +436,58 @@ function renderExclusions() {
             case 'restaurant':
                 typeLabel = "餐廳";
                 break;
-            case 'dish':
-                typeLabel = "菜餚";
-                break;
             default:
                 typeLabel = "其他";
         }
-        
-        return `<div class="list-item" style="margin-bottom: 8px;">
-            <span style="font-size: 12px; color: #666; background: #f0f0f0; padding: 2px 6px; border-radius: 4px; margin-right: 8px;">${typeLabel}</span>
-            ${pref.value}
+
+        let targetId = "";
+        if (pref.type === "ingredient") targetId = pref.ingredientId;
+        if (pref.type === "category") targetId = pref.categoryId;
+        if (pref.type === "restaurant") targetId = pref.restaurantId;
+
+        const actionButton = targetId
+            ? `<button type="button" class="exclusion-remove" data-type="${pref.type}" data-id="${targetId}">取消</button>`
+            : "";
+
+        return `<div class="list-item exclusion-item">
+            <div class="exclusion-item-info">
+                <span class="exclusion-tag">${typeLabel}</span>
+                <span>${pref.value}</span>
+            </div>
+            ${actionButton}
         </div>`;
     });
     
     container.innerHTML = exclusionItems.join("");
+    container.querySelectorAll(".exclusion-remove").forEach(button => {
+        button.addEventListener("click", async () => {
+            const type = button.dataset.type;
+            const targetId = button.dataset.id;
+            await removeExclusion(type, targetId);
+        });
+    });
+}
+
+async function removeExclusion(type, targetId) {
+    try {
+        if (!state.token) throw new Error("請先登入");
+        if (!targetId) throw new Error("缺少排除項目編號");
+
+        if (type === "ingredient") {
+            await request(`/api/user/exclusion/ingredient/${targetId}`, { method: "DELETE" });
+        } else if (type === "category") {
+            await request(`/api/user/exclusion/category/${targetId}`, { method: "DELETE" });
+        } else if (type === "restaurant") {
+            await request(`/api/user/exclusion/restaurant/${targetId}`, { method: "DELETE" });
+        } else {
+            throw new Error("不支援的排除種類");
+        }
+
+        await loadExclusions();
+        showToast("已取消排除", "success");
+    } catch (err) {
+        showToast(err.message, "error");
+    }
 }
 
 async function getRecommendations() {
@@ -520,6 +609,11 @@ async function loadHistory() {
 // ============ 初始化 ============
 
 updateSession();
+
+const excludeTypeSelect = document.getElementById("exclude-type");
+if (excludeTypeSelect) {
+    excludeTypeSelect.addEventListener("change", updateExclusionItemList);
+}
 
 // 如果已登入，進入菜單頁面
 if (state.token && state.userName) {

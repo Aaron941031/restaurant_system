@@ -66,8 +66,13 @@ public class RestaurantService {
         // Get user's excluded categories
         List<UserExclusion> exclusions = userExclusionRepository.findByUserUserId(userId);
         List<String> excludedCategories = exclusions.stream()
-                .map(ue -> ue.getDish().getName())
+            .filter(ue -> ue.getDish() != null)
+            .map(ue -> ue.getDish().getName())
                 .collect(Collectors.toList());
+        List<Integer> excludedRestaurantIds = exclusions.stream()
+            .filter(ue -> ue.getRestaurant() != null)
+            .map(ue -> ue.getRestaurant().getRestaurantId())
+            .collect(Collectors.toList());
         
         // Get recommended restaurants
         List<Restaurant> recommended = restaurantRepository.findAllByOrderByAvgScoreDesc();
@@ -76,6 +81,12 @@ public class RestaurantService {
             recommended = recommended.stream()
                     .filter(r -> !excludedCategories.contains(r.getCategory()))
                     .collect(Collectors.toList());
+        }
+
+        if (!excludedRestaurantIds.isEmpty()) {
+            recommended = recommended.stream()
+                .filter(r -> !excludedRestaurantIds.contains(r.getRestaurantId()))
+                .collect(Collectors.toList());
         }
         
         // If no results, use fallback: return top-rated restaurants
@@ -96,9 +107,16 @@ public class RestaurantService {
         // Collect all excluded categories from all members
         List<String> allExcludedCategories = memberIds.stream()
                 .flatMap(userId -> userExclusionRepository.findByUserUserId(userId).stream())
-                .map(ue -> ue.getDish().getName())
+            .filter(ue -> ue.getDish() != null)
+            .map(ue -> ue.getDish().getName())
                 .distinct()
                 .collect(Collectors.toList());
+        List<Integer> allExcludedRestaurantIds = memberIds.stream()
+            .flatMap(userId -> userExclusionRepository.findByUserUserId(userId).stream())
+            .filter(ue -> ue.getRestaurant() != null)
+            .map(ue -> ue.getRestaurant().getRestaurantId())
+            .distinct()
+            .collect(Collectors.toList());
         
         List<Restaurant> recommended = restaurantRepository.findAllByOrderByAvgScoreDesc();
         
@@ -106,6 +124,12 @@ public class RestaurantService {
             recommended = recommended.stream()
                     .filter(r -> !allExcludedCategories.contains(r.getCategory()))
                     .collect(Collectors.toList());
+        }
+
+        if (!allExcludedRestaurantIds.isEmpty()) {
+            recommended = recommended.stream()
+                .filter(r -> !allExcludedRestaurantIds.contains(r.getRestaurantId()))
+                .collect(Collectors.toList());
         }
         
         // If no results, use fallback

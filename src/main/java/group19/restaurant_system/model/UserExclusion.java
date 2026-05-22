@@ -22,6 +22,10 @@ public class UserExclusion {
     @JoinColumn(name = "ingredientId")
     private Ingredient ingredient;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "restaurantId")
+    private Restaurant restaurant;
+
     public UserExclusion() {}
 
     public UserExclusion(User user, Dish dish) {
@@ -32,6 +36,11 @@ public class UserExclusion {
     public UserExclusion(User user, Ingredient ingredient) {
         this.user = user;
         this.ingredient = ingredient;
+    }
+
+    public UserExclusion(User user, Restaurant restaurant) {
+        this.user = user;
+        this.restaurant = restaurant;
     }
 
     // Getters and Setters
@@ -47,15 +56,20 @@ public class UserExclusion {
     public Ingredient getIngredient() { return ingredient; }
     public void setIngredient(Ingredient ingredient) { this.ingredient = ingredient; }
 
+    public Restaurant getRestaurant() { return restaurant; }
+    public void setRestaurant(Restaurant restaurant) { this.restaurant = restaurant; }
+
     @Override
     public String toString() {
         Integer categoryId = dish != null ? dish.getCategoryId() : null;
         Integer ingredientId = ingredient != null ? ingredient.getIngredientId() : null;
+        Integer restaurantId = restaurant != null ? restaurant.getRestaurantId() : null;
         return "UserExclusion{" +
                 "exclusionId=" + exclusionId +
             ", userId=" + (user != null ? user.getUserId() : null) +
             ", categoryId=" + categoryId +
             ", ingredientId=" + ingredientId +
+            ", restaurantId=" + restaurantId +
                 '}';
     }
 }

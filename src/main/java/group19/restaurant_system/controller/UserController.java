@@ -90,6 +90,18 @@ public class UserController {
         }
     }
 
+    @PostMapping("/exclusion/restaurant")
+    public ResponseEntity<?> addRestaurantExclusion(@RequestHeader("Authorization") String authHeader,
+                                                    @RequestParam Integer restaurantId) {
+        try {
+            Integer userId = getUserIdFromHeader(authHeader);
+            UserExclusion exclusion = userExclusionService.addRestaurantExclusion(userId, restaurantId);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Exclusion saved", exclusion));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
+        }
+    }
+
     @GetMapping("/exclusions")
     public ResponseEntity<?> getExclusions(@RequestHeader("Authorization") String authHeader) {
         try {
@@ -107,6 +119,42 @@ public class UserController {
         try {
             Integer userId = getUserIdFromHeader(authHeader);
             userExclusionService.removeExclusion(userId, categoryId);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Exclusion removed"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/exclusion/category/{categoryId}")
+    public ResponseEntity<?> removeCategoryExclusion(@RequestHeader("Authorization") String authHeader,
+                                                     @PathVariable Integer categoryId) {
+        try {
+            Integer userId = getUserIdFromHeader(authHeader);
+            userExclusionService.removeExclusion(userId, categoryId);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Exclusion removed"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/exclusion/ingredient/{ingredientId}")
+    public ResponseEntity<?> removeIngredientExclusion(@RequestHeader("Authorization") String authHeader,
+                                                       @PathVariable Integer ingredientId) {
+        try {
+            Integer userId = getUserIdFromHeader(authHeader);
+            userExclusionService.removeIngredientExclusion(userId, ingredientId);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Exclusion removed"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/exclusion/restaurant/{restaurantId}")
+    public ResponseEntity<?> removeRestaurantExclusion(@RequestHeader("Authorization") String authHeader,
+                                                       @PathVariable Integer restaurantId) {
+        try {
+            Integer userId = getUserIdFromHeader(authHeader);
+            userExclusionService.removeRestaurantExclusion(userId, restaurantId);
             return ResponseEntity.ok(new ApiResponse<>(true, "Exclusion removed"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));

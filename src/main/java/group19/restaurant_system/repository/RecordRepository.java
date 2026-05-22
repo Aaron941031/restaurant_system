@@ -27,7 +27,7 @@ public class RecordRepository {
 
     private static final String BASE_SELECT =
             "SELECT r.recordId, r.visitDate, r.mealName, r.note, r.createdAt, " +
-                    "u.userId AS u_userId, u.name AS u_name, u.email AS u_email, u.password AS u_password, u.created_at AS u_createdAt, u.updated_at AS u_updatedAt, " +
+                    "u.userId AS u_userId, u.name AS u_name, u.email AS u_email, u.password AS u_password, u.createdAt AS uCreatedAt, u.updatedAt AS uUpdatedAt, " +
                     "res.restaurantId AS res_restaurantId, res.name AS res_name, res.category AS res_category, res.priceRange AS res_priceRange, " +
                     "res.avgScore AS res_avgScore, res.ratingCount AS res_ratingCount, res.locationAt AS res_locationAt " +
                     "FROM records r " +

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -57,6 +58,9 @@ public class RestaurantSystemIntegrationTests {
     @Autowired
     private GroupSessionRepository groupSessionRepository;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     private User testUser;
     private Restaurant testRestaurant;
     private Dish testDish;
@@ -83,6 +87,13 @@ public class RestaurantSystemIntegrationTests {
         // Create test restaurant
         testRestaurant = new Restaurant("日本料理餐廳", "日式", "$$$", "台北市");
         testRestaurant = restaurantRepository.save(testRestaurant);
+
+        // Seed dish/restaurant relation for recommendation tests
+        jdbcTemplate.update(
+            "INSERT INTO restaurant_dishes (restaurantId, dishId) VALUES (?, ?)",
+            testRestaurant.getRestaurantId(),
+            testDish.getDishId()
+        );
     }
 
     @Test
@@ -132,11 +143,11 @@ public class RestaurantSystemIntegrationTests {
 
     @Test
     public void testUserExclusion() throws Exception {
-        userExclusionService.addExclusion(testUser.getUserId(), testDish.getCategoryId());
+        userExclusionService.addDishExclusion(testUser.getUserId(), testDish.getDishId());
         
         var exclusions = userExclusionService.getUserExclusions(testUser.getUserId());
         assertEquals(1, exclusions.size());
-        assertEquals(testDish.getCategoryId(), exclusions.get(0).getDish().getCategoryId());
+        assertEquals(testDish.getDishId(), exclusions.get(0).getDish().getDishId());
     }
 
     @Test
@@ -181,7 +192,15 @@ public class RestaurantSystemIntegrationTests {
         restaurantRepository.save(restaurant2);
         
         // Add exclusion for Japanese
-        userExclusionService.addExclusion(testUser.getUserId(), testDish.getCategoryId());
+        userExclusionService.addDishExclusion(testUser.getUserId(), testDish.getDishId());
+        
+        // Sanity check: the restaurant is linked to the excluded dish
+        assertEquals(1, jdbcTemplate.queryForObject(
+            "SELECT COUNT(1) FROM restaurant_dishes WHERE restaurantId = ? AND dishId = ?",
+            Integer.class,
+            testRestaurant.getRestaurantId(),
+            testDish.getDishId()
+        ));
         
         // Get recommendations
         var recommendations = restaurantService.getRecommendedRestaurants(testUser.getUserId());

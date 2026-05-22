@@ -12,9 +12,9 @@ CREATE TABLE IF NOT EXISTS users (
     updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Create dishes table (categories)
+-- Create dishes table (menu items)
 CREATE TABLE IF NOT EXISTS dishes (
-    categoryId INT PRIMARY KEY AUTO_INCREMENT,
+    dishId INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) UNIQUE NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -45,14 +45,14 @@ CREATE TABLE IF NOT EXISTS ratings (
 CREATE TABLE IF NOT EXISTS user_exclusions (
     exclusionId INT PRIMARY KEY AUTO_INCREMENT,
     userId INT NOT NULL,
-    categoryId INT DEFAULT NULL,
+    dishId INT DEFAULT NULL,
     ingredientId INT DEFAULT NULL,
     restaurantId INT DEFAULT NULL,
-    UNIQUE KEY unique_exclusion (userId, categoryId),
+    UNIQUE KEY unique_exclusion_dish (userId, dishId),
     UNIQUE KEY unique_exclusion_ingredient (userId, ingredientId),
     UNIQUE KEY unique_exclusion_restaurant (userId, restaurantId),
     FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE,
-    FOREIGN KEY (categoryId) REFERENCES dishes(categoryId) ON DELETE CASCADE,
+    FOREIGN KEY (dishId) REFERENCES dishes(dishId) ON DELETE CASCADE,
     FOREIGN KEY (ingredientId) REFERENCES ingredients(ingredientId) ON DELETE CASCADE,
     FOREIGN KEY (restaurantId) REFERENCES restaurants(restaurantId) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -97,9 +97,10 @@ CREATE TABLE IF NOT EXISTS ingredients (
     name VARCHAR(50) UNIQUE NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Insert sample dish categories
+-- Insert sample dishes
 INSERT IGNORE INTO dishes (name) VALUES 
-('中式'), ('日式'), ('韓式'), ('義大利'), ('美式'), ('泰式'), ('越南'), ('印度'), ('西班牙'), ('法式');
+('壽司'), ('拉麵'), ('炸雞'), ('披薩'), ('義大利麵'),
+('漢堡'), ('牛排'), ('咖哩飯'), ('泰式炒河粉'), ('火鍋');
 
 -- Insert sample restaurants
 INSERT IGNORE INTO restaurants (name, category, priceRange, avgScore, ratingCount, locationAt) VALUES
@@ -118,38 +119,51 @@ INSERT IGNORE INTO restaurants (name, category, priceRange, avgScore, ratingCoun
 INSERT IGNORE INTO ingredients (name) VALUES
 ('雞肉'), ('豬肉'), ('牛肉'), ('羊肉'), ('海鮮'), ('魚'), ('蝦'), ('貝類'), ('香菇'), ('茄子');
 
--- 新增餐廳食材關聯表
-CREATE TABLE IF NOT EXISTS restaurant_ingredients (
+-- Create restaurant_dishes relation table
+CREATE TABLE IF NOT EXISTS restaurant_dishes (
     id INT PRIMARY KEY AUTO_INCREMENT,
     restaurantId INT NOT NULL,
-    ingredientId INT NOT NULL,
-    UNIQUE KEY unique_restaurant_ingredient (restaurantId, ingredientId),
+    dishId INT NOT NULL,
+    UNIQUE KEY unique_restaurant_dish (restaurantId, dishId),
     FOREIGN KEY (restaurantId) REFERENCES restaurants(restaurantId) ON DELETE CASCADE,
+    FOREIGN KEY (dishId) REFERENCES dishes(dishId) ON DELETE CASCADE
+);
+
+-- Create dish_ingredients relation table
+CREATE TABLE IF NOT EXISTS dish_ingredients (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    dishId INT NOT NULL,
+    ingredientId INT NOT NULL,
+    UNIQUE KEY unique_dish_ingredient (dishId, ingredientId),
+    FOREIGN KEY (dishId) REFERENCES dishes(dishId) ON DELETE CASCADE,
     FOREIGN KEY (ingredientId) REFERENCES ingredients(ingredientId) ON DELETE CASCADE
 );
 
--- user_exclusions 支援食材排除
-ALTER TABLE user_exclusions 
-    MODIFY COLUMN categoryId INT DEFAULT NULL,
-    ADD COLUMN IF NOT EXISTS ingredientId INT DEFAULT NULL,
-    ADD COLUMN IF NOT EXISTS restaurantId INT DEFAULT NULL;
+-- Sample dish-ingredient links
+INSERT IGNORE INTO dish_ingredients (dishId, ingredientId) VALUES
+(1, 6), (1, 7), (1, 8),   -- 壽司：魚、蝦、貝類
+(2, 2), (2, 9),           -- 拉麵：豬肉、香菇
+(3, 1),                   -- 炸雞：雞肉
+(4, 9),                   -- 披薩：香菇
+(5, 3), (5, 9),           -- 義大利麵：牛肉、香菇
+(6, 3),                   -- 漢堡：牛肉
+(7, 3),                   -- 牛排：牛肉
+(8, 4),                   -- 咖哩飯：羊肉
+(9, 7),                   -- 泰式炒河粉：蝦
+(10, 5);                  -- 火鍋：海鮮
 
--- 範例資料：餐廳食材關聯（根據你的餐廳範例資料）
-INSERT IGNORE INTO ingredients (name) VALUES
-('雞肉'),('豬肉'),('牛肉'),('羊肉'),('海鮮'),('魚'),('蝦'),('貝類'),
-('香菇'),('茄子'),('泡菜'),('起司'),('牛奶'),('奶油'),('咖哩');
-
-INSERT IGNORE INTO restaurant_ingredients (restaurantId, ingredientId) VALUES
-(1, 6),(1, 7),(1, 8),   -- 三號亭：魚、蝦、貝類
-(2, 1),(2, 2),(2, 3),   -- 老北京人家：雞肉、豬肉、牛肉
-(3, 3),(3, 1),          -- 韓炭焼肉：牛肉、雞肉
-(4, 11),(4, 12),        -- Trattoria Roma：泡菜(no)、起司
-(5, 3),(5, 1),          -- 五星漢堡：牛肉、雞肉
-(6, 15),(6, 7),         -- 泰灣小館：咖哩、蝦
-(7, 6),(7, 7),          -- 河粉仔：魚、蝦
-(8, 15),(8, 4),         -- Curry House：咖哩、羊肉
-(9, 5),(9, 6),          -- La Taperia：海鮮、魚
-(10, 13),(10, 14);      -- Petit Bistro：牛奶、奶油
+-- Sample restaurant-dish links
+INSERT IGNORE INTO restaurant_dishes (restaurantId, dishId) VALUES
+(1, 1), (1, 2),
+(2, 10),
+(3, 7), (3, 3),
+(4, 4), (4, 5),
+(5, 6),
+(6, 9),
+(7, 2),
+(8, 8),
+(9, 1),
+(10, 7);
 -- Create indexes
 CREATE INDEX idx_user_name ON users(name);
 CREATE INDEX idx_user_email ON users(email);

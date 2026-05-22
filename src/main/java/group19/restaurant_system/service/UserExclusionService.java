@@ -45,7 +45,7 @@ public class UserExclusionService {
     }
 
     @Transactional
-    public UserExclusion addExclusion(Integer userId, Integer categoryId) throws Exception {
+    public UserExclusion addDishExclusion(Integer userId, Integer dishId) throws Exception {
         // Get user
         Optional<User> userOpt = userRepository.findById(userId);
         if (!userOpt.isPresent()) {
@@ -53,13 +53,13 @@ public class UserExclusionService {
         }
         
         // Get dish
-        Optional<Dish> dishOpt = dishRepository.findById(categoryId);
+        Optional<Dish> dishOpt = dishRepository.findById(dishId);
         if (!dishOpt.isPresent()) {
-            throw new Exception("Dish category not found");
+            throw new Exception("Dish not found");
         }
 
         // Return existing record if already stored
-        Optional<UserExclusion> existing = userExclusionRepository.findByUserUserIdAndDishCategoryId(userId, categoryId);
+        Optional<UserExclusion> existing = userExclusionRepository.findByUserUserIdAndDishId(userId, dishId);
         if (existing.isPresent()) {
             return existing.get();
         }
@@ -150,12 +150,12 @@ public class UserExclusionService {
     }
 
     @Transactional
-    public void removeExclusion(Integer userId, Integer categoryId) throws Exception {
-        if (!userExclusionRepository.existsByUserUserIdAndDishCategoryId(userId, categoryId)) {
+    public void removeDishExclusion(Integer userId, Integer dishId) throws Exception {
+        if (!userExclusionRepository.existsByUserUserIdAndDishId(userId, dishId)) {
             throw new Exception("Exclusion not found");
         }
         
-        userExclusionRepository.deleteByUserUserIdAndDishCategoryId(userId, categoryId);
+        userExclusionRepository.deleteByUserUserIdAndDishId(userId, dishId);
     }
 
     @Transactional

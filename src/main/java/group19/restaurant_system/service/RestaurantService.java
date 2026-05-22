@@ -23,7 +23,7 @@ public class RestaurantService {
     private UserExclusionRepository userExclusionRepository;
 
     @Autowired
-    private RestaurantIngredientRepository restaurantIngredientRepository;
+    private RestaurantDishRepository restaurantDishRepository;
 
     public Optional<Restaurant> getRestaurantById(Integer restaurantId) {
         return restaurantRepository.findById(restaurantId);
@@ -66,12 +66,13 @@ public class RestaurantService {
 
     @Transactional
     public List<Restaurant> getRecommendedRestaurants(Integer userId) throws Exception {
-        // Get user's excluded categories
+        // Get user's excluded dishes
         List<UserExclusion> exclusions = userExclusionRepository.findByUserUserId(userId);
-        List<String> excludedCategories = exclusions.stream()
+        List<Integer> excludedDishIds = exclusions.stream()
             .filter(ue -> ue.getDish() != null)
-            .map(ue -> ue.getDish().getName())
-                .collect(Collectors.toList());
+            .map(ue -> ue.getDish().getDishId())
+            .distinct()
+            .collect(Collectors.toList());
         List<Integer> excludedRestaurantIds = exclusions.stream()
             .filter(ue -> ue.getRestaurant() != null)
             .map(ue -> ue.getRestaurant().getRestaurantId())
@@ -81,18 +82,17 @@ public class RestaurantService {
             .map(ue -> ue.getIngredient().getIngredientId())
             .distinct()
             .collect(Collectors.toList());
-        List<Integer> ingredientRestaurantIds = restaurantIngredientRepository
+        List<Integer> dishRestaurantIds = restaurantDishRepository
+            .findRestaurantIdsByDishIds(excludedDishIds);
+        List<Integer> ingredientRestaurantIds = restaurantDishRepository
             .findRestaurantIdsByIngredientIds(excludedIngredientIds);
         
         // Get recommended restaurants
         List<Restaurant> recommended = restaurantRepository.findAllByOrderByAvgScoreDesc();
         
-        if (!excludedCategories.isEmpty()) {
-            recommended = recommended.stream()
-                    .filter(r -> !excludedCategories.contains(r.getCategory()))
-                    .collect(Collectors.toList());
+        if (!dishRestaurantIds.isEmpty()) {
+            excludedRestaurantIds.addAll(dishRestaurantIds);
         }
-
         if (!ingredientRestaurantIds.isEmpty()) {
             excludedRestaurantIds.addAll(ingredientRestaurantIds);
         }
@@ -117,13 +117,13 @@ public class RestaurantService {
     @Transactional
         public List<Restaurant> getGroupRecommendations(Integer sessionId,
                                                         List<Integer> memberIds) throws Exception {
-        // Collect all excluded categories from all members
-        List<String> allExcludedCategories = memberIds.stream()
+        // Collect all excluded dishes from all members
+        List<Integer> allExcludedDishIds = memberIds.stream()
             .flatMap(userId -> this.userExclusionRepository.findByUserUserId(userId).stream())
             .filter(ue -> ue.getDish() != null)
-            .map(ue -> ue.getDish().getName())
-                .distinct()
-                .collect(Collectors.toList());
+            .map(ue -> ue.getDish().getDishId())
+            .distinct()
+            .collect(Collectors.toList());
         List<Integer> allExcludedRestaurantIds = memberIds.stream()
             .flatMap(userId -> this.userExclusionRepository.findByUserUserId(userId).stream())
             .filter(ue -> ue.getRestaurant() != null)
@@ -136,17 +136,16 @@ public class RestaurantService {
             .map(ue -> ue.getIngredient().getIngredientId())
             .distinct()
             .collect(Collectors.toList());
-        List<Integer> groupIngredientRestaurantIds = restaurantIngredientRepository
+        List<Integer> groupDishRestaurantIds = restaurantDishRepository
+            .findRestaurantIdsByDishIds(allExcludedDishIds);
+        List<Integer> groupIngredientRestaurantIds = restaurantDishRepository
             .findRestaurantIdsByIngredientIds(allExcludedIngredientIds);
         
         List<Restaurant> recommended = restaurantRepository.findAllByOrderByAvgScoreDesc();
         
-        if (!allExcludedCategories.isEmpty()) {
-            recommended = recommended.stream()
-                    .filter(r -> !allExcludedCategories.contains(r.getCategory()))
-                    .collect(Collectors.toList());
+        if (!groupDishRestaurantIds.isEmpty()) {
+            allExcludedRestaurantIds.addAll(groupDishRestaurantIds);
         }
-
         if (!groupIngredientRestaurantIds.isEmpty()) {
             allExcludedRestaurantIds.addAll(groupIngredientRestaurantIds);
         }

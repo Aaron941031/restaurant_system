@@ -26,18 +26,19 @@ public class RecommendRepository {
             SELECT r.*
             FROM restaurants r
             WHERE
-                -- 排除菜系
-                r.category NOT IN (
-                    SELECT d.name
-                    FROM user_exclusions ue
-                    JOIN dishes d ON ue.categoryId = d.categoryId
-                    WHERE ue.userId = ? AND ue.categoryId IS NOT NULL
+                -- 排除指定菜餚
+                r.restaurantId NOT IN (
+                    SELECT DISTINCT rd.restaurantId
+                    FROM restaurant_dishes rd
+                    JOIN user_exclusions ue ON rd.dishId = ue.dishId
+                    WHERE ue.userId = ? AND ue.dishId IS NOT NULL
                 )
                 -- 排除含有指定食材的餐廳
                 AND r.restaurantId NOT IN (
-                    SELECT ri.restaurantId
-                    FROM restaurant_ingredients ri
-                    JOIN user_exclusions ue ON ri.ingredientId = ue.ingredientId
+                    SELECT DISTINCT rd.restaurantId
+                    FROM restaurant_dishes rd
+                    JOIN dish_ingredients di ON di.dishId = rd.dishId
+                    JOIN user_exclusions ue ON ue.ingredientId = di.ingredientId
                     WHERE ue.userId = ? AND ue.ingredientId IS NOT NULL
                 )
             ORDER BY r.avgScore DESC

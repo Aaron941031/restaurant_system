@@ -56,10 +56,22 @@ public class UserController {
 
     @PostMapping("/exclusion")
     public ResponseEntity<?> addExclusion(@RequestHeader("Authorization") String authHeader, 
-                                          @RequestParam Integer categoryId) {
+                                          @RequestParam Integer dishId) {
         try {
             Integer userId = getUserIdFromHeader(authHeader);
-            UserExclusion exclusion = userExclusionService.addExclusion(userId, categoryId);
+            UserExclusion exclusion = userExclusionService.addDishExclusion(userId, dishId);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Exclusion saved", exclusion));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
+        }
+    }
+
+    @PostMapping("/exclusion/dish")
+    public ResponseEntity<?> addDishExclusion(@RequestHeader("Authorization") String authHeader,
+                                              @RequestParam Integer dishId) {
+        try {
+            Integer userId = getUserIdFromHeader(authHeader);
+            UserExclusion exclusion = userExclusionService.addDishExclusion(userId, dishId);
             return ResponseEntity.ok(new ApiResponse<>(true, "Exclusion saved", exclusion));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
@@ -71,7 +83,7 @@ public class UserController {
                                                   @RequestParam Integer categoryId) {
         try {
             Integer userId = getUserIdFromHeader(authHeader);
-            UserExclusion exclusion = userExclusionService.addExclusion(userId, categoryId);
+            UserExclusion exclusion = userExclusionService.addDishExclusion(userId, categoryId);
             return ResponseEntity.ok(new ApiResponse<>(true, "Exclusion saved", exclusion));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
@@ -113,12 +125,24 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/exclusion/{categoryId}")
+    @DeleteMapping("/exclusion/{dishId}")
     public ResponseEntity<?> removeExclusion(@RequestHeader("Authorization") String authHeader, 
-                                             @PathVariable Integer categoryId) {
+                                             @PathVariable Integer dishId) {
         try {
             Integer userId = getUserIdFromHeader(authHeader);
-            userExclusionService.removeExclusion(userId, categoryId);
+            userExclusionService.removeDishExclusion(userId, dishId);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Exclusion removed"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/exclusion/dish/{dishId}")
+    public ResponseEntity<?> removeDishExclusion(@RequestHeader("Authorization") String authHeader,
+                                                 @PathVariable Integer dishId) {
+        try {
+            Integer userId = getUserIdFromHeader(authHeader);
+            userExclusionService.removeDishExclusion(userId, dishId);
             return ResponseEntity.ok(new ApiResponse<>(true, "Exclusion removed"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
@@ -130,7 +154,7 @@ public class UserController {
                                                      @PathVariable Integer categoryId) {
         try {
             Integer userId = getUserIdFromHeader(authHeader);
-            userExclusionService.removeExclusion(userId, categoryId);
+            userExclusionService.removeDishExclusion(userId, categoryId);
             return ResponseEntity.ok(new ApiResponse<>(true, "Exclusion removed"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));

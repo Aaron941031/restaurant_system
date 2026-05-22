@@ -9,12 +9,27 @@ import java.util.Collections;
 import java.util.List;
 
 @Repository
-public class RestaurantIngredientRepository {
+public class RestaurantDishRepository {
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public RestaurantIngredientRepository(JdbcTemplate jdbcTemplate) {
+    public RestaurantDishRepository(JdbcTemplate jdbcTemplate) {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+    }
+
+    public List<Integer> findRestaurantIdsByDishIds(List<Integer> dishIds) {
+        if (dishIds == null || dishIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("dishIds", dishIds);
+
+        return namedParameterJdbcTemplate.queryForList(
+                "SELECT DISTINCT restaurantId FROM restaurant_dishes WHERE dishId IN (:dishIds)",
+                params,
+                Integer.class
+        );
     }
 
     public List<Integer> findRestaurantIdsByIngredientIds(List<Integer> ingredientIds) {
@@ -26,7 +41,10 @@ public class RestaurantIngredientRepository {
         params.addValue("ingredientIds", ingredientIds);
 
         return namedParameterJdbcTemplate.queryForList(
-                "SELECT DISTINCT restaurantId FROM restaurant_ingredients WHERE ingredientId IN (:ingredientIds)",
+                "SELECT DISTINCT rd.restaurantId " +
+                        "FROM restaurant_dishes rd " +
+                        "JOIN dish_ingredients di ON di.dishId = rd.dishId " +
+                        "WHERE di.ingredientId IN (:ingredientIds)",
                 params,
                 Integer.class
         );

@@ -108,7 +108,7 @@ public class GroupController {
             }
 
             List<Integer> memberIds = groupSessionService.getMemberIds(id);
-                List<Restaurant> recommendations = restaurantService.getGroupRecommendations(id, memberIds);
+            List<Restaurant> recommendations = restaurantService.getGroupRecommendations(id, memberIds);
             return ResponseEntity.ok(new ApiResponse<>(true, "Group recommendations retrieved", recommendations));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));

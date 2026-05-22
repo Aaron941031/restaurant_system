@@ -23,21 +23,21 @@ public class DishRepository {
 
     private final RowMapper<Dish> rowMapper = (rs, rowNum) -> {
         Dish dish = new Dish();
-        dish.setCategoryId(rs.getInt("categoryId"));
+        dish.setDishId(rs.getInt("dishId"));
         dish.setName(rs.getString("name"));
         return dish;
     };
 
     public List<Dish> findAll() {
-        return jdbcTemplate.query("SELECT categoryId, name FROM dishes ORDER BY categoryId", rowMapper);
+        return jdbcTemplate.query("SELECT dishId, name FROM dishes ORDER BY dishId", rowMapper);
     }
 
-    public Optional<Dish> findById(Integer categoryId) {
-        return queryForOptional("SELECT categoryId, name FROM dishes WHERE categoryId = ?", categoryId);
+    public Optional<Dish> findById(Integer dishId) {
+        return queryForOptional("SELECT dishId, name FROM dishes WHERE dishId = ?", dishId);
     }
 
     public Optional<Dish> findByName(String name) {
-        return queryForOptional("SELECT categoryId, name FROM dishes WHERE name = ?", name);
+        return queryForOptional("SELECT dishId, name FROM dishes WHERE name = ?", name);
     }
 
     public boolean existsByName(String name) {
@@ -46,7 +46,7 @@ public class DishRepository {
     }
 
     public Dish save(Dish dish) {
-        if (dish.getCategoryId() == null) {
+        if (dish.getDishId() == null) {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(
@@ -60,19 +60,19 @@ public class DishRepository {
             Number key = keyHolder.getKey();
             if (key != null) {
                 return findById(key.intValue()).orElseGet(() -> {
-                    dish.setCategoryId(key.intValue());
+                    dish.setDishId(key.intValue());
                     return dish;
                 });
             }
             return dish;
         }
 
-        jdbcTemplate.update("UPDATE dishes SET name = ? WHERE categoryId = ?", dish.getName(), dish.getCategoryId());
-        return findById(dish.getCategoryId()).orElse(dish);
+        jdbcTemplate.update("UPDATE dishes SET name = ? WHERE dishId = ?", dish.getName(), dish.getDishId());
+        return findById(dish.getDishId()).orElse(dish);
     }
 
-    public void deleteById(Integer categoryId) {
-        jdbcTemplate.update("DELETE FROM dishes WHERE categoryId = ?", categoryId);
+    public void deleteById(Integer dishId) {
+        jdbcTemplate.update("DELETE FROM dishes WHERE dishId = ?", dishId);
     }
 
     public void deleteAllInBatch() {

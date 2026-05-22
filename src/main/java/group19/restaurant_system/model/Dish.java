@@ -8,7 +8,7 @@ public class Dish {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer categoryId;
+    private Integer dishId;
 
     @Column(nullable = false, unique = true)
     private String name;
@@ -20,8 +20,8 @@ public class Dish {
     }
 
     // Getters and Setters
-    public Integer getCategoryId() { return categoryId; }
-    public void setCategoryId(Integer categoryId) { this.categoryId = categoryId; }
+    public Integer getDishId() { return dishId; }
+    public void setDishId(Integer dishId) { this.dishId = dishId; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -29,7 +29,7 @@ public class Dish {
     @Override
     public String toString() {
         return "Dish{" +
-                "categoryId=" + categoryId +
+            "dishId=" + dishId +
                 ", name='" + name + '\'' +
                 '}';
     }

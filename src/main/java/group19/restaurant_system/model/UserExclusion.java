@@ -15,7 +15,7 @@ public class UserExclusion {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "categoryId")
+    @JoinColumn(name = "dishId")
     private Dish dish;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -61,13 +61,13 @@ public class UserExclusion {
 
     @Override
     public String toString() {
-        Integer categoryId = dish != null ? dish.getCategoryId() : null;
+        Integer dishId = dish != null ? dish.getDishId() : null;
         Integer ingredientId = ingredient != null ? ingredient.getIngredientId() : null;
         Integer restaurantId = restaurant != null ? restaurant.getRestaurantId() : null;
         return "UserExclusion{" +
                 "exclusionId=" + exclusionId +
             ", userId=" + (user != null ? user.getUserId() : null) +
-            ", categoryId=" + categoryId +
+            ", dishId=" + dishId +
             ", ingredientId=" + ingredientId +
             ", restaurantId=" + restaurantId +
                 '}';

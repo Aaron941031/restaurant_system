@@ -18,8 +18,8 @@ public class DishService {
         return dishRepository.findAll();
     }
 
-    public Optional<Dish> getDishById(Integer categoryId) {
-        return dishRepository.findById(categoryId);
+    public Optional<Dish> getDishById(Integer dishId) {
+        return dishRepository.findById(dishId);
     }
 
     public Optional<Dish> getDishByName(String name) {
@@ -30,7 +30,7 @@ public class DishService {
         return dishRepository.save(dish);
     }
 
-    public void deleteDish(Integer categoryId) {
-        dishRepository.deleteById(categoryId);
+    public void deleteDish(Integer dishId) {
+        dishRepository.deleteById(dishId);
     }
 }

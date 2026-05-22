@@ -250,7 +250,7 @@ function getExclusionTypeMeta(type) {
         case "ingredient":
             return { label: "選擇要排除的食材", key: "ingredients", idKey: "ingredientId" };
         case "dish":
-            return { label: "選擇要排除的菜系", key: "dishes", idKey: "categoryId" };
+            return { label: "選擇要排除的菜餚", key: "dishes", idKey: "dishId" };
         case "restaurant":
             return { label: "選擇要排除的餐廳", key: "restaurants", idKey: "restaurantId" };
         default:
@@ -329,8 +329,8 @@ async function addExclusion() {
                 notFoundItems.push(...result.notFound);
             }
         } else if (type === "dish") {
-            for (const categoryId of selectedIds) {
-                await request(`/api/user/exclusion/category?categoryId=${categoryId}`, { method: "POST" });
+            for (const dishId of selectedIds) {
+                await request(`/api/user/exclusion/dish?dishId=${dishId}`, { method: "POST" });
                 exclusionsAdded++;
             }
         } else if (type === "restaurant") {
@@ -392,9 +392,9 @@ async function loadExclusions() {
 
             if (e.dish && e.dish.name) {
                 return {
-                    type: 'category',
+                    type: 'dish',
                     value: e.dish.name,
-                    categoryId: e.dish.categoryId
+                    dishId: e.dish.dishId
                 };
             }
 
@@ -432,8 +432,8 @@ function renderExclusions() {
             case 'ingredient':
                 typeLabel = "食材";
                 break;
-            case 'category':
-                typeLabel = "菜系";
+            case 'dish':
+                typeLabel = "菜餚";
                 break;
             case 'restaurant':
                 typeLabel = "餐廳";
@@ -444,7 +444,7 @@ function renderExclusions() {
 
         let targetId = "";
         if (pref.type === "ingredient") targetId = pref.ingredientId;
-        if (pref.type === "category") targetId = pref.categoryId;
+        if (pref.type === "dish") targetId = pref.dishId;
         if (pref.type === "restaurant") targetId = pref.restaurantId;
 
         const actionButton = targetId
@@ -477,8 +477,8 @@ async function removeExclusion(type, targetId) {
 
         if (type === "ingredient") {
             await request(`/api/user/exclusion/ingredient/${targetId}`, { method: "DELETE" });
-        } else if (type === "category") {
-            await request(`/api/user/exclusion/category/${targetId}`, { method: "DELETE" });
+        } else if (type === "dish") {
+            await request(`/api/user/exclusion/dish/${targetId}`, { method: "DELETE" });
         } else if (type === "restaurant") {
             await request(`/api/user/exclusion/restaurant/${targetId}`, { method: "DELETE" });
         } else {

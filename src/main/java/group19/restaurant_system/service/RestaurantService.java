@@ -22,6 +22,9 @@ public class RestaurantService {
     @Autowired
     private UserExclusionRepository userExclusionRepository;
 
+    @Autowired
+    private RestaurantIngredientRepository restaurantIngredientRepository;
+
     public Optional<Restaurant> getRestaurantById(Integer restaurantId) {
         return restaurantRepository.findById(restaurantId);
     }
@@ -73,6 +76,13 @@ public class RestaurantService {
             .filter(ue -> ue.getRestaurant() != null)
             .map(ue -> ue.getRestaurant().getRestaurantId())
             .collect(Collectors.toList());
+        List<Integer> excludedIngredientIds = exclusions.stream()
+            .filter(ue -> ue.getIngredient() != null)
+            .map(ue -> ue.getIngredient().getIngredientId())
+            .distinct()
+            .collect(Collectors.toList());
+        List<Integer> ingredientRestaurantIds = restaurantIngredientRepository
+            .findRestaurantIdsByIngredientIds(excludedIngredientIds);
         
         // Get recommended restaurants
         List<Restaurant> recommended = restaurantRepository.findAllByOrderByAvgScoreDesc();
@@ -81,6 +91,10 @@ public class RestaurantService {
             recommended = recommended.stream()
                     .filter(r -> !excludedCategories.contains(r.getCategory()))
                     .collect(Collectors.toList());
+        }
+
+        if (!ingredientRestaurantIds.isEmpty()) {
+            excludedRestaurantIds.addAll(ingredientRestaurantIds);
         }
 
         if (!excludedRestaurantIds.isEmpty()) {
@@ -101,22 +115,29 @@ public class RestaurantService {
     }
 
     @Transactional
-    public List<Restaurant> getGroupRecommendations(Integer sessionId,
-                                                    List<Integer> memberIds,
-                                                    UserExclusionRepository userExclusionRepository) throws Exception {
+        public List<Restaurant> getGroupRecommendations(Integer sessionId,
+                                                        List<Integer> memberIds) throws Exception {
         // Collect all excluded categories from all members
         List<String> allExcludedCategories = memberIds.stream()
-                .flatMap(userId -> userExclusionRepository.findByUserUserId(userId).stream())
+            .flatMap(userId -> this.userExclusionRepository.findByUserUserId(userId).stream())
             .filter(ue -> ue.getDish() != null)
             .map(ue -> ue.getDish().getName())
                 .distinct()
                 .collect(Collectors.toList());
         List<Integer> allExcludedRestaurantIds = memberIds.stream()
-            .flatMap(userId -> userExclusionRepository.findByUserUserId(userId).stream())
+            .flatMap(userId -> this.userExclusionRepository.findByUserUserId(userId).stream())
             .filter(ue -> ue.getRestaurant() != null)
             .map(ue -> ue.getRestaurant().getRestaurantId())
             .distinct()
             .collect(Collectors.toList());
+        List<Integer> allExcludedIngredientIds = memberIds.stream()
+            .flatMap(userId -> this.userExclusionRepository.findByUserUserId(userId).stream())
+            .filter(ue -> ue.getIngredient() != null)
+            .map(ue -> ue.getIngredient().getIngredientId())
+            .distinct()
+            .collect(Collectors.toList());
+        List<Integer> groupIngredientRestaurantIds = restaurantIngredientRepository
+            .findRestaurantIdsByIngredientIds(allExcludedIngredientIds);
         
         List<Restaurant> recommended = restaurantRepository.findAllByOrderByAvgScoreDesc();
         
@@ -124,6 +145,10 @@ public class RestaurantService {
             recommended = recommended.stream()
                     .filter(r -> !allExcludedCategories.contains(r.getCategory()))
                     .collect(Collectors.toList());
+        }
+
+        if (!groupIngredientRestaurantIds.isEmpty()) {
+            allExcludedRestaurantIds.addAll(groupIngredientRestaurantIds);
         }
 
         if (!allExcludedRestaurantIds.isEmpty()) {

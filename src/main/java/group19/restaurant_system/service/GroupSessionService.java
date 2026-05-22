@@ -2,6 +2,7 @@ package group19.restaurant_system.service;
 
 import group19.restaurant_system.model.GroupSession;
 import group19.restaurant_system.model.User;
+import group19.restaurant_system.repository.GroupMemberRepository;
 import group19.restaurant_system.repository.GroupSessionRepository;
 import group19.restaurant_system.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,9 @@ public class GroupSessionService {
     
     @Autowired
     private GroupSessionRepository groupSessionRepository;
+
+    @Autowired
+    private GroupMemberRepository groupMemberRepository;
     
     @Autowired
     private UserRepository userRepository;
@@ -31,7 +35,9 @@ public class GroupSessionService {
         String inviteCode = generateUniqueInviteCode();
         
         GroupSession session = new GroupSession(userOpt.get(), inviteCode);
-        return groupSessionRepository.save(session);
+        GroupSession saved = groupSessionRepository.save(session);
+        groupMemberRepository.addMember(saved.getSessionId(), userId);
+        return saved;
     }
 
     public Optional<GroupSession> getGroupSessionById(Integer sessionId) {
@@ -55,11 +61,23 @@ public class GroupSessionService {
             throw new Exception("This group session has ended");
         }
         
-        // Note: For now, we just verify the session exists
-        // In a production system, you would need a GroupMember table to track members
-        // and verify the user is not already a member
-        
+        if (!groupMemberRepository.existsBySessionIdAndUserId(session.getSessionId(), userId)) {
+            groupMemberRepository.addMember(session.getSessionId(), userId);
+        }
+
         return session;
+    }
+
+    public boolean isMember(Integer sessionId, Integer userId) {
+        return groupMemberRepository.existsBySessionIdAndUserId(sessionId, userId);
+    }
+
+    public java.util.List<Integer> getMemberIds(Integer sessionId) {
+        return groupMemberRepository.findMemberIdsBySessionId(sessionId);
+    }
+
+    public java.util.List<GroupSession> getUserGroups(Integer userId) {
+        return groupMemberRepository.findSessionsByUserId(userId);
     }
 
     @Transactional

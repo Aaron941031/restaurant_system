@@ -67,6 +67,17 @@ CREATE TABLE IF NOT EXISTS group_sessions (
     FOREIGN KEY (creatorId) REFERENCES users(userId) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Create group_members table
+CREATE TABLE IF NOT EXISTS group_members (
+    memberId INT PRIMARY KEY AUTO_INCREMENT,
+    sessionId INT NOT NULL,
+    userId INT NOT NULL,
+    joinedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_group_member (sessionId, userId),
+    FOREIGN KEY (sessionId) REFERENCES group_sessions(sessionId) ON DELETE CASCADE,
+    FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Create records table (history)
 CREATE TABLE IF NOT EXISTS records (
     recordId INT PRIMARY KEY AUTO_INCREMENT,
@@ -108,7 +119,7 @@ INSERT IGNORE INTO ingredients (name) VALUES
 ('雞肉'), ('豬肉'), ('牛肉'), ('羊肉'), ('海鮮'), ('魚'), ('蝦'), ('貝類'), ('香菇'), ('茄子');
 
 -- 新增餐廳食材關聯表
-CREATE TABLE IF NOT EXISTS restaurantIngredients (
+CREATE TABLE IF NOT EXISTS restaurant_ingredients (
     id INT PRIMARY KEY AUTO_INCREMENT,
     restaurantId INT NOT NULL,
     ingredientId INT NOT NULL,

@@ -33,6 +33,8 @@ function goPage(pageName) {
         } else if (pageName === 'recommend') {
             loadExclusionOptions();
             hideExclusions();
+        } else if (pageName === 'groups') {
+            loadMyGroups();
         }
     }
     window.scrollTo(0, 0);
@@ -535,6 +537,7 @@ async function createGroup() {
             </div>
         `;
         showToast("群組已建立", "success");
+        loadMyGroups();
     } catch (err) {
         showToast(err.message, "error");
     }
@@ -558,10 +561,74 @@ document.getElementById("join-group-form").addEventListener("submit", async (e) 
         `;
         showToast("已加入群組", "success");
         e.target.reset();
+        loadMyGroups();
     } catch (err) {
         showToast(err.message, "error");
     }
 });
+
+async function loadMyGroups() {
+    try {
+        if (!state.token) throw new Error("請先登入");
+        const groups = await request("/api/groups/my");
+        renderMyGroups(groups);
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+}
+
+function renderMyGroups(groups) {
+    const container = document.getElementById("my-groups-list");
+    if (!container) return;
+    if (!groups.length) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"></div>尚未加入群組</div>';
+        return;
+    }
+
+    container.innerHTML = groups.map(group => `
+        <div class="list-item">
+            <div class="list-item-title">群組 #${group.sessionId}</div>
+            <div class="list-item-meta">
+                狀態：${group.status} | 邀請碼：${group.inviteCode}
+            </div>
+            <div class="button-group" style="margin-top: 12px;">
+                <button type="button" class="btn-secondary" onclick="loadGroupRecommendations(${group.sessionId})">查看推薦</button>
+            </div>
+        </div>
+    `).join("");
+}
+
+async function loadGroupRecommendations(sessionId) {
+    try {
+        if (!state.token) throw new Error("請先登入");
+        const recs = await request(`/api/groups/${sessionId}/recommend`);
+        renderGroupRecommendations(recs, sessionId);
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+}
+
+function renderGroupRecommendations(recommendations, sessionId) {
+    const container = document.getElementById("group-recommend-list");
+    if (!container) return;
+    if (!recommendations.length) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⭐</div>暫無推薦</div>';
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="list-item" style="margin-bottom: 12px;">
+            <div class="list-item-title">群組 #${sessionId} 推薦</div>
+        </div>
+    ` + recommendations.map(r => `
+        <div class="list-item">
+            <div class="list-item-title">${r.name}</div>
+            <div class="list-item-meta">
+                分類：<strong>${r.category}</strong> | 評分：⭐ ${r.avgScore.toFixed(1)} | ${r.priceRange}
+            </div>
+        </div>
+    `).join("");
+}
 
 // ============ 歷史紀錄功能 ============
 

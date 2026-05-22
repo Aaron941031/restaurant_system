@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/groups")
+@RequestMapping("/api/groups")
 @CrossOrigin(origins = "*")
 public class GroupController {
     

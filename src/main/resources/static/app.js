@@ -117,7 +117,7 @@ document.getElementById("register-form").addEventListener("submit", async (e) =>
     e.preventDefault();
     try {
         const body = formDataToJson(e.target);
-        const data = await request("/auth/register", { method: "POST", body: JSON.stringify(body) });
+        const data = await request("/api/auth/register", { method: "POST", body: JSON.stringify(body) });
         setSession(data.token, data.userId, data.name);
         showToast("註冊成功！歡迎 " + data.name, "success");
         goPage("menu");
@@ -130,7 +130,7 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     try {
         const body = formDataToJson(e.target);
-        const data = await request("/auth/login", { method: "POST", body: JSON.stringify(body) });
+        const data = await request("/api/auth/login", { method: "POST", body: JSON.stringify(body) });
         setSession(data.token, data.userId, data.name);
         showToast("登入成功！", "success");
         goPage("menu");
@@ -143,7 +143,7 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
 
 async function loadRestaurants() {
     try {
-        state.restaurants = await request("/restaurant/all");
+        state.restaurants = await request("/api/restaurant/all");
         renderRestaurants();
     } catch (err) {
         showToast(err.message, "error");
@@ -173,7 +173,7 @@ document.getElementById("restaurant-form").addEventListener("submit", async (e) 
         const body = formDataToJson(e.target);
         body.avgScore = 0;
         body.ratingCount = 0;
-        await request("/restaurant/save", { method: "POST", body: JSON.stringify(body) });
+        await request("/api/restaurant/save", { method: "POST", body: JSON.stringify(body) });
         showToast("餐廳已新增", "success");
         e.target.reset();
         loadRestaurants();
@@ -204,7 +204,7 @@ document.getElementById("rating-form").addEventListener("submit", async (e) => {
         const body = formDataToJson(e.target);
         body.restaurantId = Number(body.restaurantId);
         body.score = Number(body.score);
-        await request("/restaurant/rate", { method: "POST", body: JSON.stringify(body) });
+        await request("/api/restaurant/rate", { method: "POST", body: JSON.stringify(body) });
         showToast("評分已送出", "success");
         e.target.reset();
         loadRestaurants();
@@ -217,7 +217,7 @@ document.getElementById("rating-form").addEventListener("submit", async (e) => {
 
 async function loadDishes() {
     try {
-        const dishes = await request("/dish/all");
+        const dishes = await request("/api/dish/all");
         state.dishes = dishes;
         
         // 載入餐廳選項
@@ -253,7 +253,7 @@ async function addExclusion() {
 
         // 食材排除：送到後端模糊比對
         if (ingredients) {
-            const result = await request("/user/exclusion/ingredient", {
+            const result = await request("/api/user/exclusion/ingredient", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ ingredients })
@@ -277,7 +277,7 @@ async function addExclusion() {
             if (restaurant) {
                 const dish = state.dishes.find(d => d.name === restaurant.category);
                 if (dish) {
-                    await request(`/user/exclusion/category?categoryId=${dish.categoryId}`, { method: "POST" });
+                    await request(`/api/user/exclusion/category?categoryId=${dish.categoryId}`, { method: "POST" });
                     state.userExclusionPreferences.push({ type: 'restaurant', value: restaurant.name });
                     exclusionsAdded++;
                 }
@@ -287,7 +287,7 @@ async function addExclusion() {
 
         // 菜餚排除：同樣送到後端比對
         if (dishes) {
-            const result = await request("/user/exclusion/ingredient", {
+            const result = await request("/api/user/exclusion/ingredient", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ ingredients: dishes })
@@ -321,14 +321,6 @@ async function addExclusion() {
     }
 }
 
-// normalizeInputText 只保留基本清理，分割邏輯移到後端
-function normalizeInputText(text) {
-    if (!text) return '';
-    return text.trim();
-}
-
-// mapIngredientToCategory、mapRestaurantNameToCategory、mapDishNameToCategory 全部刪除
-
 // 輔助函數：標準化排除輸入文字
 function normalizeInputText(text) {
     if (!text) return '';
@@ -339,12 +331,11 @@ function normalizeInputText(text) {
         .replace(/[()（）]/g, '')
         .replace(/　/g, '')               // 全形空格直接移除
         .replace(/\s+/g, '')              // 中文詞彙間不需要空格
-        // 移除 .toLowerCase()，雖對中文無害但無意義
 }
 
 async function loadExclusions() {
     try {
-        const exclusions = await request("/user/exclusions");
+        const exclusions = await request("/api/user/exclusions");
         state.currentExclusions = exclusions;
         
         // 如果沒有用戶偏好數據，嘗試從分類數據重建（簡化版本）
@@ -398,7 +389,7 @@ function renderExclusions() {
 async function getRecommendations() {
     try {
         if (!state.token) throw new Error("請先登入");
-        const recs = await request("/recommend/personal");
+        const recs = await request("/api/recommend/personal");
         
         const container = document.getElementById("recommend-list");
         if (!recs.length) {
@@ -424,7 +415,7 @@ async function getRecommendations() {
 async function createGroup() {
     try {
         if (!state.token) throw new Error("請先登入");
-        const session = await request("/groups/create", { method: "POST" });
+        const session = await request("/api/groups/create", { method: "POST" });
         
         const display = document.getElementById("group-display");
         display.innerHTML = `
@@ -450,7 +441,7 @@ document.getElementById("join-group-form").addEventListener("submit", async (e) 
     try {
         if (!state.token) throw new Error("請先登入");
         const body = formDataToJson(e.target);
-        const session = await request(`/groups/join?inviteCode=${body.inviteCode}`, { method: "POST" });
+        const session = await request(`/api/groups/join?inviteCode=${body.inviteCode}`, { method: "POST" });
         
         const display = document.getElementById("group-display");
         display.innerHTML = `
@@ -477,7 +468,7 @@ document.getElementById("history-form").addEventListener("submit", async (e) => 
         const body = formDataToJson(e.target);
         body.restaurantId = Number(body.restaurantId);
         
-        await request("/history/save", { method: "POST", body: JSON.stringify(body) });
+        await request("/api/history/save", { method: "POST", body: JSON.stringify(body) });
         showToast("紀錄已保存", "success");
         e.target.reset();
         loadHistory();
@@ -489,7 +480,7 @@ document.getElementById("history-form").addEventListener("submit", async (e) => 
 async function loadHistory() {
     try {
         if (!state.token) throw new Error("請先登入");
-        const history = await request("/history/me");
+        const history = await request("/api/history/me");
         
         const container = document.getElementById("history-list");
         if (!history.length) {

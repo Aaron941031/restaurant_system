@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/history")
+@RequestMapping("/api/history")
 @CrossOrigin(origins = "*")
 public class HistoryController {
     

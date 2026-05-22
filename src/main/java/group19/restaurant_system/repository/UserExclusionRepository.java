@@ -1,6 +1,7 @@
 package group19.restaurant_system.repository;
 
 import group19.restaurant_system.model.Dish;
+import group19.restaurant_system.model.Ingredient;
 import group19.restaurant_system.model.User;
 import group19.restaurant_system.model.UserExclusion;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,10 +29,12 @@ public class UserExclusionRepository {
     private static final String BASE_SELECT =
             "SELECT ue.exclusionId, " +
                     "u.userId AS u_userId, u.name AS u_name, u.email AS u_email, u.password AS u_password, u.createdAt AS u_createdAt, u.updatedAt AS u_updatedAt, " +
-                    "d.categoryId AS d_categoryId, d.name AS d_name " +
+                "d.categoryId AS d_categoryId, d.name AS d_name, " +
+                "i.ingredientId AS i_ingredientId, i.name AS i_name " +
                     "FROM user_exclusions ue " +
                     "JOIN users u ON u.userId = ue.userId " +
-                    "JOIN dishes d ON d.categoryId = ue.categoryId ";
+                "LEFT JOIN dishes d ON d.categoryId = ue.categoryId " +
+                "LEFT JOIN ingredients i ON i.ingredientId = ue.ingredientId ";
 
     private final RowMapper<UserExclusion> rowMapper = (rs, rowNum) -> {
         UserExclusion exclusion = new UserExclusion();
@@ -51,10 +55,21 @@ public class UserExclusionRepository {
         }
         exclusion.setUser(user);
 
-        Dish dish = new Dish();
-        dish.setCategoryId(rs.getInt("d_categoryId"));
-        dish.setName(rs.getString("d_name"));
-        exclusion.setDish(dish);
+        Integer dishId = (Integer) rs.getObject("d_categoryId");
+        if (dishId != null) {
+            Dish dish = new Dish();
+            dish.setCategoryId(dishId);
+            dish.setName(rs.getString("d_name"));
+            exclusion.setDish(dish);
+        }
+
+        Integer ingredientId = (Integer) rs.getObject("i_ingredientId");
+        if (ingredientId != null) {
+            Ingredient ingredient = new Ingredient();
+            ingredient.setIngredientId(ingredientId);
+            ingredient.setName(rs.getString("i_name"));
+            exclusion.setIngredient(ingredient);
+        }
 
         return exclusion;
     };
@@ -68,6 +83,26 @@ public class UserExclusionRepository {
         return jdbcTemplate.query(BASE_SELECT + "WHERE ue.userId = ?", rowMapper, userId);
     }
 
+    public Optional<UserExclusion> findByUserUserIdAndDishCategoryId(Integer userId, Integer categoryId) {
+        List<UserExclusion> results = jdbcTemplate.query(
+                BASE_SELECT + "WHERE ue.userId = ? AND ue.categoryId = ?",
+                rowMapper,
+                userId,
+                categoryId
+        );
+        return results.stream().findFirst();
+    }
+
+    public Optional<UserExclusion> findByUserUserIdAndIngredientId(Integer userId, Integer ingredientId) {
+        List<UserExclusion> results = jdbcTemplate.query(
+                BASE_SELECT + "WHERE ue.userId = ? AND ue.ingredientId = ?",
+                rowMapper,
+                userId,
+                ingredientId
+        );
+        return results.stream().findFirst();
+    }
+
     public boolean existsByUserUserIdAndDishCategoryId(Integer userId, Integer categoryId) {
         Integer count = jdbcTemplate.queryForObject(
                 "SELECT COUNT(1) FROM user_exclusions WHERE userId = ? AND categoryId = ?",
@@ -78,16 +113,35 @@ public class UserExclusionRepository {
         return count != null && count > 0;
     }
 
+    public boolean existsByUserUserIdAndIngredientId(Integer userId, Integer ingredientId) {
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(1) FROM user_exclusions WHERE userId = ? AND ingredientId = ?",
+                Integer.class,
+                userId,
+                ingredientId
+        );
+        return count != null && count > 0;
+    }
+
     public UserExclusion save(UserExclusion exclusion) {
         if (exclusion.getExclusionId() == null) {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(
-                        "INSERT INTO user_exclusions (userId, categoryId) VALUES (?, ?)",
+                        "INSERT INTO user_exclusions (userId, categoryId, ingredientId) VALUES (?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS
                 );
                 ps.setInt(1, exclusion.getUser().getUserId());
-                ps.setInt(2, exclusion.getDish().getCategoryId());
+                if (exclusion.getDish() != null) {
+                    ps.setInt(2, exclusion.getDish().getCategoryId());
+                } else {
+                    ps.setNull(2, Types.INTEGER);
+                }
+                if (exclusion.getIngredient() != null) {
+                    ps.setInt(3, exclusion.getIngredient().getIngredientId());
+                } else {
+                    ps.setNull(3, Types.INTEGER);
+                }
                 return ps;
             }, keyHolder);
 
@@ -101,12 +155,24 @@ public class UserExclusionRepository {
             return exclusion;
         }
 
-        jdbcTemplate.update(
-                "UPDATE user_exclusions SET userId = ?, categoryId = ? WHERE exclusionId = ?",
-                exclusion.getUser().getUserId(),
-                exclusion.getDish().getCategoryId(),
-                exclusion.getExclusionId()
-        );
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(
+                    "UPDATE user_exclusions SET userId = ?, categoryId = ?, ingredientId = ? WHERE exclusionId = ?"
+            );
+            ps.setInt(1, exclusion.getUser().getUserId());
+            if (exclusion.getDish() != null) {
+                ps.setInt(2, exclusion.getDish().getCategoryId());
+            } else {
+                ps.setNull(2, Types.INTEGER);
+            }
+            if (exclusion.getIngredient() != null) {
+                ps.setInt(3, exclusion.getIngredient().getIngredientId());
+            } else {
+                ps.setNull(3, Types.INTEGER);
+            }
+            ps.setInt(4, exclusion.getExclusionId());
+            return ps;
+        });
         return findById(exclusion.getExclusionId()).orElse(exclusion);
     }
 

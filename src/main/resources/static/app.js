@@ -249,6 +249,7 @@ async function addExclusion() {
         }
 
         let exclusionsAdded = 0;
+        let existingCount = 0;
         let notFoundItems = [];
 
         // 食材排除：送到後端模糊比對
@@ -259,12 +260,8 @@ async function addExclusion() {
                 body: JSON.stringify({ ingredients })
             });
 
-            if (result.added?.length > 0) {
-                exclusionsAdded += result.added.length;
-                result.added.forEach(name => {
-                    state.userExclusionPreferences.push({ type: 'ingredient', value: name });
-                });
-            }
+            exclusionsAdded += result.added?.length || 0;
+            existingCount += result.existing?.length || 0;
             if (result.notFound?.length > 0) {
                 notFoundItems.push(...result.notFound);
             }
@@ -278,7 +275,6 @@ async function addExclusion() {
                 const dish = state.dishes.find(d => d.name === restaurant.category);
                 if (dish) {
                     await request(`/api/user/exclusion/category?categoryId=${dish.categoryId}`, { method: "POST" });
-                    state.userExclusionPreferences.push({ type: 'restaurant', value: restaurant.name });
                     exclusionsAdded++;
                 }
             }
@@ -293,25 +289,27 @@ async function addExclusion() {
                 body: JSON.stringify({ ingredients: dishes })
             });
 
-            if (result.added?.length > 0) {
-                exclusionsAdded += result.added.length;
-                result.added.forEach(name => {
-                    state.userExclusionPreferences.push({ type: 'dish', value: name });
-                });
-            }
+            exclusionsAdded += result.added?.length || 0;
+            existingCount += result.existing?.length || 0;
             if (result.notFound?.length > 0) {
                 notFoundItems.push(...result.notFound);
             }
             dishesInput.value = "";
         }
 
-        if (exclusionsAdded > 0) {
+        if (exclusionsAdded > 0 || existingCount > 0) {
             await loadExclusions();
-            let message = `已加入 ${exclusionsAdded} 個排除項目`;
-            if (notFoundItems.length > 0) {
-                message += `，資料庫中找不到：${notFoundItems.join('、')}`;
+            let messageParts = [];
+            if (exclusionsAdded > 0) {
+                messageParts.push(`已加入 ${exclusionsAdded} 個排除項目`);
             }
-            showToast(message, "success");
+            if (existingCount > 0) {
+                messageParts.push(`已有 ${existingCount} 個排除項目`);
+            }
+            if (notFoundItems.length > 0) {
+                messageParts.push(`資料庫中找不到：${notFoundItems.join('、')}`);
+            }
+            showToast(messageParts.join('，'), "success");
         } else {
             throw new Error(`資料庫中找不到這些項目：${notFoundItems.join('、')}`);
         }
@@ -337,15 +335,29 @@ async function loadExclusions() {
     try {
         const exclusions = await request("/api/user/exclusions");
         state.currentExclusions = exclusions;
-        
-        // 如果沒有用戶偏好數據，嘗試從分類數據重建（簡化版本）
-        if (!state.userExclusionPreferences.length && exclusions.length > 0) {
-            state.userExclusionPreferences = exclusions.map(e => ({
-                type: 'category',
-                value: e.dish ? e.dish.name : `分類 ${e.categoryId}`,
-                categoryId: e.dish ? e.dish.categoryId : e.categoryId
-            }));
-        }
+
+        state.userExclusionPreferences = exclusions.map(e => {
+            if (e.ingredient && e.ingredient.name) {
+                return {
+                    type: 'ingredient',
+                    value: e.ingredient.name,
+                    ingredientId: e.ingredient.ingredientId
+                };
+            }
+
+            if (e.dish && e.dish.name) {
+                return {
+                    type: 'category',
+                    value: e.dish.name,
+                    categoryId: e.dish.categoryId
+                };
+            }
+
+            return {
+                type: 'other',
+                value: `排除項目 ${e.exclusionId}`
+            };
+        });
         
         renderExclusions();
     } catch (err) {
@@ -366,6 +378,9 @@ function renderExclusions() {
         switch (pref.type) {
             case 'ingredient':
                 typeLabel = "食物品項";
+                break;
+            case 'category':
+                typeLabel = "菜系";
                 break;
             case 'restaurant':
                 typeLabel = "餐廳";

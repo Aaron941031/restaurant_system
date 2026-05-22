@@ -1,6 +1,8 @@
 package group19.restaurant_system.controller;
 
 import group19.restaurant_system.dto.ApiResponse;
+import group19.restaurant_system.dto.ExclusionBatchResult;
+import group19.restaurant_system.dto.IngredientExclusionRequest;
 import group19.restaurant_system.model.User;
 import group19.restaurant_system.model.UserExclusion;
 import group19.restaurant_system.service.UserService;
@@ -58,7 +60,31 @@ public class UserController {
         try {
             Integer userId = getUserIdFromHeader(authHeader);
             UserExclusion exclusion = userExclusionService.addExclusion(userId, categoryId);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true, "Exclusion added", exclusion));
+            return ResponseEntity.ok(new ApiResponse<>(true, "Exclusion saved", exclusion));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
+        }
+    }
+
+    @PostMapping("/exclusion/category")
+    public ResponseEntity<?> addCategoryExclusion(@RequestHeader("Authorization") String authHeader,
+                                                  @RequestParam Integer categoryId) {
+        try {
+            Integer userId = getUserIdFromHeader(authHeader);
+            UserExclusion exclusion = userExclusionService.addExclusion(userId, categoryId);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Exclusion saved", exclusion));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
+        }
+    }
+
+    @PostMapping("/exclusion/ingredient")
+    public ResponseEntity<?> addIngredientExclusions(@RequestHeader("Authorization") String authHeader,
+                                                     @RequestBody IngredientExclusionRequest request) {
+        try {
+            Integer userId = getUserIdFromHeader(authHeader);
+            ExclusionBatchResult result = userExclusionService.addIngredientExclusions(userId, request.getIngredients());
+            return ResponseEntity.ok(new ApiResponse<>(true, "Exclusions saved", result));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
         }

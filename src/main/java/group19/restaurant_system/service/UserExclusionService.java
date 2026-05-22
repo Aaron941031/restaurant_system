@@ -1,17 +1,24 @@
 package group19.restaurant_system.service;
 
+import group19.restaurant_system.dto.ExclusionBatchResult;
 import group19.restaurant_system.model.UserExclusion;
 import group19.restaurant_system.model.User;
 import group19.restaurant_system.model.Dish;
+import group19.restaurant_system.model.Ingredient;
 import group19.restaurant_system.repository.UserExclusionRepository;
 import group19.restaurant_system.repository.UserRepository;
 import group19.restaurant_system.repository.DishRepository;
+import group19.restaurant_system.repository.IngredientRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserExclusionService {
@@ -24,6 +31,9 @@ public class UserExclusionService {
     
     @Autowired
     private DishRepository dishRepository;
+
+    @Autowired
+    private IngredientRepository ingredientRepository;
 
     public List<UserExclusion> getUserExclusions(Integer userId) {
         return userExclusionRepository.findByUserUserId(userId);
@@ -42,14 +52,75 @@ public class UserExclusionService {
         if (!dishOpt.isPresent()) {
             throw new Exception("Dish category not found");
         }
-        
-        // Check if already exists
-        if (userExclusionRepository.existsByUserUserIdAndDishCategoryId(userId, categoryId)) {
-            throw new Exception("This exclusion already exists");
+
+        // Return existing record if already stored
+        Optional<UserExclusion> existing = userExclusionRepository.findByUserUserIdAndDishCategoryId(userId, categoryId);
+        if (existing.isPresent()) {
+            return existing.get();
         }
-        
+
         UserExclusion exclusion = new UserExclusion(userOpt.get(), dishOpt.get());
         return userExclusionRepository.save(exclusion);
+    }
+
+    @Transactional
+    public ExclusionBatchResult addIngredientExclusions(Integer userId, String ingredientsText) throws Exception {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (!userOpt.isPresent()) {
+            throw new Exception("User not found");
+        }
+
+        List<String> ingredientNames = parseIngredientNames(ingredientsText);
+        if (ingredientNames.isEmpty()) {
+            throw new Exception("No ingredients provided");
+        }
+
+        List<String> added = new ArrayList<>();
+        List<String> existing = new ArrayList<>();
+        List<String> notFound = new ArrayList<>();
+
+        for (String name : ingredientNames) {
+            Optional<Ingredient> ingredientOpt = ingredientRepository.findByName(name);
+            if (!ingredientOpt.isPresent()) {
+                notFound.add(name);
+                continue;
+            }
+
+            Ingredient ingredient = ingredientOpt.get();
+            if (userExclusionRepository.existsByUserUserIdAndIngredientId(userId, ingredient.getIngredientId())) {
+                existing.add(name);
+                continue;
+            }
+
+            UserExclusion exclusion = new UserExclusion(userOpt.get(), ingredient);
+            userExclusionRepository.save(exclusion);
+            added.add(name);
+        }
+
+        return new ExclusionBatchResult(added, existing, notFound);
+    }
+
+    private List<String> parseIngredientNames(String ingredientsText) {
+        if (ingredientsText == null) {
+            return new ArrayList<>();
+        }
+
+        String normalized = ingredientsText
+                .replace("\n", ",")
+                .replace("，", ",")
+                .replace(";", ",")
+                .replace("；", ",");
+
+        String[] rawItems = normalized.split(",");
+        Set<String> names = new LinkedHashSet<>();
+        for (String item : rawItems) {
+            String value = item.trim();
+            if (!value.isEmpty()) {
+                names.add(value);
+            }
+        }
+
+        return names.stream().collect(Collectors.toList());
     }
 
     @Transactional

@@ -114,4 +114,23 @@ public class GroupController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
         }
     }
+
+    @GetMapping("/{id}/recommend/remaining")
+    public ResponseEntity<?> getGroupRecommendationsByRemaining(@RequestHeader("Authorization") String authHeader,
+                                                                 @PathVariable Integer id,
+                                                                 @RequestParam(required = false, defaultValue = "5") Integer limit) {
+        try {
+            Integer userId = getUserIdFromHeader(authHeader);
+            if (!groupSessionService.isMember(id, userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(new ApiResponse<>(false, "Not a member of this group"));
+            }
+
+            List<Integer> memberIds = groupSessionService.getMemberIds(id);
+            List<?> recommendations = restaurantService.getGroupRestaurantsByRemainingDishes(id, memberIds, limit);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Group restaurants by remaining dishes retrieved", recommendations));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
+        }
+    }
 }

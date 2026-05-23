@@ -49,4 +49,34 @@ public class RestaurantDishRepository {
                 Integer.class
         );
     }
+
+    public List<java.util.Map<String, Object>> findRemainingDishCountsByExclusions(List<Integer> excludedDishIds, List<Integer> excludedIngredientIds, int limit) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+
+        // Use sentinel values when lists are empty to keep SQL simple
+        if (excludedDishIds == null || excludedDishIds.isEmpty()) {
+            params.addValue("excludedDishIds", java.util.List.of(-1));
+        } else {
+            params.addValue("excludedDishIds", excludedDishIds);
+        }
+
+        if (excludedIngredientIds == null || excludedIngredientIds.isEmpty()) {
+            params.addValue("excludedIngredientIds", java.util.List.of(-1));
+        } else {
+            params.addValue("excludedIngredientIds", excludedIngredientIds);
+        }
+        params.addValue("limit", limit);
+
+        String sql = "SELECT rd.restaurantId, COUNT(DISTINCT rd.dishId) AS remainingCount " +
+                "FROM restaurant_dishes rd " +
+                "LEFT JOIN dish_ingredients di ON di.dishId = rd.dishId " +
+                "WHERE rd.dishId NOT IN (:excludedDishIds) " +
+                "AND rd.dishId NOT IN (SELECT dishId FROM dish_ingredients WHERE ingredientId IN (:excludedIngredientIds)) " +
+                "GROUP BY rd.restaurantId " +
+                "HAVING remainingCount > 0 " +
+                "ORDER BY remainingCount DESC " +
+                "LIMIT :limit";
+
+        return namedParameterJdbcTemplate.queryForList(sql, params);
+    }
 }

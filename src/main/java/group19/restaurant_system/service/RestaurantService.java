@@ -9,6 +9,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Map;
+
+import group19.restaurant_system.dto.RestaurantRemainingDto;
 
 @Service
 public class RestaurantService {
@@ -164,5 +168,37 @@ public class RestaurantService {
         return recommended.stream()
                 .limit(5)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<RestaurantRemainingDto> getGroupRestaurantsByRemainingDishes(Integer sessionId,
+                                                                              List<Integer> memberIds,
+                                                                              int limit) throws Exception {
+        // Collect all excluded dishes/ingredients from members
+        List<Integer> allExcludedDishIds = memberIds.stream()
+            .flatMap(userId -> this.userExclusionRepository.findByUserUserId(userId).stream())
+            .filter(ue -> ue.getDish() != null)
+            .map(ue -> ue.getDish().getDishId())
+            .distinct()
+            .collect(Collectors.toList());
+        List<Integer> allExcludedIngredientIds = memberIds.stream()
+            .flatMap(userId -> this.userExclusionRepository.findByUserUserId(userId).stream())
+            .filter(ue -> ue.getIngredient() != null)
+            .map(ue -> ue.getIngredient().getIngredientId())
+            .distinct()
+            .collect(Collectors.toList());
+
+        List<Map<String, Object>> rows = this.restaurantDishRepository
+            .findRemainingDishCountsByExclusions(allExcludedDishIds, allExcludedIngredientIds, limit);
+
+        List<RestaurantRemainingDto> result = new ArrayList<>();
+        for (Map<String, Object> row : rows) {
+            Integer restaurantId = ((Number) row.get("restaurantId")).intValue();
+            Integer remaining = ((Number) row.get("remainingCount")).intValue();
+            Optional<Restaurant> restOpt = this.restaurantRepository.findById(restaurantId);
+            restOpt.ifPresent(r -> result.add(new RestaurantRemainingDto(r, remaining)));
+        }
+
+        return result;
     }
 }

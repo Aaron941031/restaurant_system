@@ -32,6 +32,12 @@ public class IngredientRepository {
         return jdbcTemplate.query("SELECT ingredientId, name FROM ingredients ORDER BY ingredientId", rowMapper);
     }
 
+    public List<Ingredient> findByNameLike(String q, int limit) {
+        String pattern = "%" + q.toLowerCase() + "%";
+        return jdbcTemplate.query("SELECT ingredientId, name FROM ingredients WHERE LOWER(name) LIKE ? ORDER BY name LIMIT ?",
+                rowMapper, pattern, limit);
+    }
+
     public Optional<Ingredient> findById(Integer ingredientId) {
         return queryForOptional("SELECT ingredientId, name FROM ingredients WHERE ingredientId = ?", ingredientId);
     }

@@ -32,6 +32,12 @@ public class DishRepository {
         return jdbcTemplate.query("SELECT dishId, name FROM dishes ORDER BY dishId", rowMapper);
     }
 
+    public List<Dish> findByNameLike(String q, int limit) {
+        String pattern = "%" + q.toLowerCase() + "%";
+        return jdbcTemplate.query("SELECT dishId, name FROM dishes WHERE LOWER(name) LIKE ? ORDER BY name LIMIT ?",
+                rowMapper, pattern, limit);
+    }
+
     public Optional<Dish> findById(Integer dishId) {
         return queryForOptional("SELECT dishId, name FROM dishes WHERE dishId = ?", dishId);
     }

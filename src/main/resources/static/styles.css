@@ -365,6 +365,29 @@ hr {
     margin-top: 6px;
 }
 
+.suggestions {
+    position: relative;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    max-height: 220px;
+    overflow: auto;
+    margin-top: 6px;
+    z-index: 50;
+}
+
+.suggestion-item {
+    padding: 8px 10px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.suggestion-item:hover { background: var(--surface-strong); }
+
+.selected-list { margin-top: 8px; }
+.selected-list .tag { margin-right: 6px; margin-bottom: 6px; }
+.tag-remove { background: transparent; border: none; margin-left: 6px; cursor: pointer; color: #c00; }
+
 /* ─── Pill/Tag ─── */
 .tag {
     display: inline-block;

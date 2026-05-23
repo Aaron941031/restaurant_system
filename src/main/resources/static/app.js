@@ -274,9 +274,127 @@ function updateExclusionItemList() {
         return;
     }
 
+    // prepare visible select options and a hidden JSON store for autocomplete
     itemsSelect.innerHTML = options
         .map(item => `<option value="${item[meta.idKey]}">${item.name}</option>`)
         .join("");
+
+    const store = document.getElementById('exclude-options');
+    if (store) store.dataset.options = JSON.stringify(options.map(item => ({ id: item[meta.idKey], name: item.name })));
+
+    // reset search and selected UI if present
+    const search = document.getElementById('exclude-search');
+    const suggestions = document.getElementById('exclude-suggestions');
+    const selectedList = document.getElementById('exclude-selected');
+    if (search) search.value = '';
+    if (suggestions) suggestions.innerHTML = '';
+    if (selectedList) selectedList.innerHTML = '';
+}
+
+// AUTOCOMPLETE: selected items tracked here
+state._excludeSelected = [];
+
+function renderSuggestions(filtered) {
+    const suggestions = document.getElementById('exclude-suggestions');
+    if (!suggestions) return;
+    if (!filtered.length) {
+        suggestions.classList.add('hidden');
+        suggestions.innerHTML = '';
+        return;
+    }
+    suggestions.classList.remove('hidden');
+    suggestions.innerHTML = filtered.map(opt => `<div class="suggestion-item" data-id="${opt.id}">${opt.name}</div>`).join('');
+    suggestions.querySelectorAll('.suggestion-item').forEach(el => {
+        el.addEventListener('click', () => {
+            addExcludeSelected(el.dataset.id, el.textContent);
+        });
+    });
+}
+
+function renderExcludeSelected() {
+    const container = document.getElementById('exclude-selected');
+    if (!container) return;
+    if (!state._excludeSelected.length) {
+        container.innerHTML = '';
+        return;
+    }
+    container.innerHTML = state._excludeSelected.map(s => `
+        <span class="tag" data-id="${s.id}">${s.name} <button class="tag-remove" data-id="${s.id}">×</button></span>
+    `).join('');
+    container.querySelectorAll('.tag-remove').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            state._excludeSelected = state._excludeSelected.filter(x => String(x.id) !== String(id));
+            renderExcludeSelected();
+        });
+    });
+}
+
+function addExcludeSelected(id, name) {
+    if (!id) return;
+    // avoid duplicates
+    if (state._excludeSelected.some(x => String(x.id) === String(id))) return;
+    state._excludeSelected.push({ id, name });
+    renderExcludeSelected();
+    // clear suggestions and search
+    const search = document.getElementById('exclude-search');
+    const suggestions = document.getElementById('exclude-suggestions');
+    if (search) search.value = '';
+    if (suggestions) {
+        suggestions.classList.add('hidden');
+        suggestions.innerHTML = '';
+    }
+}
+
+// wire input events
+const searchInput = document.getElementById('exclude-search');
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+        const type = document.getElementById('exclude-type').value;
+        const q = (e.target.value || '').trim();
+        if (!q) {
+            renderSuggestions([]);
+            return;
+        }
+
+        // Try server-side search for suggestions
+        const apiMap = {
+            ingredient: `/api/ingredient/search?q=${encodeURIComponent(q)}&limit=10`,
+            dish: `/api/dish/search?q=${encodeURIComponent(q)}&limit=10`,
+            restaurant: `/api/restaurant/search?q=${encodeURIComponent(q)}&limit=10`
+        };
+
+        const url = apiMap[type] || apiMap.ingredient;
+        request(url).then(items => {
+            // normalize items to {id, name}
+            const normalized = (items || []).map(it => {
+                if (it.ingredientId) return { id: it.ingredientId, name: it.name };
+                if (it.dishId) return { id: it.dishId, name: it.name };
+                if (it.restaurantId) return { id: it.restaurantId, name: it.name };
+                return { id: it.id || it[Object.keys(it)[0]], name: it.name || String(it) };
+            });
+            renderSuggestions(normalized);
+        }).catch(() => {
+            // fallback to client-side filter using stored options
+            const raw = document.getElementById('exclude-options');
+            const options = JSON.parse(raw?.dataset?.options || '[]');
+            const filtered = options.filter(o => o.name.toLowerCase().includes(q.toLowerCase())).slice(0, 10);
+            renderSuggestions(filtered);
+        });
+    });
+
+    // handle Enter to add top suggestion or exact match
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const raw = document.getElementById('exclude-options');
+            const options = JSON.parse(raw?.dataset?.options || '[]');
+            const q = (searchInput.value || '').trim().toLowerCase();
+            if (!q) return;
+            const match = options.find(o => o.name.toLowerCase() === q) || options.find(o => o.name.toLowerCase().includes(q));
+            if (match) addExcludeSelected(match.id, match.name);
+        }
+    });
 }
 
 function hideExclusions() {
@@ -299,12 +417,20 @@ async function addExclusion() {
         if (!state.token) throw new Error("請先登入");
 
         const typeSelect = document.getElementById("exclude-type");
-        const itemsSelect = document.getElementById("exclude-items");
         const type = typeSelect.value;
-        const selectedIds = getSelectedValues(itemsSelect);
+        let selected = [];
+        if (state._excludeSelected && state._excludeSelected.length) {
+            selected = state._excludeSelected;
+        } else {
+            const selectEl = document.getElementById('exclude-items');
+            if (selectEl) {
+                const ids = getSelectedValues(selectEl);
+                selected = ids.map(id => ({ id }));
+            }
+        }
 
-        if (!selectedIds.length) {
-            throw new Error("請至少選擇一個排除項目");
+        if (!selected.length) {
+            throw new Error("請至少選擇一個排除項目（可從下拉或搜尋選取）");
         }
 
         let exclusionsAdded = 0;
@@ -312,16 +438,16 @@ async function addExclusion() {
         let notFoundItems = [];
 
         if (type === "ingredient") {
-            const ingredients = selectedIds
-                .map(id => state.exclusionOptions.ingredients.find(item => String(item.ingredientId) === id))
-                .filter(Boolean)
-                .map(item => item.name);
+                const ingredients = selected
+                    .map(s => state.exclusionOptions.ingredients.find(item => String(item.ingredientId) === String(s.id)))
+                    .filter(Boolean)
+                    .map(item => item.name);
 
-            const result = await request("/api/user/exclusion/ingredient", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ingredients: ingredients.join(",") })
-            });
+                const result = await request("/api/user/exclusion/ingredient", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ingredients: ingredients.join(",") })
+                });
 
             exclusionsAdded += result.added?.length || 0;
             existingCount += result.existing?.length || 0;
@@ -329,14 +455,20 @@ async function addExclusion() {
                 notFoundItems.push(...result.notFound);
             }
         } else if (type === "dish") {
-            for (const dishId of selectedIds) {
-                await request(`/api/user/exclusion/dish?dishId=${dishId}`, { method: "POST" });
-                exclusionsAdded++;
+            for (const s of selected) {
+                const dish = state.exclusionOptions.dishes.find(d => String(d.dishId) === String(s.id));
+                if (dish) {
+                    await request(`/api/user/exclusion/dish?dishId=${dish.dishId}`, { method: "POST" });
+                    exclusionsAdded++;
+                }
             }
         } else if (type === "restaurant") {
-            for (const restaurantId of selectedIds) {
-                await request(`/api/user/exclusion/restaurant?restaurantId=${restaurantId}`, { method: "POST" });
-                exclusionsAdded++;
+            for (const s of selected) {
+                const rest = state.exclusionOptions.restaurants.find(r => String(r.restaurantId) === String(s.id));
+                if (rest) {
+                    await request(`/api/user/exclusion/restaurant?restaurantId=${rest.restaurantId}`, { method: "POST" });
+                    exclusionsAdded++;
+                }
             }
         }
 
@@ -355,6 +487,9 @@ async function addExclusion() {
                 messageParts.push(`資料庫中找不到：${notFoundItems.join('、')}`);
             }
             showToast(messageParts.join('，'), "success");
+            // clear selected tags
+            state._excludeSelected = [];
+            renderExcludeSelected();
         } else {
             throw new Error("沒有新增任何排除項目");
         }

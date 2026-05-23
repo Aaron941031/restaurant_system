@@ -49,6 +49,18 @@ public class RestaurantController {
         }
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<?> searchRestaurants(@RequestParam String q,
+                                               @RequestParam(required = false, defaultValue = "10") Integer limit) {
+        try {
+            List<Restaurant> restaurants = restaurantService.searchRestaurants(q, limit);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Restaurants search results", restaurants));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "Failed to search restaurants: " + e.getMessage(), null));
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getRestaurant(@PathVariable Integer id) {
         try {

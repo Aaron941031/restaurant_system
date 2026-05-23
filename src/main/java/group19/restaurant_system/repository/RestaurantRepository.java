@@ -46,6 +46,13 @@ public class RestaurantRepository {
         return jdbcTemplate.query("SELECT restaurantId, name, category, priceRange, avgScore, ratingCount, locationAt FROM restaurants", rowMapper);
     }
 
+    public List<Restaurant> findByNameLike(String q, int limit) {
+        String pattern = "%" + q.toLowerCase() + "%";
+        return jdbcTemplate.query(
+                "SELECT restaurantId, name, category, priceRange, avgScore, ratingCount, locationAt FROM restaurants WHERE LOWER(name) LIKE ? ORDER BY name LIMIT ?",
+                rowMapper, pattern, limit);
+    }
+
     public List<Restaurant> findByCategoryOrderByAvgScoreDesc(String category) {
         return jdbcTemplate.query(
                 "SELECT restaurantId, name, category, priceRange, avgScore, ratingCount, locationAt FROM restaurants WHERE category = ? ORDER BY avgScore DESC",

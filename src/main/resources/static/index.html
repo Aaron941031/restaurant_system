@@ -179,8 +179,15 @@
 
             <div class="form-group">
                 <label id="exclude-items-label">選擇要排除的食材</label>
-                <select id="exclude-items" class="multi-select" multiple size="6"></select>
-                <div class="helper-text">可按住 Ctrl / Cmd 進行多選</div>
+                <input type="text" id="exclude-search" placeholder="輸入以搜尋並按 Enter 選取" autocomplete="off">
+                <div id="exclude-suggestions" class="suggestions hidden"></div>
+                <div id="exclude-selected" class="selected-list"></div>
+                <div style="display: grid; grid-template-columns: 1fr 220px; gap: 8px; margin-top: 8px; align-items:start;">
+                    <select id="exclude-items" class="multi-select" multiple size="6"></select>
+                    <div style="font-size:12px;color:var(--text-muted);">或使用搜尋加入</div>
+                </div>
+                <div id="exclude-options" style="display:none"></div>
+                <div class="helper-text">可輸入關鍵字搜尋，按 Enter 或點擊建議以加入選取</div>
             </div>
 
             <div class="button-group" style="margin-top: 8px;">

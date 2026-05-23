@@ -118,6 +118,10 @@ public class RestaurantService {
                 .collect(Collectors.toList());
     }
 
+    public List<Restaurant> searchRestaurants(String q, int limit) {
+        return restaurantRepository.findByNameLike(q, limit);
+    }
+
     @Transactional
         public List<Restaurant> getGroupRecommendations(Integer sessionId,
                                                         List<Integer> memberIds) throws Exception {

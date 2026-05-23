@@ -18,6 +18,10 @@ public class DishService {
         return dishRepository.findAll();
     }
 
+    public List<Dish> searchDishes(String q, int limit) {
+        return dishRepository.findByNameLike(q, limit);
+    }
+
     public Optional<Dish> getDishById(Integer dishId) {
         return dishRepository.findById(dishId);
     }

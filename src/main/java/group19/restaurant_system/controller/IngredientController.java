@@ -28,4 +28,16 @@ public class IngredientController {
                     .body(new ApiResponse<>(false, "Failed to retrieve ingredients: " + e.getMessage(), null));
         }
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchIngredients(@RequestParam String q,
+                                               @RequestParam(required = false, defaultValue = "10") Integer limit) {
+        try {
+            List<Ingredient> ingredients = ingredientRepository.findByNameLike(q, limit);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Ingredients search results", ingredients));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "Failed to search ingredients: " + e.getMessage(), null));
+        }
+    }
 }

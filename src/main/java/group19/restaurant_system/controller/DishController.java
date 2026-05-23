@@ -28,4 +28,16 @@ public class DishController {
                     .body(new ApiResponse<>(false, "Failed to retrieve dishes: " + e.getMessage(), null));
         }
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchDishes(@RequestParam String q,
+                                          @RequestParam(required = false, defaultValue = "10") Integer limit) {
+        try {
+                List<Dish> filtered = dishService.searchDishes(q, limit);
+                return ResponseEntity.ok(new ApiResponse<>(true, "Dishes search results", filtered));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "Failed to search dishes: " + e.getMessage(), null));
+        }
+    }
 }

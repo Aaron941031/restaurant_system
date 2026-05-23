@@ -121,7 +121,7 @@ INSERT IGNORE INTO ingredients (name) VALUES
 
 -- Create restaurant_dishes relation table
 CREATE TABLE IF NOT EXISTS restaurant_dishes (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    restaurant_dish_id INT PRIMARY KEY AUTO_INCREMENT,
     restaurantId INT NOT NULL,
     dishId INT NOT NULL,
     UNIQUE KEY unique_restaurant_dish (restaurantId, dishId),
@@ -131,7 +131,7 @@ CREATE TABLE IF NOT EXISTS restaurant_dishes (
 
 -- Create dish_ingredients relation table
 CREATE TABLE IF NOT EXISTS dish_ingredients (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    dish_ingredient_id INT PRIMARY KEY AUTO_INCREMENT,
     dishId INT NOT NULL,
     ingredientId INT NOT NULL,
     UNIQUE KEY unique_dish_ingredient (dishId, ingredientId),

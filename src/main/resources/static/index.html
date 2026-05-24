@@ -72,9 +72,6 @@
             <div class="button-group" style="margin-top: 0;">
                 <button class="btn-primary" onclick="goPage('groups')">&nbsp;揪團</button>
             </div>
-            <div class="button-group" style="margin-top: 0;">
-                <button class="btn-primary" onclick="goPage('history')">&nbsp;歷史紀錄</button>
-            </div>
             <div class="button-group" style="margin-top: 16px;">
                 <button class="btn-secondary" onclick="logout()">登出</button>
             </div>
@@ -212,22 +209,79 @@
     </div>
 </div>
 
-        <!-- 揪團 -->
+       <!-- 揪團 -->
         <div id="page-groups" class="page">
             <div class="title">揪團</div>
 
-            <button type="button" class="btn-primary" onclick="createGroup()" style="width: 100%; margin-bottom: 16px;">建立新群組</button>
+            <button type="button" class="btn-primary" onclick="createGroup()" 
+                    style="width: 100%; margin-bottom: 16px;">建立新群組</button>
 
             <div id="group-display"></div>
 
-            <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); margin: 20px 0 14px;">我的群組</div>
-            <button type="button" class="btn-secondary" onclick="loadMyGroups()" style="width: 100%; margin-bottom: 12px;">查看我的群組</button>
+            <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; 
+                        letter-spacing: 0.4px; color: var(--text-muted); margin: 20px 0 14px;">
+                我的群組
+            </div>
+            <button type="button" class="btn-secondary" onclick="loadMyGroups()" 
+                    style="width: 100%; margin-bottom: 12px;">查看我的群組</button>
             <div id="my-groups-list"></div>
 
-            <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); margin: 20px 0 14px;">群組推薦</div>
-            <div id="group-recommend-list"></div>
+            <!-- 群組詳情展開區 -->
+            <div id="group-detail-panel" class="hidden" style="margin-top: 16px;">
+                <div id="group-detail-header" 
+                    style="font-size: 13px; font-weight: 600; color: var(--text-muted); 
+                            margin-bottom: 10px;"></div>
+                <div id="group-detail-members" style="margin-bottom: 12px;"></div>
 
-            <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); margin: 20px 0 14px;">加入群組</div>
+                <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; 
+                            letter-spacing: 0.4px; color: var(--text-muted); margin-bottom: 8px;">
+                    推薦餐廳（選擇最終餐廳）
+                </div>
+                <div id="group-recommend-list"></div>
+
+                <!-- 確認選擇後的記錄表單 -->
+                <div id="record-form-panel" class="hidden" 
+                    style="margin-top: 16px; padding: 14px; 
+                            background: var(--surface); border-radius: 10px; 
+                            border: 1px solid var(--border);">
+                    <div style="font-size: 13px; font-weight: 600; margin-bottom: 10px;">
+                        建立用餐紀錄
+                    </div>
+                    <div id="record-selected-restaurant" 
+                        style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;"></div>
+                    <div class="form-group">
+                        <label>餐點名稱</label>
+                        <input type="text" id="record-meal-name" placeholder="例：午餐套餐" required>
+                    </div>
+                    <div class="form-group">
+                        <label>日期</label>
+                        <input type="date" id="record-visit-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>備註（選填）</label>
+                        <textarea id="record-note" placeholder="備註…"></textarea>
+                    </div>
+                    <div class="button-group">
+                        <button type="button" class="btn-primary" onclick="saveGroupRecord()">
+                            儲存紀錄
+                        </button>
+                        <button type="button" class="btn-secondary" onclick="cancelRecord()">
+                            取消
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 歷史紀錄 -->
+                <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; 
+                            letter-spacing: 0.4px; color: var(--text-muted); 
+                            margin: 20px 0 8px;">群組紀錄</div>
+                <div id="group-history-list"></div>
+            </div>
+
+            <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; 
+                        letter-spacing: 0.4px; color: var(--text-muted); margin: 20px 0 14px;">
+                加入群組
+            </div>
             <form id="join-group-form">
                 <div class="form-group">
                     <label>邀請碼</label>
@@ -239,39 +293,6 @@
                 </div>
             </form>
         </div>
-
-        <!-- 歷史紀錄 -->
-        <div id="page-history" class="page">
-            <div class="title">用餐紀錄</div>
-
-            <form id="history-form">
-                <div class="form-group">
-                    <label>選擇餐廳</label>
-                    <select name="restaurantId" required id="history-restaurant-select">
-                        <option value="">載入中…</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>餐點名稱</label>
-                    <input type="text" name="mealName" placeholder="例：晚餐套餐" required>
-                </div>
-                <div class="form-group">
-                    <label>日期</label>
-                    <input type="date" name="visitDate" required>
-                </div>
-                <div class="form-group">
-                    <label>備註（選填）</label>
-                    <textarea name="note" placeholder="與誰一起用餐…"></textarea>
-                </div>
-                <div class="button-group">
-                    <button type="submit" class="btn-primary">保存紀錄</button>
-                    <button type="button" class="btn-back" onclick="goPage('menu')">返回</button>
-                </div>
-            </form>
-
-            <div id="history-list" style="margin-top: 28px;"></div>
-        </div>
-
     </div>
 </div>
 
@@ -280,7 +301,7 @@
 <div id="menu-modal" class="modal" style="display: none;">
   <div class="modal-content">
     <span class="close-btn" onclick="closeModal('menu-modal')">&times;</span>
-    <h3>📋 餐廳菜單</h3>
+    <h3>餐廳菜單</h3>
     <div id="menu-container">
       </div>
   </div>
@@ -289,7 +310,7 @@
 <div id="review-modal" class="modal" style="display: none;">
   <div class="modal-content">
     <span class="close-btn" onclick="closeModal('review-modal')">&times;</span>
-    <h3>💬 餐廳評論</h3>
+    <h3>餐廳評論</h3>
     <div id="review-container">
       </div>
   </div>

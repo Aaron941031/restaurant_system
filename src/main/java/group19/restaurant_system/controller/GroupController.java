@@ -3,6 +3,7 @@ package group19.restaurant_system.controller;
 import group19.restaurant_system.dto.ApiResponse;
 import group19.restaurant_system.model.GroupSession;
 import group19.restaurant_system.model.Restaurant;
+import group19.restaurant_system.repository.GroupMemberRepository;
 import group19.restaurant_system.service.GroupSessionService;
 import group19.restaurant_system.service.RestaurantService;
 import group19.restaurant_system.util.JwtTokenProvider;
@@ -17,15 +18,18 @@ import java.util.List;
 @RequestMapping("/api/groups")
 @CrossOrigin(origins = "*")
 public class GroupController {
-    
+
     @Autowired
     private GroupSessionService groupSessionService;
 
     @Autowired
     private RestaurantService restaurantService;
-    
+
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    private GroupMemberRepository groupMemberRepository;
 
     private Integer getUserIdFromHeader(String authHeader) throws Exception {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -43,9 +47,11 @@ public class GroupController {
         try {
             Integer userId = getUserIdFromHeader(authHeader);
             GroupSession session = groupSessionService.createGroup(userId);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true, "Group created", session));
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new ApiResponse<>(true, "Group created", session));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, e.getMessage()));
         }
     }
 
@@ -57,7 +63,8 @@ public class GroupController {
             GroupSession session = groupSessionService.joinGroup(inviteCode, userId);
             return ResponseEntity.ok(new ApiResponse<>(true, "Joined group", session));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, e.getMessage()));
         }
     }
 
@@ -68,9 +75,11 @@ public class GroupController {
             if (sessionOpt.isPresent()) {
                 return ResponseEntity.ok(new ApiResponse<>(true, "Group retrieved", sessionOpt.get()));
             }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>(false, "Group not found"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(false, "Group not found"));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse<>(false, e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, e.getMessage()));
         }
     }
 
@@ -82,7 +91,8 @@ public class GroupController {
             groupSessionService.endGroup(id);
             return ResponseEntity.ok(new ApiResponse<>(true, "Group ended"));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, e.getMessage()));
         }
     }
 
@@ -93,7 +103,27 @@ public class GroupController {
             List<GroupSession> sessions = groupSessionService.getUserGroups(userId);
             return ResponseEntity.ok(new ApiResponse<>(true, "Groups retrieved", sessions));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, e.getMessage()));
+        }
+    }
+
+    // 新增：取得群組成員（含名稱）
+    @GetMapping("/{sessionId}/members")
+    public ResponseEntity<?> getGroupMembers(@RequestHeader("Authorization") String authHeader,
+                                             @PathVariable Integer sessionId) {
+        try {
+            Integer userId = getUserIdFromHeader(authHeader);
+            if (!groupSessionService.isMember(sessionId, userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(new ApiResponse<>(false, "Not a member of this group"));
+            }
+            List<GroupMemberRepository.MemberInfo> members =
+                    groupMemberRepository.findMembersWithNameBySessionId(sessionId);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Members retrieved", members));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse<>(false, e.getMessage()));
         }
     }
 
@@ -106,31 +136,31 @@ public class GroupController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(new ApiResponse<>(false, "Not a member of this group"));
             }
-
             List<Integer> memberIds = groupSessionService.getMemberIds(id);
             List<Restaurant> recommendations = restaurantService.getGroupRecommendations(id, memberIds);
             return ResponseEntity.ok(new ApiResponse<>(true, "Group recommendations retrieved", recommendations));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, e.getMessage()));
         }
     }
 
     @GetMapping("/{id}/recommend/remaining")
     public ResponseEntity<?> getGroupRecommendationsByRemaining(@RequestHeader("Authorization") String authHeader,
-                                                                 @PathVariable Integer id,
-                                                                 @RequestParam(required = false, defaultValue = "5") Integer limit) {
+                                                                @PathVariable Integer id,
+                                                                @RequestParam(required = false, defaultValue = "5") Integer limit) {
         try {
             Integer userId = getUserIdFromHeader(authHeader);
             if (!groupSessionService.isMember(id, userId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(new ApiResponse<>(false, "Not a member of this group"));
             }
-
             List<Integer> memberIds = groupSessionService.getMemberIds(id);
             List<?> recommendations = restaurantService.getGroupRestaurantsByRemainingDishes(id, memberIds, limit);
             return ResponseEntity.ok(new ApiResponse<>(true, "Group restaurants by remaining dishes retrieved", recommendations));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, e.getMessage()));
         }
     }
 }

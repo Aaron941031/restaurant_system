@@ -18,17 +18,31 @@ public class GroupMemberRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    public static class MemberInfo {
+        public Integer userId;
+        public String name;
+
+        public MemberInfo(Integer userId, String name) {
+            this.userId = userId;
+            this.name = name;
+        }
+    }
+
     private final RowMapper<GroupSession> groupSessionRowMapper = (rs, rowNum) -> {
         GroupSession session = new GroupSession();
         session.setSessionId(rs.getInt("sessionId"));
+
         User creator = new User();
         creator.setUserId(rs.getInt("creatorId"));
         session.setCreator(creator);
+
         session.setInviteCode(rs.getString("inviteCode"));
+
         Timestamp createdAt = rs.getTimestamp("createdAt");
         if (createdAt != null) {
             session.setCreatedAt(createdAt.toLocalDateTime());
         }
+
         session.setStatus(rs.getString("status"));
         return session;
     };
@@ -55,6 +69,20 @@ public class GroupMemberRepository {
         return jdbcTemplate.queryForList(
                 "SELECT userId FROM group_members WHERE sessionId = ?",
                 Integer.class,
+                sessionId
+        );
+    }
+
+    public List<MemberInfo> findMembersWithNameBySessionId(Integer sessionId) {
+        return jdbcTemplate.query(
+                "SELECT gm.userId, u.name " +
+                        "FROM group_members gm " +
+                        "JOIN users u ON u.userId = gm.userId " +
+                        "WHERE gm.sessionId = ?",
+                (rs, rowNum) -> new MemberInfo(
+                        rs.getInt("userId"),
+                        rs.getString("name")
+                ),
                 sessionId
         );
     }

@@ -586,3 +586,77 @@ hr {
 .modal-content::-webkit-scrollbar-thumb:hover {
     background: #aaa; 
 }
+.list-item {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+.list-item-title,
+.list-item-meta {
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.button-group button {
+    margin-right: 6px;
+}
+.group-rec-card {
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 24px 32px;
+}
+
+.pick-circle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+
+    width: 20px;
+    height: 20px;
+
+    border-radius: 50%;
+
+    border: 2px solid #bdbdbd;
+    background: #fff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    padding: 0;
+    line-height: 1;
+
+    color: transparent;
+
+    transition: all 0.2s ease;
+}
+
+.pick-circle.selected {
+    background: #4caf50;
+    border-color: #4caf50;
+    color: #fff;
+}
+
+.pick-circle.selected::before {
+    content: "✓";
+    font-size: 12px;
+    font-weight: bold;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transform: translateY(-1px);
+}
+
+.group-rec-card .button-group {
+    display: flex;
+    gap: 28px;
+}
+
+.group-rec-card .button-group button {
+    flex: 1;
+}

@@ -94,4 +94,8 @@ public class GroupSessionRepository {
         List<GroupSession> results = jdbcTemplate.query(sql, rowMapper, params);
         return results.stream().findFirst();
     }
+
+    public void deleteById(Integer sessionId) {
+    jdbcTemplate.update("DELETE FROM group_sessions WHERE sessionId = ?", sessionId);
+    }
 }

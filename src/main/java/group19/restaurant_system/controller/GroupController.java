@@ -163,4 +163,18 @@ public class GroupController {
                     .body(new ApiResponse<>(false, e.getMessage()));
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity deleteGroup(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable Integer id) {
+        try {
+            Integer userId = getUserIdFromHeader(authHeader);
+            groupSessionService.deleteGroup(id, userId);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Group deleted"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, e.getMessage()));
+        }
+    }
 }

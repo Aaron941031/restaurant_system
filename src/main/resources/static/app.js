@@ -15,7 +15,9 @@ const state = {
     },
     _excludeSelected: [],         // 排除功能中已選取的項目（tag 清單）
     _activeGroupSessionId: null,  // 目前展開的群組 sessionId
-    _selectedRestaurant: null     // 群組推薦中已選取的餐廳
+    _selectedRestaurant: null,     // 群組推薦中已選取的餐廳
+    selectedDishes: [],
+    currentGroupSessionId: null
 };
 
 // ============ 頁面導航 ============
@@ -641,7 +643,6 @@ async function getRecommendations() {
 
 // ============ 揪團功能 ============
 
-// 建立新群組並顯示邀請碼
 async function createGroup() {
     try {
         if (!state.token) throw new Error("請先登入");
@@ -651,13 +652,16 @@ async function createGroup() {
             <div class="list-item">
                 <strong>群組已建立！</strong>
                 <p style="margin-top: 10px; font-size: 14px;">
-                    群組編號：<code style="background: #f0f0f0; padding: 2px 5px; border-radius: 3px;">${session.sessionId}</code>
+                    群組編號：<code>${session.sessionId}</code>
                 </p>
                 <p style="margin-top: 8px; font-size: 14px;">
-                    邀請碼：<code style="background: #f0f0f0; padding: 2px 5px; border-radius: 3px;">${session.inviteCode}</code>
+                    邀請碼：<code>${session.inviteCode}</code>
                 </p>
-                <p style="margin-top: 12px; font-size: 12px; color: #999;">分享邀請碼給朋友加入</p>
+                <p style="margin-top: 12px; font-size: 12px; color: #999;">
+                    分享邀請碼給朋友加入
+                </p>
             </div>`;
+
         showToast("群組已建立", "success");
         loadMyGroups();
     } catch (err) {
@@ -665,13 +669,15 @@ async function createGroup() {
     }
 }
 
-// 加入群組表單送出
 document.getElementById("join-group-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     try {
         if (!state.token) throw new Error("請先登入");
+
         const body = formDataToJson(e.target);
-        const session = await request(`/api/groups/join?inviteCode=${body.inviteCode}`, { method: "POST" });
+        const session = await request(`/api/groups/join?inviteCode=${body.inviteCode}`, {
+            method: "POST"
+        });
 
         document.getElementById("group-display").innerHTML = `
             <div class="list-item">
@@ -680,6 +686,7 @@ document.getElementById("join-group-form").addEventListener("submit", async (e) 
                     群組編號：${session.sessionId} | 邀請碼：${session.inviteCode}
                 </p>
             </div>`;
+
         showToast("已加入群組", "success");
         e.target.reset();
         loadMyGroups();
@@ -688,7 +695,6 @@ document.getElementById("join-group-form").addEventListener("submit", async (e) 
     }
 });
 
-// 載入目前使用者參與的所有群組
 async function loadMyGroups() {
     try {
         if (!state.token) throw new Error("請先登入");
@@ -699,10 +705,10 @@ async function loadMyGroups() {
     }
 }
 
-// 渲染我的群組列表（含建立日期、狀態、查看詳情按鈕）
 function renderMyGroups(groups) {
     const container = document.getElementById("my-groups-list");
     if (!container) return;
+
     if (!groups.length) {
         container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"></div>尚未加入群組</div>';
         return;
@@ -712,19 +718,27 @@ function renderMyGroups(groups) {
         const createdAt = group.createdAt
             ? new Date(group.createdAt).toLocaleDateString('zh-TW')
             : '—';
-        // 判斷目前使用者是否為建立者
+
         const isCreator = String(group.creator?.userId) === String(state.userId);
+
         return `
             <div class="list-item">
                 <div class="list-item-title">群組 #${group.sessionId}</div>
                 <div class="list-item-meta">
-                    建立日期：${createdAt} ｜ 狀態：${group.status} ｜ 邀請碼：${group.inviteCode}
+                    建立日期：${createdAt} ｜ 邀請碼：${group.inviteCode}
                     ${isCreator ? ' ｜ <span style="color: var(--primary); font-size:11px;">建立者</span>' : ''}
                 </div>
+
                 <div class="button-group" style="margin-top: 10px;">
                     <button type="button" class="btn-secondary" onclick="loadGroupDetail(${group.sessionId})">
                         查看詳情
                     </button>
+
+                    ${isCreator ? `
+                        <button type="button" class="btn-danger" onclick="deleteGroup(${group.sessionId})">
+                            刪除群組
+                        </button>
+                    ` : ''}
                 </div>
             </div>`;
     }).join('');
@@ -732,47 +746,56 @@ function renderMyGroups(groups) {
 
 // ============ 群組詳情 ============
 
-// 展開群組詳情面板：載入基本資訊、成員、推薦餐廳、用餐紀錄
 async function loadGroupDetail(sessionId) {
+    console.log("loadGroupDetail clicked:", sessionId);
+
     state._activeGroupSessionId = sessionId;
     state._selectedRestaurant = null;
+    state.selectedDishes = [];
 
     const panel = document.getElementById("group-detail-panel");
     const header = document.getElementById("group-detail-header");
     const recordFormPanel = document.getElementById("record-form-panel");
 
+    if (!panel) {
+        console.error("找不到 group-detail-panel");
+        showToast("找不到群組詳情區塊", "error");
+        return;
+    }
+
+    if (!header) {
+        console.error("找不到 group-detail-header");
+        showToast("找不到群組標題區塊", "error");
+        return;
+    }
+
     panel.classList.remove("hidden");
-    recordFormPanel.classList.add("hidden");
+
+    if (recordFormPanel) {
+        recordFormPanel.classList.add("hidden");
+    }
+
     header.textContent = `群組 #${sessionId} 詳情`;
     panel.scrollIntoView({ behavior: "smooth" });
 
-    // 取得群組基本資訊（建立日期、狀態、建立者）
     try {
         const group = await request(`/api/groups/${sessionId}`);
         const createdAt = group.createdAt
             ? new Date(group.createdAt).toLocaleDateString('zh-TW')
             : '—';
+
         header.innerHTML = `
             群組 #${sessionId}
             <span style="font-size: 12px; font-weight: 400; color: var(--text-muted); margin-left: 8px;">
-                ${createdAt} ｜ ${group.status}
-            </span>`;
+                ${createdAt}
+            </span>
+        `;
 
-        // 只有建立者且群組狀態為「揪團中」才顯示結束按鈕
         const endBtnArea = document.getElementById("group-end-btn-area");
-        const isCreator = String(group.creator?.userId) === String(state.userId);
-        if (group.status === "揪團中" && isCreator) {
-            endBtnArea.innerHTML = `
-                <button type="button" class="btn-secondary"
-                        style="width: 100%; border-color: #e57373; color: #e57373;"
-                        onclick="endGroup(${sessionId})">
-                    結束揪團
-                </button>`;
-        } else {
-            endBtnArea.innerHTML = '';
-        }
-    } catch {
-        // 群組基本資訊載入失敗不影響其他區塊
+        if (endBtnArea) endBtnArea.innerHTML = "";
+
+    } catch (err) {
+        console.error("群組基本資料載入失敗:", err);
     }
 
     await loadGroupMembers(sessionId);
@@ -780,28 +803,34 @@ async function loadGroupDetail(sessionId) {
     await loadGroupHistory(sessionId);
 }
 
-// 載入群組成員列表（顯示名稱，並標示「我」）
 async function loadGroupMembers(sessionId) {
     const container = document.getElementById("group-detail-members");
     container.innerHTML = '<p style="color:#999; font-size:13px;">載入成員中…</p>';
+
     try {
         const members = await request(`/api/groups/${sessionId}/members`);
+
         if (!members || !members.length) {
             container.innerHTML = '<p style="color:#999; font-size:13px;">無成員資料</p>';
             return;
         }
+
         container.innerHTML = `
             <div style="font-size: 12px; font-weight: 600; text-transform: uppercase;
-                        letter-spacing: 0.4px; color: var(--text-muted); margin-bottom: 6px;">成員</div>
+                        letter-spacing: 0.4px; color: var(--text-muted); margin-bottom: 6px;">
+                成員
+            </div>
             <div style="display: flex; flex-wrap: wrap; gap: 6px;">
                 ${members.map(m => {
                     const label = m.name ? m.name : `用戶 #${m.userId || m}`;
                     const isMe = String(m.userId) === String(state.userId);
-                    return `<span style="background: var(--surface); border: 1px solid var(--border);
-                                        border-radius: 20px; padding: 3px 10px; font-size: 12px;
-                                        ${isMe ? 'font-weight:600;' : ''}">
-                                ${label}${isMe ? ' （我）' : ''}
-                            </span>`;
+
+                    return `
+                        <span style="background: var(--surface); border: 1px solid var(--border);
+                                     border-radius: 20px; padding: 3px 10px; font-size: 12px;
+                                     ${isMe ? 'font-weight:600;' : ''}">
+                            ${label}${isMe ? ' （我）' : ''}
+                        </span>`;
                 }).join('')}
             </div>`;
     } catch {
@@ -809,7 +838,6 @@ async function loadGroupMembers(sessionId) {
     }
 }
 
-// 載入群組推薦餐廳，每筆附帶 radio 可供選擇最終餐廳
 async function loadGroupRecommendations(sessionId) {
     const container = document.getElementById("group-recommend-list");
     container.innerHTML = '<p style="color:#999; font-size:13px;">載入推薦中…</p>';
@@ -825,7 +853,7 @@ async function loadGroupRecommendations(sessionId) {
         container.innerHTML = recs.map(r => {
             const rid = r.restaurantId || r.id;
             const score = Number(r.avgScore || 0).toFixed(1);
-            const safeName = (r.name || '').replace(/'/g, "\\'");
+            const safeName = String(r.name || '').replace(/'/g, "\\'");
 
             return `
                 <div class="list-item group-rec-card" id="group-rec-${rid}">
@@ -847,20 +875,24 @@ async function loadGroupRecommendations(sessionId) {
                     </div>
 
                     <div class="button-group" style="margin-top: 16px;">
-                        <button type="button" onclick="viewMenu(${rid})">查看菜單</button>
-                        <button type="button" onclick="viewReviews(${rid})">查看評論</button>
+                        <button type="button" onclick="pickGroupRestaurant(${rid}, '${safeName}'); viewMenu(${rid})">
+                            選擇餐點
+                        </button>
+                        <button type="button" onclick="viewReviews(${rid})">
+                            查看評論
+                        </button>
                     </div>
-                </div>
-            `;
+                </div>`;
         }).join("");
 
-    } catch (err) {
+    } catch {
         container.innerHTML = '<p style="color:red; font-size:13px;">無法載入推薦</p>';
     }
 }
 
 function pickGroupRestaurant(restaurantId, name) {
     state._selectedRestaurant = { restaurantId, name };
+    state.selectedDishes = [];
 
     document.querySelectorAll(".pick-circle").forEach(btn => {
         btn.classList.remove("selected");
@@ -871,90 +903,93 @@ function pickGroupRestaurant(restaurantId, name) {
     if (btn) btn.classList.add("selected");
 
     const panel = document.getElementById("record-form-panel");
+
     document.getElementById("record-selected-restaurant").textContent = `已選擇：${name}`;
-    document.getElementById("record-visit-date").value = new Date().toISOString().split("T")[0];
-    document.getElementById("record-meal-name").value = "";
     document.getElementById("record-note").value = "";
+    updateSelectedDishNames();
+
     panel.classList.remove("hidden");
 }
 
-// 使用者勾選推薦餐廳後，顯示用餐紀錄表單
-function onRestaurantPicked(restaurantId, name) {
-    state._selectedRestaurant = { restaurantId, name };
-
-    const panel = document.getElementById("record-form-panel");
-    document.getElementById("record-selected-restaurant").textContent = `已選擇：${name}`;
-    // 預設帶入今天日期，使用者仍可修改
-    document.getElementById("record-visit-date").value = new Date().toISOString().split('T')[0];
-    document.getElementById("record-meal-name").value = '';
-    document.getElementById("record-note").value = '';
-    panel.classList.remove("hidden");
-    panel.scrollIntoView({ behavior: "smooth" });
-}
-
-// 取消建立紀錄，隱藏表單並清除 radio 選取
 function cancelRecord() {
     document.getElementById("record-form-panel").classList.add("hidden");
+
     state._selectedRestaurant = null;
-    document.querySelectorAll('input[name="group-restaurant-pick"]')
-            .forEach(r => r.checked = false);
+    state.selectedDishes = [];
+
+    document.getElementById("record-note").value = "";
+    updateSelectedDishNames();
+
+    document.querySelectorAll(".pick-circle").forEach(btn => {
+        btn.classList.remove("selected");
+    });
+
+    document.querySelectorAll(".dish-select-item").forEach(item => {
+        item.classList.remove("selected");
+    });
 }
 
-// 送出用餐紀錄到後端
 async function saveGroupRecord() {
     try {
         if (!state.token) throw new Error("請先登入");
         if (!state._selectedRestaurant) throw new Error("請先選擇餐廳");
 
-        const mealName = document.getElementById("record-meal-name").value.trim();
-        const visitDate = document.getElementById("record-visit-date").value;
-        const note = document.getElementById("record-note").value.trim();
+        if (!state.selectedDishes.length) {
+            throw new Error("請至少選擇一道餐點");
+        }
 
-        if (!mealName) throw new Error("請輸入餐點名稱");
-        if (!visitDate) throw new Error("請選擇日期");
+        const note = document.getElementById("record-note").value.trim();
 
         await request("/api/history/save", {
             method: "POST",
             body: JSON.stringify({
                 restaurantId: state._selectedRestaurant.restaurantId,
-                mealName,
-                visitDate,
+                mealName: state.selectedDishes.map(d => d.name).join("、"),
                 note: note || null
             })
         });
 
         showToast("用餐紀錄已儲存", "success");
 
-        // 清空表單並隱藏
         document.getElementById("record-form-panel").classList.add("hidden");
-        state._selectedRestaurant = null;
-        document.querySelectorAll('input[name="group-restaurant-pick"]')
-                .forEach(r => r.checked = false);
+        document.getElementById("record-note").value = "";
 
-        // 重新載入紀錄區塊
+        state._selectedRestaurant = null;
+        state.selectedDishes = [];
+        updateSelectedDishNames();
+
+        document.querySelectorAll(".pick-circle").forEach(btn => {
+            btn.classList.remove("selected");
+        });
+
+        document.querySelectorAll(".dish-select-item").forEach(item => {
+            item.classList.remove("selected");
+        });
+
         await loadGroupHistory(state._activeGroupSessionId);
+
     } catch (err) {
         showToast(err.message, "error");
     }
 }
 
-// 載入並渲染使用者的用餐紀錄（顯示於群組詳情下方）
-// 目前使用 /api/history/me 撈全部個人紀錄
-// 若後端未來新增 /api/history/group/{sessionId} 可改為只撈該群組的紀錄
 async function loadGroupHistory(sessionId) {
     const container = document.getElementById("group-history-list");
     container.innerHTML = '<p style="color:#999; font-size:13px;">載入紀錄中…</p>';
+
     try {
         const history = await request("/api/history/me");
+
         if (!history || !history.length) {
             container.innerHTML = '<p style="color:#999; font-size:13px;">尚無紀錄</p>';
             return;
         }
+
         container.innerHTML = history.map(h => `
             <div class="list-item">
                 <div class="list-item-title">${h.mealName || '未命名'}</div>
                 <div class="list-item-meta">
-                    餐廳：${h.restaurant?.name || `#${h.restaurantId}`} ｜ ${h.visitDate}
+                    餐廳：${h.restaurant?.name || `#${h.restaurantId}`} ｜ ${h.visitDate || ''}
                 </div>
                 ${h.note ? `<div class="list-item-meta">${h.note}</div>` : ''}
             </div>`).join('');
@@ -963,15 +998,18 @@ async function loadGroupHistory(sessionId) {
     }
 }
 
-// 結束揪團（僅建立者可操作）
-async function endGroup(sessionId) {
+async function deleteGroup(sessionId) {
     try {
-        if (!state.token) throw new Error("請先登入");
-        await request(`/api/groups/${sessionId}/end`, { method: "POST" });
-        showToast("揪團已結束", "success");
-        // 重新整理詳情面板與群組列表
-        await loadGroupDetail(sessionId);
-        await loadMyGroups();
+        if (!confirm("確定要刪除這個群組嗎？")) return;
+
+        await request(`/api/groups/${sessionId}`, {
+            method: "DELETE"
+        });
+
+        showToast("群組已刪除", "success");
+
+        document.getElementById("group-detail-panel")?.classList.add("hidden");
+        loadMyGroups();
     } catch (err) {
         showToast(err.message, "error");
     }
@@ -979,32 +1017,94 @@ async function endGroup(sessionId) {
 
 // ============ 彈窗（Modal）============
 
-// 關閉指定 modal
 window.closeModal = function(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) modal.style.display = "none";
 };
 
-// 查看餐廳菜單
+// 查看 / 選擇餐點
 window.viewMenu = async function(restaurantId) {
     const modal = document.getElementById("menu-modal");
     if (modal) modal.style.display = "block";
+
     const container = document.getElementById("menu-container");
     if (!container) return;
+
     container.innerHTML = "<p style='color:#666;'>載入中...</p>";
+
     try {
         const dishes = await request(`/api/dish/restaurant/${restaurantId}`);
-        container.innerHTML = dishes && dishes.length
-            ? dishes.map(dish =>
-                `<div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #eee;">
-                    <strong>${dish.name}</strong>
-                 </div>`).join('')
-            : "<p style='color:#999;'>這間餐廳目前沒有建立菜單喔！</p>";
+
+        if (!dishes || !dishes.length) {
+            container.innerHTML = "<p style='color:#999;'>這間餐廳目前沒有建立菜單喔！</p>";
+            return;
+        }
+
+        container.innerHTML = dishes.map(dish => {
+            const dishId = dish.dishId || dish.id;
+            const safeName = String(dish.name || '').replace(/'/g, "\\'");
+
+            const selected = state.selectedDishes.some(d =>
+                String(d.dishId) === String(dishId)
+            );
+
+            return `
+                <div class="dish-select-item ${selected ? 'selected' : ''}"
+                     onclick="toggleDishSelection(${dishId}, '${safeName}')">
+                    <div>
+                        <strong>${dish.name}</strong>
+                    </div>
+                    <div class="dish-check-circle">✓</div>
+                </div>`;
+        }).join('');
+
     } catch (error) {
         container.innerHTML = "<p style='color:red;'>無法載入菜單，請確認伺服器連線或 API 路徑是否正確。</p>";
         console.error(error);
     }
 };
+
+function toggleDishSelection(dishId, dishName) {
+    if (!state._selectedRestaurant) {
+        showToast("請先選擇餐廳", "error");
+        return;
+    }
+
+    const index = state.selectedDishes.findIndex(d =>
+        String(d.dishId) === String(dishId)
+    );
+
+    if (index >= 0) {
+        state.selectedDishes.splice(index, 1);
+    } else {
+        state.selectedDishes.push({
+            dishId,
+            name: dishName
+        });
+    }
+
+    document.querySelectorAll(".dish-select-item").forEach(item => {
+        const onclick = item.getAttribute("onclick") || "";
+        const selected = state.selectedDishes.some(d =>
+            onclick.includes(`(${d.dishId},`)
+        );
+        item.classList.toggle("selected", selected);
+    });
+
+    updateSelectedDishNames();
+}
+
+function updateSelectedDishNames() {
+    const el = document.getElementById("selected-dish-names");
+    if (!el) return;
+
+    if (!state.selectedDishes.length) {
+        el.textContent = "尚未選擇餐點";
+        return;
+    }
+
+    el.textContent = state.selectedDishes.map(d => d.name).join("、");
+}
 
 // 查看餐廳評論
 window.viewReviews = async function(restaurantId) {

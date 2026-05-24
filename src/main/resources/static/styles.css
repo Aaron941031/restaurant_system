@@ -660,3 +660,29 @@ hr {
 .group-rec-card .button-group button {
     flex: 1;
 }
+
+.dish-select-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+}
+
+.dish-check-circle {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+}
+
+.dish-select-item.selected .dish-check-circle {
+    background: #22c55e;
+    border-color: #22c55e;
+}

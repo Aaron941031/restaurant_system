@@ -241,30 +241,41 @@
 
                 <!-- 確認選擇後的記錄表單 -->
                 <div id="record-form-panel" class="hidden" 
-                    style="margin-top: 16px; padding: 14px; 
+                        style="margin-top: 16px; padding: 14px; 
                             background: var(--surface); border-radius: 10px; 
                             border: 1px solid var(--border);">
+
                     <div style="font-size: 13px; font-weight: 600; margin-bottom: 10px;">
                         建立用餐紀錄
                     </div>
+
                     <div id="record-selected-restaurant" 
-                        style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;"></div>
-                    <div class="form-group">
-                        <label>餐點名稱</label>
-                        <input type="text" id="record-meal-name" placeholder="例：午餐套餐" required>
+                        style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
                     </div>
-                    <div class="form-group">
-                        <label>日期</label>
-                        <input type="date" id="record-visit-date" required>
+
+                    <!-- 已選餐點 -->
+                    <div style="margin-bottom: 14px;">
+                        <div style="font-size: 13px; font-weight: 600; margin-bottom: 6px;">
+                            已選餐點
+                        </div>
+
+                        <div id="selected-dish-names"
+                            style="font-size: 13px; color: var(--text-muted);">
+                            尚未選擇餐點
+                        </div>
                     </div>
+
+                    <!-- 備註 -->
                     <div class="form-group">
                         <label>備註（選填）</label>
                         <textarea id="record-note" placeholder="備註…"></textarea>
                     </div>
+
                     <div class="button-group">
                         <button type="button" class="btn-primary" onclick="saveGroupRecord()">
                             儲存紀錄
                         </button>
+
                         <button type="button" class="btn-secondary" onclick="cancelRecord()">
                             取消
                         </button>

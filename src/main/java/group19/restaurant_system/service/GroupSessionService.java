@@ -54,11 +54,11 @@ public class GroupSessionService {
         if (!sessionOpt.isPresent()) {
             throw new Exception("Group not found or invite code invalid");
         }
-        
+       
         GroupSession session = sessionOpt.get();
         
-        if (!"揪團中".equals(session.getStatus())) {
-            throw new Exception("This group session has ended");
+        if (session.getCreator().getUserId().equals(userId)) {
+            throw new Exception("無法加入自己的房間");
         }
         
         if (!groupMemberRepository.existsBySessionIdAndUserId(session.getSessionId(), userId)) {
@@ -99,5 +99,17 @@ public class GroupSessionService {
         } while (groupSessionRepository.existsByInviteCode(code));
         
         return code;
+    }
+
+    @Transactional
+    public void deleteGroup(Integer sessionId, Integer userId) throws Exception {
+        GroupSession session = groupSessionRepository.findById(sessionId)
+            .orElseThrow(() -> new Exception("Group not found"));
+
+        if (!session.getCreator().getUserId().equals(userId)) {
+         throw new Exception("只有建立者可以刪除群組");
+        }
+
+        groupSessionRepository.deleteById(sessionId);
     }
 }

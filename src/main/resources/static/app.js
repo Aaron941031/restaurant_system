@@ -10,7 +10,7 @@ const state = {
     exclusionOptions: {
         ingredients: [],
         dishes: [],
-        restaurants: []
+        restaurants: [] 
     }
 };
 
@@ -162,18 +162,28 @@ function renderRestaurants() {
         container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"></div>暫無餐廳</div>';
         return;
     }
-    container.innerHTML = state.restaurants.map(r => `
+    container.innerHTML = state.restaurants.map(r => {
+        // 自動防呆：判斷後端回傳的主鍵名稱是 restaurantId 還是 id
+        const targetId = r.restaurantId || r.id; 
+        
+        return `
         <div class="list-item">
             <div class="list-item-title">${r.name}</div>
             <div class="list-item-meta">
                 <strong>${r.category}</strong> | ${r.priceRange} | ⭐ ${r.avgScore} (${r.ratingCount}人)
             </div>
             <div class="list-item-meta">${r.locationAt}</div>
+            <div class="button-group" style="margin-top: 12px;">
+                <button type="button" style="padding: 4px 8px; margin-right: 5px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #f9f9f9;" onclick="viewMenu(${targetId})">📋 查看菜單</button>
+                <button type="button" style="padding: 4px 8px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #f9f9f9;" onclick="viewReviews(${targetId})">💬 查看評論</button>
+            </div>
         </div>
-    `).join("");
+        `;
+    }).join("");
 }
 
-document.getElementById("restaurant-form").addEventListener("submit", async (e) => {
+// 👉 修改重點：既然把新增餐廳介面拿掉了，這裡也註解掉以防報錯
+/*document.getElementById("restaurant-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     try {
         const body = formDataToJson(e.target);
@@ -187,13 +197,15 @@ document.getElementById("restaurant-form").addEventListener("submit", async (e) 
         showToast(err.message, "error");
     }
 });
+*/
 
 async function loadRestaurantSelects() {
     try {
         await loadRestaurants();
-        const options = state.restaurants.map(r => 
-            `<option value="${r.restaurantId}">${r.name} (${r.category})</option>`
-        ).join("");
+        const options = state.restaurants.map(r => {
+            const targetId = r.restaurantId || r.id;
+            return `<option value="${targetId}">${r.name} (${r.category})</option>`;
+        }).join("");
         document.getElementById("rate-restaurant-select").innerHTML = options;
         document.getElementById("history-restaurant-select").innerHTML = options;
     } catch (err) {
@@ -805,6 +817,79 @@ async function loadHistory() {
         `).join("");
     } catch (err) {
         showToast(err.message, "error");
+    }
+}
+
+// ============ 彈窗 (Modal) 與詳細資訊查看邏輯 ============
+
+// 關閉彈窗
+window.closeModal = function(modalId) {
+    const modal = document.getElementById(modalId);
+    if(modal) {
+        modal.style.display = "none";
+    }
+}
+
+// 查看菜單
+window.viewMenu = async function(restaurantId) {
+    const modal = document.getElementById("menu-modal");
+    if (modal) modal.style.display = "block";
+    
+    const container = document.getElementById("menu-container");
+    if (!container) return;
+    
+    container.innerHTML = "<p style='color:#666;'>載入中...</p>";
+
+    try {
+        // 👇 加入這行看傳出什麼 ID
+        console.log("正在查詢的餐廳 ID:", restaurantId); 
+        
+        const dishes = await request(`/api/dish/restaurant/${restaurantId}`); 
+        
+        // 👇 加入這行看後端回傳了什麼
+        console.log("後端回傳的菜單資料:", dishes); 
+        
+        if (dishes && dishes.length > 0) {
+            container.innerHTML = dishes.map(dish => 
+                `<div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #eee;">
+                   <strong>${dish.name}</strong>
+                 </div>`
+            ).join('');
+        } else {
+            container.innerHTML = "<p style='color:#999;'>這間餐廳目前沒有建立菜單喔！</p>";
+        }
+    } catch (error) {
+        container.innerHTML = "<p style='color:red;'>無法載入菜單，請確認伺服器連線或 API 路徑是否正確。</p>";
+        console.error(error);
+    }
+}
+
+// 查看評論
+window.viewReviews = async function(restaurantId) {
+    const modal = document.getElementById("review-modal");
+    if (modal) modal.style.display = "block";
+    
+    const container = document.getElementById("review-container");
+    if (!container) return;
+    
+    container.innerHTML = "<p style='color:#666;'>載入中...</p>";
+
+    try {
+        // 請求評論 API (加上了 /api 前綴，請確認路徑與後端定義是否相符)
+        const reviews = await request(`/api/restaurant/${restaurantId}/ratings`);
+        if (reviews && reviews.length > 0) {
+            container.innerHTML = reviews.map(r => 
+                `<div style="margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 8px;">
+                   <p style="margin: 0;">⭐ <strong>${r.score} / 5</strong></p>
+                   <p style="margin: 5px 0 0 0; color: #555;">${r.comment || '無文字評論'}</p>
+                 </div>`
+            ).join('');
+        } else {
+            container.innerHTML = "<p style='color:#999;'>這間餐廳目前還沒有人留下評論喔！</p>";
+        }
+    } catch (error) {
+        container.innerHTML = "<p style='color:red;'>無法載入評論，請確認伺服器連線或 API 路徑是否正確。</p>";
+        console.error(error);
     }
 }
 

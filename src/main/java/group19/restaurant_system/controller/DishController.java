@@ -40,4 +40,17 @@ public class DishController {
                     .body(new ApiResponse<>(false, "Failed to search dishes: " + e.getMessage(), null));
         }
     }
+
+    // ================= 新增這一段：透過餐廳 ID 獲取菜單 =================
+    @GetMapping("/restaurant/{restaurantId}")
+    public ResponseEntity<?> getDishesByRestaurant(@PathVariable Integer restaurantId) {
+        try {
+            // 呼叫 Service 層拿資料
+            List<Dish> dishes = dishService.getDishesByRestaurantId(restaurantId);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Dishes retrieved successfully", dishes));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "Failed to retrieve dishes: " + e.getMessage(), null));
+        }
+    }
 }

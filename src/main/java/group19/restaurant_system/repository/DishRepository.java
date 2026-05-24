@@ -51,6 +51,15 @@ public class DishRepository {
         return count != null && count > 0;
     }
 
+    // ================= 新增：用餐廳ID找出關聯的所有菜單 =================
+    public List<Dish> findByRestaurantId(Integer restaurantId) {
+        // 透過 restaurant_dishes 中介表進行 JOIN 查詢
+        String sql = "SELECT d.dishId, d.name FROM dishes d " +
+                     "JOIN restaurant_dishes rd ON d.dishId = rd.dishId " +
+                     "WHERE rd.restaurantId = ?";
+        return jdbcTemplate.query(sql, rowMapper, restaurantId);
+    }
+
     public Dish save(Dish dish) {
         if (dish.getDishId() == null) {
             KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -89,4 +98,5 @@ public class DishRepository {
         List<Dish> results = jdbcTemplate.query(sql, rowMapper, params);
         return results.stream().findFirst();
     }
+    
 }

@@ -37,4 +37,10 @@ public class DishService {
     public void deleteDish(Integer dishId) {
         dishRepository.deleteById(dishId);
     }
+
+    public List<Dish> getDishesByRestaurantId(Integer restaurantId) {
+    return dishRepository.findByRestaurantId(restaurantId);
+    }
+    
 }
+

@@ -25,6 +25,7 @@ public class DishRepository {
         Dish dish = new Dish();
         dish.setDishId(rs.getInt("dishId"));
         dish.setName(rs.getString("name"));
+        dish.setPrice(rs.getInt("price"));
         return dish;
     };
 
@@ -54,7 +55,7 @@ public class DishRepository {
     // ================= 新增：用餐廳ID找出關聯的所有菜單 =================
     public List<Dish> findByRestaurantId(Integer restaurantId) {
         // 透過 restaurant_dishes 中介表進行 JOIN 查詢
-        String sql = "SELECT d.dishId, d.name FROM dishes d " +
+        String sql = "SELECT d.dishId, d.price, d.name FROM dishes d " +
                      "JOIN restaurant_dishes rd ON d.dishId = rd.dishId " +
                      "WHERE rd.restaurantId = ?";
         return jdbcTemplate.query(sql, rowMapper, restaurantId);
@@ -65,7 +66,7 @@ public class DishRepository {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(
-                        "INSERT INTO dishes (name) VALUES (?)",
+                        "INSERT INTO dishes (name,price) VALUES (?)",
                         Statement.RETURN_GENERATED_KEYS
                 );
                 ps.setString(1, dish.getName());
@@ -82,7 +83,7 @@ public class DishRepository {
             return dish;
         }
 
-        jdbcTemplate.update("UPDATE dishes SET name = ? WHERE dishId = ?", dish.getName(), dish.getDishId());
+        jdbcTemplate.update("UPDATE dishes SET name = ? , price = ? WHERE dishId = ?", dish.getName(), dish.getDishId());
         return findById(dish.getDishId()).orElse(dish);
     }
 

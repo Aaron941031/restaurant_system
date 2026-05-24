@@ -15,9 +15,11 @@ const state = {
     },
     _excludeSelected: [],         // 排除功能中已選取的項目（tag 清單）
     _activeGroupSessionId: null,  // 目前展開的群組 sessionId
-    _selectedRestaurant: null,     // 群組推薦中已選取的餐廳
+    _selectedRestaurant: null,    // 群組推薦中已選取的餐廳
     selectedDishes: [],
-    currentGroupSessionId: null
+    currentGroupSessionId: null,
+    currentGroupSelectedDishes: [], // 供雙模式菜單使用
+    currentGroupRestaurantId: null  // 供雙模式菜單使用
 };
 
 // ============ 頁面導航 ============
@@ -188,8 +190,8 @@ function renderRestaurants() {
             </div>
             <div class="list-item-meta">${r.locationAt}</div>
             <div class="button-group" style="margin-top: 12px;">
-                <button type="button" style="padding: 4px 8px; margin-right: 5px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #f9f9f9;" onclick="viewMenu(${targetId})">查看菜單</button>
-                <button type="button" style="padding: 4px 8px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #f9f9f9;" onclick="viewReviews(${targetId})">查看評論</button>
+                <button type="button" style="padding: 4px 8px; margin-right: 5px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #f9f9f9;" onclick="viewMenu(${targetId}, 'view')">📋 查看菜單</button>
+                <button type="button" style="padding: 4px 8px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #f9f9f9;" onclick="viewReviews(${targetId})">💬 查看評論</button>
             </div>
         </div>`;
     }).join("");
@@ -630,8 +632,8 @@ async function getRecommendations() {
                     </div>
 
                     <div class="button-group" style="margin-top: 12px;">
-                        <button type="button" onclick="viewMenu(${targetId})">查看菜單</button>
-                        <button type="button" onclick="viewReviews(${targetId})">查看評論</button>
+                        <button type="button" style="padding: 4px 8px; margin-right: 5px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #f9f9f9;" onclick="viewMenu(${targetId}, 'view')">📋 查看菜單</button>
+                        <button type="button" style="padding: 4px 8px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #f9f9f9;" onclick="viewReviews(${targetId})">💬 查看評論</button>
                     </div>
                 </div>`;
         }).join("");
@@ -857,11 +859,6 @@ async function loadGroupRecommendations(sessionId) {
 
             return `
                 <div class="list-item group-rec-card" id="group-rec-${rid}">
-                    <button type="button"
-                            class="pick-circle"
-                            onclick="pickGroupRestaurant(${rid}, '${safeName}')">
-                    </button>
-
                     <div class="list-item-title">${r.name || '未命名餐廳'}</div>
 
                     <div class="list-item-meta">
@@ -875,11 +872,11 @@ async function loadGroupRecommendations(sessionId) {
                     </div>
 
                     <div class="button-group" style="margin-top: 16px;">
-                        <button type="button" onclick="pickGroupRestaurant(${rid}, '${safeName}'); viewMenu(${rid})">
-                            選擇餐點
+                        <button type="button" class="btn-secondary" style="margin-right: 8px;" onclick="pickGroupRestaurant(${rid}, '${safeName}'); viewMenu(${rid}, 'select')">
+                            ✅ 選擇餐點
                         </button>
-                        <button type="button" onclick="viewReviews(${rid})">
-                            查看評論
+                        <button type="button" class="btn-secondary" onclick="viewReviews(${rid})">
+                            💬 查看評論
                         </button>
                     </div>
                 </div>`;
@@ -893,84 +890,6 @@ async function loadGroupRecommendations(sessionId) {
 function pickGroupRestaurant(restaurantId, name) {
     state._selectedRestaurant = { restaurantId, name };
     state.selectedDishes = [];
-
-    document.querySelectorAll(".pick-circle").forEach(btn => {
-        btn.classList.remove("selected");
-    });
-
-    const card = document.getElementById(`group-rec-${restaurantId}`);
-    const btn = card?.querySelector(".pick-circle");
-    if (btn) btn.classList.add("selected");
-
-    const panel = document.getElementById("record-form-panel");
-
-    document.getElementById("record-selected-restaurant").textContent = `已選擇：${name}`;
-    document.getElementById("record-note").value = "";
-    updateSelectedDishNames();
-
-    panel.classList.remove("hidden");
-}
-
-function cancelRecord() {
-    document.getElementById("record-form-panel").classList.add("hidden");
-
-    state._selectedRestaurant = null;
-    state.selectedDishes = [];
-
-    document.getElementById("record-note").value = "";
-    updateSelectedDishNames();
-
-    document.querySelectorAll(".pick-circle").forEach(btn => {
-        btn.classList.remove("selected");
-    });
-
-    document.querySelectorAll(".dish-select-item").forEach(item => {
-        item.classList.remove("selected");
-    });
-}
-
-async function saveGroupRecord() {
-    try {
-        if (!state.token) throw new Error("請先登入");
-        if (!state._selectedRestaurant) throw new Error("請先選擇餐廳");
-
-        if (!state.selectedDishes.length) {
-            throw new Error("請至少選擇一道餐點");
-        }
-
-        const note = document.getElementById("record-note").value.trim();
-
-        await request("/api/history/save", {
-            method: "POST",
-            body: JSON.stringify({
-                restaurantId: state._selectedRestaurant.restaurantId,
-                mealName: state.selectedDishes.map(d => d.name).join("、"),
-                note: note || null
-            })
-        });
-
-        showToast("用餐紀錄已儲存", "success");
-
-        document.getElementById("record-form-panel").classList.add("hidden");
-        document.getElementById("record-note").value = "";
-
-        state._selectedRestaurant = null;
-        state.selectedDishes = [];
-        updateSelectedDishNames();
-
-        document.querySelectorAll(".pick-circle").forEach(btn => {
-            btn.classList.remove("selected");
-        });
-
-        document.querySelectorAll(".dish-select-item").forEach(item => {
-            item.classList.remove("selected");
-        });
-
-        await loadGroupHistory(state._activeGroupSessionId);
-
-    } catch (err) {
-        showToast(err.message, "error");
-    }
 }
 
 async function loadGroupHistory(sessionId) {
@@ -1022,89 +941,151 @@ window.closeModal = function(modalId) {
     if (modal) modal.style.display = "none";
 };
 
-// 查看 / 選擇餐點
-window.viewMenu = async function(restaurantId) {
+// ============ 支援雙模式的查看/選擇菜單邏輯 ============
+window.viewMenu = async function(restaurantId, mode = 'view') {
     const modal = document.getElementById("menu-modal");
     if (modal) modal.style.display = "block";
-
+    
     const container = document.getElementById("menu-container");
     if (!container) return;
-
+    
     container.innerHTML = "<p style='color:#666;'>載入中...</p>";
 
     try {
-        const dishes = await request(`/api/dish/restaurant/${restaurantId}`);
-
-        if (!dishes || !dishes.length) {
+        console.log(`正在以 [${mode}] 模式查詢餐廳 ID:`, restaurantId); 
+        const dishes = await request(`/api/dish/restaurant/${restaurantId}`); 
+        console.log("後端回傳的菜單資料:", dishes); 
+        
+        if (!dishes || dishes.length === 0) {
             container.innerHTML = "<p style='color:#999;'>這間餐廳目前沒有建立菜單喔！</p>";
             return;
         }
 
-        container.innerHTML = dishes.map(dish => {
-            const dishId = dish.dishId || dish.id;
-            const safeName = String(dish.name || '').replace(/'/g, "\\'");
+        // 如果是揪團選擇模式，初始化這間餐廳的已選餐點陣列（暫存於 state 裡）
+        if (mode === 'select') {
+            state.currentGroupSelectedDishes = []; // 每次打開重新清空計算
+            state.currentGroupRestaurantId = restaurantId; // 記錄目前被選的餐廳 ID
+        }
 
-            const selected = state.selectedDishes.some(d =>
-                String(d.dishId) === String(dishId)
-            );
+        let html = dishes.map(dish => {
+            const dishId = dish.dishId;
+            const safeName = dish.name.replace(/'/g, "\\'");
+            // 漂亮的價格標籤
+            const priceHtml = `<span style="color: #e44d26; font-weight: bold; margin-left: auto; margin-right: 15px;">$${dish.price || 0}</span>`;
 
-            return `
-                <div class="dish-select-item ${selected ? 'selected' : ''}"
-                     onclick="toggleDishSelection(${dishId}, '${safeName}')">
-                    <div>
-                        <strong>${dish.name}</strong>
-                    </div>
+            if (mode === 'select') {
+                // 👥 揪團勾選模式：保留你的自訂結構，並注入價格
+                return `
+                <div class="dish-select-item" 
+                     id="dish-item-${dishId}"
+                     onclick="toggleDishSelectionLocal(${dishId}, '${safeName}')"
+                     style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; cursor: pointer;">
+                    <div style="font-weight: 500;">🍔 ${dish.name}</div>
+                    ${priceHtml}
                     <div class="dish-check-circle">✓</div>
                 </div>`;
+            } else {
+                // 🏠 首頁純瀏覽模式：乾淨的純文字排版，無法點擊
+                return `
+                <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; align-items: center;">
+                   <span style="font-weight: 500; color: #333;">🍔 ${dish.name}</span>
+                   <span style="color: #e44d26; font-weight: bold;">$${dish.price || 0}</span>
+                </div>`;
+            }
         }).join('');
 
+        // 如果是揪團選擇模式，在彈窗底部追加「確認選擇幾道菜」的按鈕
+        if (mode === 'select') {
+            html += `
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #eee; text-align: center;">
+                <button type="button" id="confirm-dishes-btn" class="btn-primary" style="width: 100%; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer;" onclick="submitGroupDishesSelection()">
+                    ✅ 確認選擇（已選 <span id="selected-dishes-count">0</span> 道菜）
+                </button>
+            </div>`;
+        }
+
+        container.innerHTML = html;
     } catch (error) {
-        container.innerHTML = "<p style='color:red;'>無法載入菜單，請確認伺服器連線或 API 路徑是否正確。</p>";
+        container.innerHTML = "<p style='color:red;'>無法載入菜單，請確認伺服器連線。</p>";
         console.error(error);
     }
-};
+}
 
-function toggleDishSelection(dishId, dishName) {
-    if (!state._selectedRestaurant) {
-        showToast("請先選擇餐廳", "error");
+// 處理揪團模式下的動態點擊變色與計數
+window.toggleDishSelectionLocal = function(dishId, safeName) {
+    if (!state.currentGroupSelectedDishes) state.currentGroupSelectedDishes = [];
+    
+    const index = state.currentGroupSelectedDishes.indexOf(dishId);
+    const element = document.getElementById(`dish-item-${dishId}`);
+
+    if (index > -1) {
+        // 原本有選 -> 取消選取，移除 selected class
+        state.currentGroupSelectedDishes.splice(index, 1);
+        if (element) element.classList.remove('selected');
+    } else {
+        // 原本沒選 -> 加入選取，新增 selected class
+        state.currentGroupSelectedDishes.push(dishId);
+        if (element) element.classList.add('selected');
+    }
+
+    // 即時更新底下按鈕顯示的總道數
+    const countSpan = document.getElementById("selected-dishes-count");
+    if (countSpan) {
+        countSpan.textContent = state.currentGroupSelectedDishes.length;
+    }
+}
+
+// ============ 確保更新顯示邏輯已在全域範圍 ============
+window.updateSelectedDishNames = function() {
+    const el = document.getElementById("selected-dish-names");
+    if (!el) {
+        console.warn("找不到 ID 為 selected-dish-names 的 HTML 元素");
         return;
     }
 
-    const index = state.selectedDishes.findIndex(d =>
-        String(d.dishId) === String(dishId)
-    );
-
-    if (index >= 0) {
-        state.selectedDishes.splice(index, 1);
-    } else {
-        state.selectedDishes.push({
-            dishId,
-            name: dishName
-        });
-    }
-
-    document.querySelectorAll(".dish-select-item").forEach(item => {
-        const onclick = item.getAttribute("onclick") || "";
-        const selected = state.selectedDishes.some(d =>
-            onclick.includes(`(${d.dishId},`)
-        );
-        item.classList.toggle("selected", selected);
-    });
-
-    updateSelectedDishNames();
-}
-
-function updateSelectedDishNames() {
-    const el = document.getElementById("selected-dish-names");
-    if (!el) return;
-
-    if (!state.selectedDishes.length) {
+    if (!state.selectedDishes || state.selectedDishes.length === 0) {
         el.textContent = "尚未選擇餐點";
         return;
     }
 
     el.textContent = state.selectedDishes.map(d => d.name).join("、");
+};
+
+// 按下最底下確認按鈕時執行的邏輯
+// ============ 按下最底下確認按鈕時執行的邏輯 ============
+window.submitGroupDishesSelection = async function() {
+    const restaurantId = state.currentGroupRestaurantId;
+    const selectedDishIds = state.currentGroupSelectedDishes || [];
+
+    if (selectedDishIds.length === 0) {
+        showToast("請至少選擇一道菜！", "error");
+        return;
+    }
+
+    try {
+        const allDishes = await request(`/api/dish/restaurant/${restaurantId}`);
+        state.selectedDishes = allDishes.filter(d => selectedDishIds.includes(d.dishId));
+        
+        // 1. 強制更新 HTML 文字
+        const el = document.getElementById("selected-dish-names");
+        if (el) {
+            el.textContent = state.selectedDishes.map(d => d.name).join("、");
+        }
+
+        // 2. 🔥 強制處理記錄區塊的隱藏狀態
+        const recordPanel = document.getElementById("record-form-panel");
+        if (recordPanel) {
+            recordPanel.classList.remove("hidden"); // 確保該區域被顯示出來
+        }
+
+        showToast(`已選定 ${state.selectedDishes.length} 道餐點`, "success");
+        closeModal('menu-modal'); // 關閉彈窗
+        
+    } catch (err) {
+        showToast("選擇確認失敗：" + err.message, "error");
+    }
 }
+
 
 // 查看餐廳評論
 window.viewReviews = async function(restaurantId) {

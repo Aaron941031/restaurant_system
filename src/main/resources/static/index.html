@@ -80,44 +80,9 @@
         <!-- 餐廳列表 -->
         <div id="page-restaurants" class="page">
             <div class="title">餐廳列表</div>
-            <form id="restaurant-form">
-                <div class="form-group">
-                    <label>名稱</label>
-                    <input type="text" name="name" placeholder="例：涮涮鍋料理" required>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                    <div class="form-group">
-                        <label>分類</label>
-                        <select name="category" required>
-                            <option value="">選擇</option>
-                            <option value="中式">中式</option>
-                            <option value="日式">日式</option>
-                            <option value="韓式">韓式</option>
-                            <option value="義大利">義大利</option>
-                            <option value="美式">美式</option>
-                            <option value="泰式">泰式</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>價位</label>
-                        <select name="priceRange" required>
-                            <option value="">選擇</option>
-                            <option value="$">$ 平價</option>
-                            <option value="$$">$$ 中等</option>
-                            <option value="$$$">$$$ 高級</option>
-                            <option value="$$$$">$$$$ 頂級</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>地點</label>
-                    <input type="text" name="locationAt" placeholder="例：台北市信義區" required>
-                </div>
-                <div class="button-group">
-                    <button type="button" class="btn-back" onclick="goPage('menu')">返回</button>
-                </div>
-            </form>
-
+            <div class="button-group">
+                <button type="button" class="btn-back" onclick="goPage('menu')">返回</button>
+            </div>
             <div id="restaurants-list" style="margin-top: 28px;"></div>
         </div>
 
@@ -263,6 +228,9 @@
                             style="font-size: 13px; color: var(--text-muted);">
                             尚未選擇餐點
                         </div>
+                        <div id="record-total-price"
+                            style="font-size: 13px; font-weight: 600; color: #e44d26; margin-top: 6px;">
+                        </div>
                     </div>
 
                     <!-- 參與成員 -->
@@ -321,8 +289,8 @@
   <div class="modal-content">
     <span class="close-btn" onclick="closeModal('menu-modal')">&times;</span>
     <h3>餐廳菜單</h3>
-    <div id="menu-container">
-      </div>
+    <div id="menu-container"></div>
+    <div id="menu-confirm-area"></div>
   </div>
 </div>
 

@@ -74,16 +74,6 @@ public class RestaurantController {
         }
     }
 
-    @PostMapping("/save")
-    public ResponseEntity<?> saveRestaurant(@RequestBody Restaurant restaurant) {
-        try {
-            Restaurant saved = restaurantService.saveRestaurant(restaurant);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true, "Restaurant saved", saved));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
-        }
-    }
-
     @PostMapping("/rate")
     public ResponseEntity<?> rateRestaurant(@RequestHeader("Authorization") String authHeader,
                                             @RequestBody RatingRequest request) {

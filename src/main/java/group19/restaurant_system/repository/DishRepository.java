@@ -30,21 +30,21 @@ public class DishRepository {
     };
 
     public List<Dish> findAll() {
-        return jdbcTemplate.query("SELECT dishId, name FROM dishes ORDER BY dishId", rowMapper);
+        return jdbcTemplate.query("SELECT dishId, name, price FROM dishes ORDER BY dishId", rowMapper);
     }
 
     public List<Dish> findByNameLike(String q, int limit) {
         String pattern = "%" + q.toLowerCase() + "%";
-        return jdbcTemplate.query("SELECT dishId, name FROM dishes WHERE LOWER(name) LIKE ? ORDER BY name LIMIT ?",
+        return jdbcTemplate.query("SELECT dishId, name, price FROM dishes WHERE LOWER(name) LIKE ? ORDER BY name LIMIT ?",
                 rowMapper, pattern, limit);
     }
 
     public Optional<Dish> findById(Integer dishId) {
-        return queryForOptional("SELECT dishId, name FROM dishes WHERE dishId = ?", dishId);
+        return queryForOptional("SELECT dishId, name, price FROM dishes WHERE dishId = ?", dishId);
     }
 
     public Optional<Dish> findByName(String name) {
-        return queryForOptional("SELECT dishId, name FROM dishes WHERE name = ?", name);
+        return queryForOptional("SELECT dishId, name, price FROM dishes WHERE name = ?", name);
     }
 
     public boolean existsByName(String name) {
@@ -66,10 +66,11 @@ public class DishRepository {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(
-                        "INSERT INTO dishes (name,price) VALUES (?)",
+                        "INSERT INTO dishes (name, price) VALUES (?, ?)",
                         Statement.RETURN_GENERATED_KEYS
                 );
                 ps.setString(1, dish.getName());
+                ps.setObject(2, dish.getPrice());
                 return ps;
             }, keyHolder);
 
@@ -83,7 +84,7 @@ public class DishRepository {
             return dish;
         }
 
-        jdbcTemplate.update("UPDATE dishes SET name = ? , price = ? WHERE dishId = ?", dish.getName(), dish.getDishId());
+        jdbcTemplate.update("UPDATE dishes SET name = ?, price = ? WHERE dishId = ?", dish.getName(), dish.getPrice(), dish.getDishId());
         return findById(dish.getDishId()).orElse(dish);
     }
 

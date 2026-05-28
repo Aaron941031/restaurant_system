@@ -1,17 +1,10 @@
 package group19.restaurant_system.model;
 
-import jakarta.persistence.*;
-
-@Entity
-@Table(name = "dishes")
 public class Dish {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer dishId;
     private Integer price;
 
-    @Column(nullable = false, unique = true)
     private String name;
 
     public Dish() {}

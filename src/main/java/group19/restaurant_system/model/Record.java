@@ -1,40 +1,26 @@
 package group19.restaurant_system.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "records")
 public class Record {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer recordId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "restaurantId", nullable = false)
     private Restaurant restaurant;
 
-    @Column(nullable = false)
     private LocalDateTime visitDate;
 
-    @Column(nullable = false)
     private String mealName;
 
-    @Column
     private String note;
 
-    @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    // 不存 DB，查詢時由 record_participants 填入
-    @Transient
+    // 不存在 DB，查詢時由 record_participants 填入
     private List<ParticipantInfo> participants = new ArrayList<>();
 
     public static class ParticipantInfo {

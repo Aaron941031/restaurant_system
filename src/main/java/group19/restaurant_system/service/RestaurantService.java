@@ -11,6 +11,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.Comparator;
 
 import group19.restaurant_system.dto.RestaurantRemainingDto;
 
@@ -70,7 +72,7 @@ public class RestaurantService {
 
     @Transactional
     public List<Restaurant> getRecommendedRestaurants(Integer userId) throws Exception {
-        // Get user's excluded dishes
+        // Get user's excluded dishes/ingredients/restaurants
         List<UserExclusion> exclusions = userExclusionRepository.findByUserUserId(userId);
         List<Integer> excludedDishIds = exclusions.stream()
             .filter(ue -> ue.getDish() != null)
@@ -80,42 +82,49 @@ public class RestaurantService {
         List<Integer> excludedRestaurantIds = exclusions.stream()
             .filter(ue -> ue.getRestaurant() != null)
             .map(ue -> ue.getRestaurant().getRestaurantId())
+            .distinct()
             .collect(Collectors.toList());
         List<Integer> excludedIngredientIds = exclusions.stream()
             .filter(ue -> ue.getIngredient() != null)
             .map(ue -> ue.getIngredient().getIngredientId())
             .distinct()
             .collect(Collectors.toList());
-        List<Integer> dishRestaurantIds = restaurantDishRepository
-            .findRestaurantIdsByDishIds(excludedDishIds);
-        List<Integer> ingredientRestaurantIds = restaurantDishRepository
-            .findRestaurantIdsByIngredientIds(excludedIngredientIds);
-        
-        // Get recommended restaurants
-        List<Restaurant> recommended = restaurantRepository.findAllByOrderByAvgScoreDesc();
-        
-        if (!dishRestaurantIds.isEmpty()) {
-            excludedRestaurantIds.addAll(dishRestaurantIds);
-        }
-        if (!ingredientRestaurantIds.isEmpty()) {
-            excludedRestaurantIds.addAll(ingredientRestaurantIds);
+
+        // Determine how many non-excluded dishes remain per restaurant
+        List<Map<String, Object>> rows = restaurantDishRepository
+            .findRemainingDishCountsByExclusions(excludedDishIds, excludedIngredientIds, 1000);
+
+        Map<Integer, Integer> remainingMap = new HashMap<>();
+        for (Map<String, Object> row : rows) {
+            Integer restaurantId = ((Number) row.get("restaurantId")).intValue();
+            Integer remaining = ((Number) row.get("remainingCount")).intValue();
+            remainingMap.put(restaurantId, remaining);
         }
 
-        if (!excludedRestaurantIds.isEmpty()) {
-            recommended = recommended.stream()
+        // Start from all restaurants ordered by avgScore
+        List<Restaurant> allByScore = restaurantRepository.findAllByOrderByAvgScoreDesc();
+
+        // Filter out explicitly excluded restaurants and those with zero remaining dishes
+        List<Restaurant> candidates = allByScore.stream()
+            .filter(r -> !excludedRestaurantIds.contains(r.getRestaurantId()))
+            .filter(r -> remainingMap.containsKey(r.getRestaurantId()) && remainingMap.get(r.getRestaurantId()) > 0)
+            .sorted(Comparator
+                .comparing((Restaurant r) -> remainingMap.get(r.getRestaurantId()))
+                .reversed()
+                .thenComparing(Restaurant::getAvgScore, Comparator.reverseOrder())
+            )
+            .limit(5)
+            .collect(Collectors.toList());
+
+        // Fallback: if no candidate after applying exclusions, fall back to top-rated non-excluded restaurants
+        if (candidates.isEmpty()) {
+            candidates = allByScore.stream()
                 .filter(r -> !excludedRestaurantIds.contains(r.getRestaurantId()))
-                .collect(Collectors.toList());
-        }
-        
-        // If no results, use fallback: return top-rated restaurants
-        if (recommended.isEmpty()) {
-            recommended = restaurantRepository.findAllByOrderByAvgScoreDesc();
-        }
-        
-        // Return top 5
-        return recommended.stream()
                 .limit(5)
                 .collect(Collectors.toList());
+        }
+
+        return candidates;
     }
 
     public List<Restaurant> searchRestaurants(String q, int limit) {

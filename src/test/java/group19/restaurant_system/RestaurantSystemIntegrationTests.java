@@ -173,9 +173,9 @@ public class RestaurantSystemIntegrationTests {
 
     @Test
     public void testRecordHistory() throws Exception {
-        java.time.LocalDate visitDate = java.time.LocalDate.now();
-        group19.restaurant_system.model.Record record = recordService.saveRecord(testUser.getUserId(), testRestaurant.getRestaurantId(), 
-                visitDate, "Dinner", "Good experience");
+        java.time.LocalDateTime visitDate = java.time.LocalDateTime.now();
+        group19.restaurant_system.model.Record record = recordService.saveRecord(testUser.getUserId(), testRestaurant.getRestaurantId(),
+                visitDate, "Dinner", "Good experience", null);
         
         assertNotNull(record.getRecordId());
         

@@ -9,7 +9,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
@@ -27,7 +26,7 @@ public class RecordRepository {
 
     private static final String BASE_SELECT =
             "SELECT r.recordId, r.visitDate, r.mealName, r.note, r.createdAt, " +
-                    "u.userId AS u_userId, u.name AS u_name, u.email AS u_email, u.password AS u_password, u.createdAt AS uCreatedAt, u.updatedAt AS uUpdatedAt, " +
+                    "u.userId AS u_userId, u.name AS u_name, u.email AS u_email, u.password AS u_password, " +
                     "res.restaurantId AS res_restaurantId, res.name AS res_name, res.category AS res_category, res.priceRange AS res_priceRange, " +
                     "res.avgScore AS res_avgScore, res.ratingCount AS res_ratingCount, res.locationAt AS res_locationAt " +
                     "FROM records r " +
@@ -37,9 +36,9 @@ public class RecordRepository {
     private final RowMapper<Record> rowMapper = (rs, rowNum) -> {
         Record record = new Record();
         record.setRecordId(rs.getInt("recordId"));
-        Date visitDate = rs.getDate("visitDate");
+        Timestamp visitDate = rs.getTimestamp("visitDate");
         if (visitDate != null) {
-            record.setVisitDate(visitDate.toLocalDate());
+            record.setVisitDate(visitDate.toLocalDateTime());
         }
         record.setMealName(rs.getString("mealName"));
         record.setNote(rs.getString("note"));
@@ -53,14 +52,6 @@ public class RecordRepository {
         user.setName(rs.getString("u_name"));
         user.setEmail(rs.getString("u_email"));
         user.setPassword(rs.getString("u_password"));
-        Timestamp userCreatedAt = rs.getTimestamp("u_createdAt");
-        if (userCreatedAt != null) {
-            user.setCreatedAt(userCreatedAt.toLocalDateTime());
-        }
-        Timestamp userUpdatedAt = rs.getTimestamp("u_updatedAt");
-        if (userUpdatedAt != null) {
-            user.setUpdatedAt(userUpdatedAt.toLocalDateTime());
-        }
         record.setUser(user);
 
         Restaurant restaurant = new Restaurant();
@@ -94,14 +85,15 @@ public class RecordRepository {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(
-                        "INSERT INTO records (userId, restaurantId, visitDate, mealName, note) VALUES (?, ?, ?, ?, ?)",
+                        "INSERT INTO records (userId, restaurantId, visitDate, mealName, note, createdAt) VALUES (?, ?, ?, ?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS
                 );
                 ps.setInt(1, record.getUser().getUserId());
                 ps.setInt(2, record.getRestaurant().getRestaurantId());
-                ps.setDate(3, Date.valueOf(record.getVisitDate()));
+                ps.setTimestamp(3, Timestamp.valueOf(record.getVisitDate()));
                 ps.setString(4, record.getMealName());
                 ps.setString(5, record.getNote());
+                ps.setTimestamp(6, Timestamp.valueOf(record.getCreatedAt()));
                 return ps;
             }, keyHolder);
 
@@ -119,7 +111,7 @@ public class RecordRepository {
                 "UPDATE records SET userId = ?, restaurantId = ?, visitDate = ?, mealName = ?, note = ? WHERE recordId = ?",
                 record.getUser().getUserId(),
                 record.getRestaurant().getRestaurantId(),
-                Date.valueOf(record.getVisitDate()),
+                Timestamp.valueOf(record.getVisitDate()),
                 record.getMealName(),
                 record.getNote(),
                 record.getRecordId()

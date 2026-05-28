@@ -1,8 +1,9 @@
 package group19.restaurant_system.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "records")
@@ -21,7 +22,7 @@ public class Record {
     private Restaurant restaurant;
 
     @Column(nullable = false)
-    private LocalDate visitDate;
+    private LocalDateTime visitDate;
 
     @Column(nullable = false)
     private String mealName;
@@ -32,11 +33,31 @@ public class Record {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    // 不存 DB，查詢時由 record_participants 填入
+    @Transient
+    private List<ParticipantInfo> participants = new ArrayList<>();
+
+    public static class ParticipantInfo {
+        private Integer userId;
+        private String name;
+
+        public ParticipantInfo() {}
+        public ParticipantInfo(Integer userId, String name) {
+            this.userId = userId;
+            this.name = name;
+        }
+
+        public Integer getUserId() { return userId; }
+        public void setUserId(Integer userId) { this.userId = userId; }
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+    }
+
     public Record() {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Record(User user, Restaurant restaurant, LocalDate visitDate, String mealName, String note) {
+    public Record(User user, Restaurant restaurant, LocalDateTime visitDate, String mealName, String note) {
         this.user = user;
         this.restaurant = restaurant;
         this.visitDate = visitDate;
@@ -45,7 +66,6 @@ public class Record {
         this.createdAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
     public Integer getRecordId() { return recordId; }
     public void setRecordId(Integer recordId) { this.recordId = recordId; }
 
@@ -55,8 +75,8 @@ public class Record {
     public Restaurant getRestaurant() { return restaurant; }
     public void setRestaurant(Restaurant restaurant) { this.restaurant = restaurant; }
 
-    public LocalDate getVisitDate() { return visitDate; }
-    public void setVisitDate(LocalDate visitDate) { this.visitDate = visitDate; }
+    public LocalDateTime getVisitDate() { return visitDate; }
+    public void setVisitDate(LocalDateTime visitDate) { this.visitDate = visitDate; }
 
     public String getMealName() { return mealName; }
     public void setMealName(String mealName) { this.mealName = mealName; }
@@ -67,16 +87,14 @@ public class Record {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
+    public List<ParticipantInfo> getParticipants() { return participants; }
+    public void setParticipants(List<ParticipantInfo> participants) { this.participants = participants; }
+
     @Override
     public String toString() {
-        return "Record{" +
-                "recordId=" + recordId +
-                ", userId=" + user.getUserId() +
-                ", restaurantId=" + restaurant.getRestaurantId() +
+        return "Record{recordId=" + recordId +
                 ", visitDate=" + visitDate +
                 ", mealName='" + mealName + '\'' +
-                ", note='" + note + '\'' +
-                ", createdAt=" + createdAt +
-                '}';
+                ", createdAt=" + createdAt + '}';
     }
 }

@@ -50,8 +50,9 @@ public class HistoryController {
                                         @RequestBody RecordRequest request) {
         try {
             Integer userId = getUserIdFromHeader(authHeader);
-            Record record = recordService.saveRecord(userId, request.getRestaurantId(), 
-                    request.getVisitDate(), request.getMealName(), request.getNote());
+            Record record = recordService.saveRecord(userId, request.getRestaurantId(),
+                    request.getVisitDate(), request.getMealName(), request.getNote(),
+                    request.getParticipantIds());
             return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true, "Record saved", record));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));

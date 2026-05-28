@@ -873,10 +873,10 @@ async function loadGroupRecommendations(sessionId) {
 
                     <div class="button-group" style="margin-top: 16px;">
                         <button type="button" class="btn-secondary" style="margin-right: 8px;" onclick="pickGroupRestaurant(${rid}, '${safeName}'); viewMenu(${rid}, 'select')">
-                            ✅ 選擇餐點
+                            選擇餐點
                         </button>
                         <button type="button" class="btn-secondary" onclick="viewReviews(${rid})">
-                            💬 查看評論
+                            查看評論
                         </button>
                     </div>
                 </div>`;
@@ -904,14 +904,25 @@ async function loadGroupHistory(sessionId) {
             return;
         }
 
-        container.innerHTML = history.map(h => `
+        container.innerHTML = history.map(h => {
+            const dt = h.visitDate ? new Date(h.visitDate) : null;
+            const pad = n => String(n).padStart(2, '0');
+            const dateStr = dt
+                ? `${dt.getFullYear()}/${pad(dt.getMonth()+1)}/${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}`
+                : '';
+            const participants = (h.participants && h.participants.length)
+                ? h.participants.map(p => p.name).join('、')
+                : '';
+            return `
             <div class="list-item">
                 <div class="list-item-title">${h.mealName || '未命名'}</div>
                 <div class="list-item-meta">
-                    餐廳：${h.restaurant?.name || `#${h.restaurantId}`} ｜ ${h.visitDate || ''}
+                    餐廳：${h.restaurant?.name || `#${h.restaurantId}`} ｜ ${dateStr}
                 </div>
+                ${participants ? `<div class="list-item-meta">成員： ${participants}</div>` : ''}
                 ${h.note ? `<div class="list-item-meta">${h.note}</div>` : ''}
-            </div>`).join('');
+            </div>`;
+        }).join('');
     } catch {
         container.innerHTML = '<p style="color:#999; font-size:13px;">無法載入紀錄</p>';
     }
@@ -974,21 +985,21 @@ window.viewMenu = async function(restaurantId, mode = 'view') {
             const priceHtml = `<span style="color: #e44d26; font-weight: bold; margin-left: auto; margin-right: 15px;">$${dish.price || 0}</span>`;
 
             if (mode === 'select') {
-                // 👥 揪團勾選模式：保留你的自訂結構，並注入價格
+                // 揪團勾選模式：保留你的自訂結構，並注入價格
                 return `
                 <div class="dish-select-item" 
                      id="dish-item-${dishId}"
                      onclick="toggleDishSelectionLocal(${dishId}, '${safeName}')"
                      style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; cursor: pointer;">
-                    <div style="font-weight: 500;">🍔 ${dish.name}</div>
+                    <div style="font-weight: 500; padding-left: 0;">${dish.name}</div>
                     ${priceHtml}
                     <div class="dish-check-circle">✓</div>
                 </div>`;
             } else {
-                // 🏠 首頁純瀏覽模式：乾淨的純文字排版，無法點擊
+                // 首頁純瀏覽模式：乾淨的純文字排版，無法點擊
                 return `
                 <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; align-items: center;">
-                   <span style="font-weight: 500; color: #333;">🍔 ${dish.name}</span>
+                   <span style="font-weight: 500; color: #333;">${dish.name}</span>
                    <span style="color: #e44d26; font-weight: bold;">$${dish.price || 0}</span>
                 </div>`;
             }
@@ -999,7 +1010,7 @@ window.viewMenu = async function(restaurantId, mode = 'view') {
             html += `
             <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #eee; text-align: center;">
                 <button type="button" id="confirm-dishes-btn" class="btn-primary" style="width: 100%; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer;" onclick="submitGroupDishesSelection()">
-                    ✅ 確認選擇（已選 <span id="selected-dishes-count">0</span> 道菜）
+                    確認選擇（已選 <span id="selected-dishes-count">0</span> 道菜）
                 </button>
             </div>`;
         }
@@ -1072,11 +1083,20 @@ window.submitGroupDishesSelection = async function() {
             el.textContent = state.selectedDishes.map(d => d.name).join("、");
         }
 
-        // 2. 🔥 強制處理記錄區塊的隱藏狀態
+        // 2. 更新已選餐廳名稱顯示
+        const restaurantEl = document.getElementById("record-selected-restaurant");
+        if (restaurantEl && state._selectedRestaurant) {
+            restaurantEl.textContent = `餐廳：${state._selectedRestaurant.name}`;
+        }
+
+        // 3. 顯示記錄表單
         const recordPanel = document.getElementById("record-form-panel");
         if (recordPanel) {
-            recordPanel.classList.remove("hidden"); // 確保該區域被顯示出來
+            recordPanel.classList.remove("hidden");
         }
+
+        // 4. 載入群組成員產生勾選清單
+        await renderParticipantCheckboxes(state._activeGroupSessionId);
 
         showToast(`已選定 ${state.selectedDishes.length} 道餐點`, "success");
         closeModal('menu-modal'); // 關閉彈窗
@@ -1086,6 +1106,93 @@ window.submitGroupDishesSelection = async function() {
     }
 }
 
+
+// ============ 儲存用餐紀錄 ============
+
+async function renderParticipantCheckboxes(sessionId) {
+    const container = document.getElementById("record-participants-list");
+    if (!container || !sessionId) return;
+
+    container.innerHTML = '<span style="font-size:12px;color:#999;">載入中…</span>';
+    try {
+        const members = await request(`/api/groups/${sessionId}/members`);
+        if (!members || !members.length) {
+            container.innerHTML = '<span style="font-size:12px;color:#999;">無成員資料</span>';
+            return;
+        }
+        container.innerHTML = members.map(m => {
+            const uid = m.userId;
+            const label = m.name || `用戶 #${uid}`;
+            const isMe = String(uid) === String(state.userId);
+            return `
+            <label style="display:flex;align-items:center;gap:6px;
+                          background:var(--surface);border:1px solid var(--border);
+                          border-radius:20px;padding:4px 12px;cursor:pointer;font-size:13px;">
+                <input type="checkbox" value="${uid}" ${isMe ? 'checked' : ''}
+                       style="accent-color:var(--primary);cursor:pointer;">
+                ${label}${isMe ? ' （我）' : ''}
+            </label>`;
+        }).join('');
+    } catch {
+        container.innerHTML = '<span style="font-size:12px;color:#999;">無法載入成員</span>';
+    }
+}
+
+window.saveGroupRecord = async function() {
+    const restaurant = state._selectedRestaurant;
+    if (!restaurant) {
+        showToast("請先選擇餐廳", "error");
+        return;
+    }
+
+    const note = (document.getElementById("record-note")?.value || "").trim();
+    const mealName = state.selectedDishes.length > 0
+        ? state.selectedDishes.map(d => d.name).join("、")
+        : restaurant.name;
+
+    // 本地時間精確到秒，格式 "2024-05-28T14:30:00"
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const visitDate = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+    const participantIds = [...document.querySelectorAll('#record-participants-list input[type=checkbox]:checked')]
+        .map(cb => parseInt(cb.value));
+
+    try {
+        await request("/api/history/save", {
+            method: "POST",
+            body: JSON.stringify({
+                restaurantId: restaurant.restaurantId,
+                visitDate: visitDate,
+                mealName: mealName,
+                note: note,
+                participantIds: participantIds
+            })
+        });
+
+        showToast("紀錄已儲存！", "success");
+
+        // 隱藏表單、清空狀態
+        document.getElementById("record-form-panel")?.classList.add("hidden");
+        document.getElementById("record-note").value = "";
+        state._selectedRestaurant = null;
+        state.selectedDishes = [];
+
+        // 重新載入群組歷史紀錄
+        if (state._activeGroupSessionId) {
+            await loadGroupHistory(state._activeGroupSessionId);
+        }
+    } catch (err) {
+        showToast("儲存失敗：" + err.message, "error");
+    }
+};
+
+window.cancelRecord = function() {
+    document.getElementById("record-form-panel")?.classList.add("hidden");
+    document.getElementById("record-note").value = "";
+    state._selectedRestaurant = null;
+    state.selectedDishes = [];
+};
 
 // 查看餐廳評論
 window.viewReviews = async function(restaurantId) {

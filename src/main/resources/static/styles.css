@@ -153,6 +153,14 @@ label {
     text-transform: uppercase;
 }
 
+#record-participants-list label {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 13px;
+    font-weight: 400;
+    color: inherit;
+}
+
 input, select, textarea {
     width: 100%;
     padding: 11px 14px;

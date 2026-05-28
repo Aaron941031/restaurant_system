@@ -65,6 +65,14 @@ public class GroupMemberRepository {
         );
     }
 
+    public void removeMember(Integer sessionId, Integer userId) {
+        jdbcTemplate.update(
+                "DELETE FROM group_members WHERE sessionId = ? AND userId = ?",
+                sessionId,
+                userId
+        );
+    }
+
     public List<Integer> findMemberIdsBySessionId(Integer sessionId) {
         return jdbcTemplate.queryForList(
                 "SELECT userId FROM group_members WHERE sessionId = ?",

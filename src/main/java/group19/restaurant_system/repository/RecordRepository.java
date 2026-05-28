@@ -25,7 +25,7 @@ public class RecordRepository {
     }
 
     private static final String BASE_SELECT =
-            "SELECT r.recordId, r.visitDate, r.mealName, r.note, r.createdAt, " +
+            "SELECT r.recordId, r.visitDate, r.mealName, r.note, r.groupSessionId, r.createdAt, " +
                     "u.userId AS u_userId, u.name AS u_name, u.email AS u_email, u.password AS u_password, " +
                     "res.restaurantId AS res_restaurantId, res.name AS res_name, res.category AS res_category, res.priceRange AS res_priceRange, " +
                     "res.avgScore AS res_avgScore, res.ratingCount AS res_ratingCount, res.locationAt AS res_locationAt " +
@@ -42,6 +42,7 @@ public class RecordRepository {
         }
         record.setMealName(rs.getString("mealName"));
         record.setNote(rs.getString("note"));
+        record.setGroupSessionId((Integer) rs.getObject("groupSessionId"));
         Timestamp createdAt = rs.getTimestamp("createdAt");
         if (createdAt != null) {
             record.setCreatedAt(createdAt.toLocalDateTime());
@@ -80,12 +81,20 @@ public class RecordRepository {
         );
     }
 
+    public List<Record> findByGroupSessionIdOrderByCreatedAtDesc(Integer groupSessionId) {
+        return jdbcTemplate.query(
+                BASE_SELECT + "WHERE r.groupSessionId = ? ORDER BY r.createdAt DESC",
+                rowMapper,
+                groupSessionId
+        );
+    }
+
     public Record save(Record record) {
         if (record.getRecordId() == null) {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(
-                        "INSERT INTO records (userId, restaurantId, visitDate, mealName, note, createdAt) VALUES (?, ?, ?, ?, ?, ?)",
+                        "INSERT INTO records (userId, restaurantId, visitDate, mealName, note, groupSessionId, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS
                 );
                 ps.setInt(1, record.getUser().getUserId());
@@ -93,7 +102,8 @@ public class RecordRepository {
                 ps.setTimestamp(3, Timestamp.valueOf(record.getVisitDate()));
                 ps.setString(4, record.getMealName());
                 ps.setString(5, record.getNote());
-                ps.setTimestamp(6, Timestamp.valueOf(record.getCreatedAt()));
+                ps.setObject(6, record.getGroupSessionId());
+                ps.setTimestamp(7, Timestamp.valueOf(record.getCreatedAt()));
                 return ps;
             }, keyHolder);
 

@@ -52,10 +52,20 @@ public class HistoryController {
             Integer userId = getUserIdFromHeader(authHeader);
             Record record = recordService.saveRecord(userId, request.getRestaurantId(),
                     request.getVisitDate(), request.getMealName(), request.getNote(),
-                    request.getParticipantIds());
+                    request.getParticipantIds(), request.getGroupSessionId());
             return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true, "Record saved", record));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
+        }
+    }
+
+    @GetMapping("/group/{sessionId}")
+    public ResponseEntity<?> getGroupHistory(@PathVariable Integer sessionId) {
+        try {
+            List<Record> history = recordService.getGroupHistory(sessionId);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Group history retrieved", history));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse<>(false, e.getMessage()));
         }
     }
 
@@ -63,7 +73,7 @@ public class HistoryController {
     public ResponseEntity<?> deleteRecord(@RequestHeader("Authorization") String authHeader,
                                           @PathVariable Integer recordId) {
         try {
-            Integer userId = getUserIdFromHeader(authHeader);
+            getUserIdFromHeader(authHeader);
             recordService.deleteRecord(recordId);
             return ResponseEntity.ok(new ApiResponse<>(true, "Record deleted"));
         } catch (Exception e) {

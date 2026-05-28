@@ -9,6 +9,7 @@ public class RecordRequest {
     private String mealName;
     private String note;
     private List<Integer> participantIds;
+    private Integer groupSessionId;
 
     public RecordRequest() {}
 
@@ -26,4 +27,7 @@ public class RecordRequest {
 
     public List<Integer> getParticipantIds() { return participantIds; }
     public void setParticipantIds(List<Integer> participantIds) { this.participantIds = participantIds; }
+
+    public Integer getGroupSessionId() { return groupSessionId; }
+    public void setGroupSessionId(Integer groupSessionId) { this.groupSessionId = groupSessionId; }
 }

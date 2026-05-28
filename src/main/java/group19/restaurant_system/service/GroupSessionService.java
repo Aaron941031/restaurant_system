@@ -102,6 +102,22 @@ public class GroupSessionService {
     }
 
     @Transactional
+    public void leaveGroup(Integer sessionId, Integer userId) throws Exception {
+        GroupSession session = groupSessionRepository.findById(sessionId)
+            .orElseThrow(() -> new Exception("Group not found"));
+
+        if (session.getCreator().getUserId().equals(userId)) {
+            throw new Exception("建立者無法退出群組，請改為刪除群組");
+        }
+
+        if (!groupMemberRepository.existsBySessionIdAndUserId(sessionId, userId)) {
+            throw new Exception("你不是此群組的成員");
+        }
+
+        groupMemberRepository.removeMember(sessionId, userId);
+    }
+
+    @Transactional
     public void deleteGroup(Integer sessionId, Integer userId) throws Exception {
         GroupSession session = groupSessionRepository.findById(sessionId)
             .orElseThrow(() -> new Exception("Group not found"));

@@ -52,7 +52,8 @@ public class RecordService {
 
     @Transactional
     public Record saveRecord(Integer userId, Integer restaurantId, LocalDateTime visitDate,
-                             String mealName, String note, List<Integer> participantIds) throws Exception {
+                             String mealName, String note, List<Integer> participantIds,
+                             Integer groupSessionId) throws Exception {
         Optional<User> userOpt = userRepository.findById(userId);
         if (!userOpt.isPresent()) throw new Exception("User not found");
 
@@ -60,6 +61,7 @@ public class RecordService {
         if (!restaurantOpt.isPresent()) throw new Exception("Restaurant not found");
 
         Record record = new Record(userOpt.get(), restaurantOpt.get(), visitDate, mealName, note);
+        record.setGroupSessionId(groupSessionId);
         Record saved = recordRepository.save(record);
 
         if (participantIds != null && !participantIds.isEmpty()) {
@@ -68,6 +70,23 @@ public class RecordService {
         }
 
         return saved;
+    }
+
+    public List<Record> getGroupHistory(Integer groupSessionId) {
+        List<Record> history = recordRepository.findByGroupSessionIdOrderByCreatedAtDesc(groupSessionId);
+        if (!history.isEmpty()) {
+            List<Integer> recordIds = history.stream()
+                    .map(Record::getRecordId)
+                    .collect(Collectors.toList());
+            Map<Integer, List<Record.ParticipantInfo>> participantsMap =
+                    recordParticipantRepository.findByRecordIds(recordIds);
+            for (Record record : history) {
+                record.setParticipants(
+                    participantsMap.getOrDefault(record.getRecordId(), new ArrayList<>())
+                );
+            }
+        }
+        return history;
     }
 
     public Optional<Record> getRecordById(Integer recordId) {

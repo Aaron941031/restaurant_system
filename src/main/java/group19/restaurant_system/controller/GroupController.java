@@ -164,6 +164,19 @@ public class GroupController {
         }
     }
 
+    @DeleteMapping("/{id}/leave")
+    public ResponseEntity<?> leaveGroup(@RequestHeader("Authorization") String authHeader,
+                                        @PathVariable Integer id) {
+        try {
+            Integer userId = getUserIdFromHeader(authHeader);
+            groupSessionService.leaveGroup(id, userId);
+            return ResponseEntity.ok(new ApiResponse<>(true, "已退出群組"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, e.getMessage()));
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity deleteGroup(
             @RequestHeader("Authorization") String authHeader,

@@ -738,7 +738,11 @@ function renderMyGroups(groups) {
                         <button type="button" class="btn-danger" onclick="deleteGroup(${group.sessionId})">
                             刪除群組
                         </button>
-                    ` : ''}
+                    ` : `
+                        <button type="button" class="btn-danger" onclick="leaveGroup(${group.sessionId})">
+                            退出群組
+                        </button>
+                    `}
                 </div>
             </div>`;
     }).join('');
@@ -894,7 +898,7 @@ async function loadGroupHistory(sessionId) {
     container.innerHTML = '<p style="color:#999; font-size:13px;">載入紀錄中…</p>';
 
     try {
-        const history = await request("/api/history/me");
+        const history = await request(`/api/history/group/${sessionId}`);
 
         if (!history || !history.length) {
             container.innerHTML = '<p style="color:#999; font-size:13px;">尚無紀錄</p>';
@@ -944,6 +948,20 @@ window.deleteHistoryRecord = async function(recordId) {
         showToast("刪除失敗：" + err.message, "error");
     }
 };
+
+async function leaveGroup(sessionId) {
+    try {
+        if (!confirm("確定要退出這個群組嗎？")) return;
+
+        await request(`/api/groups/${sessionId}/leave`, { method: "DELETE" });
+
+        showToast("已退出群組", "success");
+        document.getElementById("group-detail-panel")?.classList.add("hidden");
+        loadMyGroups();
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+}
 
 async function deleteGroup(sessionId) {
     try {
@@ -1253,7 +1271,8 @@ window.saveGroupRecord = async function() {
                 visitDate: visitDate,
                 mealName: mealName,
                 note: note,
-                participantIds: participantIds
+                participantIds: participantIds,
+                groupSessionId: state._activeGroupSessionId
             })
         });
 

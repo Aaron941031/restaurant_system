@@ -18,6 +18,8 @@ public class Record {
 
     private String note;
 
+    private Integer groupSessionId;
+
     private LocalDateTime createdAt;
 
     // 不存在 DB，查詢時由 record_participants 填入
@@ -69,6 +71,9 @@ public class Record {
 
     public String getNote() { return note; }
     public void setNote(String note) { this.note = note; }
+
+    public Integer getGroupSessionId() { return groupSessionId; }
+    public void setGroupSessionId(Integer groupSessionId) { this.groupSessionId = groupSessionId; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

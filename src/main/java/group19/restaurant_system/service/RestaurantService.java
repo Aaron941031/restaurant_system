@@ -131,75 +131,85 @@ public class RestaurantService {
         return restaurantRepository.findByNameLike(q, limit);
     }
 
-    @Transactional
-        public List<Restaurant> getGroupRecommendations(Integer sessionId,
-                                                        List<Integer> memberIds) throws Exception {
-        // Collect all excluded dishes from all members
-        List<Integer> allExcludedDishIds = memberIds.stream()
+    private List<Integer> collectExcludedDishIds(List<Integer> memberIds) {
+        return memberIds.stream()
             .flatMap(userId -> this.userExclusionRepository.findByUserUserId(userId).stream())
             .filter(ue -> ue.getDish() != null)
             .map(ue -> ue.getDish().getDishId())
             .distinct()
             .collect(Collectors.toList());
-        List<Integer> allExcludedRestaurantIds = memberIds.stream()
-            .flatMap(userId -> this.userExclusionRepository.findByUserUserId(userId).stream())
-            .filter(ue -> ue.getRestaurant() != null)
-            .map(ue -> ue.getRestaurant().getRestaurantId())
-            .distinct()
-            .collect(Collectors.toList());
-        List<Integer> allExcludedIngredientIds = memberIds.stream()
+    }
+
+    private List<Integer> collectExcludedIngredientIds(List<Integer> memberIds) {
+        return memberIds.stream()
             .flatMap(userId -> this.userExclusionRepository.findByUserUserId(userId).stream())
             .filter(ue -> ue.getIngredient() != null)
             .map(ue -> ue.getIngredient().getIngredientId())
             .distinct()
             .collect(Collectors.toList());
-        List<Integer> groupDishRestaurantIds = restaurantDishRepository
-            .findRestaurantIdsByDishIds(allExcludedDishIds);
-        List<Integer> groupIngredientRestaurantIds = restaurantDishRepository
-            .findRestaurantIdsByIngredientIds(allExcludedIngredientIds);
-        
-        List<Restaurant> recommended = restaurantRepository.findAllByOrderByAvgScoreDesc();
-        
-        if (!groupDishRestaurantIds.isEmpty()) {
-            allExcludedRestaurantIds.addAll(groupDishRestaurantIds);
-        }
-        if (!groupIngredientRestaurantIds.isEmpty()) {
-            allExcludedRestaurantIds.addAll(groupIngredientRestaurantIds);
-        }
+    }
 
-        if (!allExcludedRestaurantIds.isEmpty()) {
-            recommended = recommended.stream()
-                .filter(r -> !allExcludedRestaurantIds.contains(r.getRestaurantId()))
-                .collect(Collectors.toList());
+    private List<Integer> collectExcludedRestaurantIds(List<Integer> memberIds) {
+        return memberIds.stream()
+            .flatMap(userId -> this.userExclusionRepository.findByUserUserId(userId).stream())
+            .filter(ue -> ue.getRestaurant() != null)
+            .map(ue -> ue.getRestaurant().getRestaurantId())
+            .distinct()
+            .collect(Collectors.toList());
+    }
+
+    private Map<Integer, Integer> buildRemainingCountMap(List<Integer> excludedDishIds,
+                                                         List<Integer> excludedIngredientIds,
+                                                         int limit) {
+        List<Map<String, Object>> rows = this.restaurantDishRepository
+            .findRemainingDishCountsByExclusions(excludedDishIds, excludedIngredientIds, limit);
+
+        Map<Integer, Integer> remainingMap = new HashMap<>();
+        for (Map<String, Object> row : rows) {
+            Integer restaurantId = ((Number) row.get("restaurantId")).intValue();
+            Integer remaining = ((Number) row.get("remainingCount")).intValue();
+            remainingMap.put(restaurantId, remaining);
         }
-        
-        // If no results, use fallback
-        if (recommended.isEmpty()) {
-            recommended = restaurantRepository.findAllByOrderByAvgScoreDesc();
-        }
-        
-        return recommended.stream()
+        return remainingMap;
+    }
+
+    @Transactional
+        public List<Restaurant> getGroupRecommendations(Integer sessionId,
+                                                        List<Integer> memberIds) throws Exception {
+        List<Integer> excludedDishIds = collectExcludedDishIds(memberIds);
+        List<Integer> excludedIngredientIds = collectExcludedIngredientIds(memberIds);
+        List<Integer> excludedRestaurantIds = collectExcludedRestaurantIds(memberIds);
+
+        Map<Integer, Integer> remainingMap = buildRemainingCountMap(excludedDishIds, excludedIngredientIds, 1000);
+
+        List<Restaurant> allByScore = restaurantRepository.findAllByOrderByAvgScoreDesc();
+        List<Restaurant> candidates = allByScore.stream()
+            .filter(r -> !excludedRestaurantIds.contains(r.getRestaurantId()))
+            .filter(r -> remainingMap.containsKey(r.getRestaurantId()) && remainingMap.get(r.getRestaurantId()) > 0)
+            .sorted(Comparator
+                .comparing((Restaurant r) -> remainingMap.get(r.getRestaurantId()))
+                .reversed()
+                .thenComparing(Restaurant::getAvgScore, Comparator.reverseOrder())
+            )
+            .limit(5)
+            .collect(Collectors.toList());
+
+        if (candidates.isEmpty()) {
+            candidates = allByScore.stream()
+                .filter(r -> !excludedRestaurantIds.contains(r.getRestaurantId()))
                 .limit(5)
                 .collect(Collectors.toList());
+        }
+
+        return candidates;
     }
 
     @Transactional
     public List<RestaurantRemainingDto> getGroupRestaurantsByRemainingDishes(Integer sessionId,
                                                                               List<Integer> memberIds,
                                                                               int limit) throws Exception {
-        // Collect all excluded dishes/ingredients from members
-        List<Integer> allExcludedDishIds = memberIds.stream()
-            .flatMap(userId -> this.userExclusionRepository.findByUserUserId(userId).stream())
-            .filter(ue -> ue.getDish() != null)
-            .map(ue -> ue.getDish().getDishId())
-            .distinct()
-            .collect(Collectors.toList());
-        List<Integer> allExcludedIngredientIds = memberIds.stream()
-            .flatMap(userId -> this.userExclusionRepository.findByUserUserId(userId).stream())
-            .filter(ue -> ue.getIngredient() != null)
-            .map(ue -> ue.getIngredient().getIngredientId())
-            .distinct()
-            .collect(Collectors.toList());
+        List<Integer> allExcludedDishIds = collectExcludedDishIds(memberIds);
+        List<Integer> allExcludedIngredientIds = collectExcludedIngredientIds(memberIds);
 
         List<Map<String, Object>> rows = this.restaurantDishRepository
             .findRemainingDishCountsByExclusions(allExcludedDishIds, allExcludedIngredientIds, limit);

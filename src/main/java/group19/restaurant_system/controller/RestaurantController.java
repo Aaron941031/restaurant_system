@@ -7,6 +7,7 @@ import group19.restaurant_system.model.Restaurant;
 import group19.restaurant_system.service.RatingService;
 import group19.restaurant_system.service.RestaurantService;
 import group19.restaurant_system.util.JwtTokenProvider;
+import group19.restaurant_system.dto.ReviewResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -93,6 +94,39 @@ public class RestaurantController {
             return ResponseEntity.ok(new ApiResponse<>(true, "Ratings retrieved", ratings));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse<>(false, e.getMessage()));
+        }
+    }
+
+    // 2. 新增「取得當前登入使用者的所有評論」API
+    @GetMapping("/reviews/me")
+    public ResponseEntity<?> getMyReviews(@RequestHeader("Authorization") String authHeader) {
+        try {
+            // 透過你們寫好的方法解析 Token，取得 Integer 型別的 userId
+            Integer userId = getUserIdFromHeader(authHeader);
+            
+            // ⚠️ 如果你的 DTO 檔案叫做 ReviewResponseDTO，這裡的 ReviewResponse 要改名
+            List<ReviewResponse> myReviews = ratingService.getReviewsByUserId(userId);
+            
+            return ResponseEntity.ok(new ApiResponse<>(true, "獲取評論成功", myReviews));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse<>(false, "無法獲取評論：" + e.getMessage()));
+        }
+    }
+
+    // 3. 新增「刪除評論」API
+    @DeleteMapping("/reviews/{reviewId}")
+    public ResponseEntity<?> deleteReview(@PathVariable Integer reviewId, @RequestHeader("Authorization") String authHeader) {
+        try {
+            // 透過 Token 取得 userId，確保只有本人能刪除
+            Integer userId = getUserIdFromHeader(authHeader);
+            
+            ratingService.deleteReview(reviewId, userId);
+            
+            return ResponseEntity.ok(new ApiResponse<>(true, "刪除成功", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, "刪除失敗：" + e.getMessage()));
         }
     }
 }

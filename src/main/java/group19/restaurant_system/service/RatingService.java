@@ -1,5 +1,6 @@
 package group19.restaurant_system.service;
 
+import group19.restaurant_system.dto.ReviewResponse;
 import group19.restaurant_system.model.Rating;
 import group19.restaurant_system.model.Restaurant;
 import group19.restaurant_system.model.User;
@@ -83,5 +84,35 @@ public class RatingService {
         
         // Update restaurant average score
         restaurantService.updateRestaurantRating(restaurantId);
+    }
+
+    // 新增方法 A：根據用戶 ID 取得所有評論紀錄
+    public List<ReviewResponse> getReviewsByUserId(Integer userId) { // ⚠️ 參數改為 Integer
+        List<Rating> ratings = ratingRepository.findByUserUserId(userId);
+        
+        return ratings.stream().map(rating -> {
+            ReviewResponse dto = new ReviewResponse();
+            // 這裡就不會報錯了，因為兩邊都是 Integer
+            dto.setId(rating.getRatingId()); 
+            dto.setRating(rating.getScore());
+            dto.setComment(rating.getComment());
+            dto.setCreatedAt(rating.getRatedAt());
+            dto.setRestaurantName(rating.getRestaurant() != null ? rating.getRestaurant().getName() : "未知餐廳");
+            return dto;
+        }).collect(java.util.stream.Collectors.toList());
+    }
+
+    // 新增方法 B：刪除評論（含安全檢查）
+    public void deleteReview(Integer ratingId, Integer userId) { // ⚠️ 參數改為 Integer
+        Rating rating = ratingRepository.findById(ratingId)
+                .orElseThrow(() -> new IllegalArgumentException("找不到該評論"));
+        
+        // 檢查是否為本人
+        if (!rating.getUser().getUserId().equals(userId)) {
+            throw new RuntimeException("無權刪除此評論");
+        }
+        
+        // 你們原本就有 delete 方法了，直接用這個即可
+        ratingRepository.delete(rating); 
     }
 }

@@ -16,7 +16,6 @@
 
     <div class="content">
 
-        <!-- 登入 / 註冊 -->
         <div id="page-auth" class="page active">
             <div class="title">開始使用</div>
 
@@ -57,7 +56,6 @@
             </form>
         </div>
 
-        <!-- 主選單 -->
         <div id="page-menu" class="page">
             <div class="title">選單</div>
 
@@ -72,7 +70,6 @@
             </div>
         </div>
 
-        <!-- 餐廳列表 -->
         <div id="page-restaurants" class="page">
             <div class="title">餐廳列表</div>
             <div class="button-group">
@@ -81,9 +78,12 @@
             <div id="restaurants-list" style="margin-top: 28px;"></div>
         </div>
 
-        <!-- 評分 -->
         <div id="page-rate" class="page">
-            <div class="title">評分餐廳</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div class="title" style="margin-bottom: 0;">評分餐廳</div>
+                <button type="button" id="my-reviews-btn" class="btn-secondary" style="padding: 6px 12px; font-size: 14px; flex: 0 0 90px; max-width: 90px; min-width: 90px; white-space: nowrap; margin-left: 10px;">我的評論</button>
+            </div>
+            
             <form id="rating-form">
                 <div class="form-group">
                     <label>選擇餐廳</label>
@@ -113,69 +113,58 @@
             </form>
         </div>
 
-       <!-- 推薦 -->
+       <div id="page-recommend" class="page">
+           <div class="title">個人推薦</div>
+           <div class="form-group">
+               <label>排除設定（選填）</label>
+               <div class="exclusion-panel">
+                   <div class="form-group">
+                       <label>排除種類</label>
+                       <select id="exclude-type">
+                           <option value="ingredient">食材</option>
+                           <option value="dish">菜餚</option>
+                           <option value="restaurant">餐廳</option>
+                       </select>
+                   </div>
+                   <div class="form-group">
+                       <label id="exclude-items-label">選擇要排除的食材</label>
+                       <input type="text" id="exclude-search" placeholder="輸入以搜尋並按 Enter 選取" autocomplete="off">
+                       <div id="exclude-suggestions" class="suggestions hidden"></div>
+                       <div id="exclude-selected" class="selected-list"></div>
+                       <div style="display: grid; grid-template-columns: 1fr 220px; gap: 8px; margin-top: 8px; align-items:start;">
+                           <select id="exclude-items" class="multi-select" multiple size="6"></select>
+                           <div style="font-size:12px;color:var(--text-muted);">或使用搜尋加入</div>
+                       </div>
+                       <div id="exclude-options" style="display:none"></div>
+                       <div class="helper-text">可輸入關鍵字搜尋，按 Enter 或點擊建議以加入選取</div>
+                   </div>
+                   <div class="button-group" style="margin-top: 8px;">
+                       <button type="button" class="btn-secondary" onclick="addExclusion()" style="width: 100%;">加入排除項目</button>
+                   </div>
+                   <div class="button-group" style="margin-top: 8px;">
+                       <button type="button" class="btn-secondary" onclick="showExclusions()" style="width: 100%;">顯示已排除項目</button>
+                   </div>
+               </div>
+           </div>
 
-<div id="page-recommend" class="page">
+           <div id="exclusion-section" class="hidden" style="margin: 20px 0;">
+               <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); margin-bottom: 10px;">已排除項目</div>
+               <div id="exclusion-display"></div>
+           </div>
 
-    <div class="title">個人推薦</div>
+           <button type="button" class="btn-primary" onclick="getRecommendations()" style="width: 100%; margin-top: 8px;">取得推薦</button>
+           <div id="recommend-list" style="margin-top: 20px;"></div>
 
-    <div class="form-group">
+           <div class="button-group" style="margin-top: 28px;">
+               <button type="button" class="btn-back" onclick="goPage('menu')">返回</button>
+           </div>
+       </div>
 
-        <label>排除設定（選填）</label>
-
-        <div class="exclusion-panel">
-            <div class="form-group">
-                <label>排除種類</label>
-                <select id="exclude-type">
-                    <option value="ingredient">食材</option>
-                    <option value="dish">菜餚</option>
-                    <option value="restaurant">餐廳</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label id="exclude-items-label">選擇要排除的食材</label>
-                <input type="text" id="exclude-search" placeholder="輸入以搜尋並按 Enter 選取" autocomplete="off">
-                <div id="exclude-suggestions" class="suggestions hidden"></div>
-                <div id="exclude-selected" class="selected-list"></div>
-                <div style="display: grid; grid-template-columns: 1fr 220px; gap: 8px; margin-top: 8px; align-items:start;">
-                    <select id="exclude-items" class="multi-select" multiple size="6"></select>
-                    <div style="font-size:12px;color:var(--text-muted);">或使用搜尋加入</div>
-                </div>
-                <div id="exclude-options" style="display:none"></div>
-                <div class="helper-text">可輸入關鍵字搜尋，按 Enter 或點擊建議以加入選取</div>
-            </div>
-
-            <div class="button-group" style="margin-top: 8px;">
-                <button type="button" class="btn-secondary" onclick="addExclusion()" style="width: 100%;">加入排除項目</button>
-            </div>
-
-            <div class="button-group" style="margin-top: 8px;">
-                <button type="button" class="btn-secondary" onclick="showExclusions()" style="width: 100%;">顯示已排除項目</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="exclusion-section" class="hidden" style="margin: 20px 0;">
-        <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); margin-bottom: 10px;">已排除項目</div>
-        <div id="exclusion-display"></div>
-    </div>
-
-    <button type="button" class="btn-primary" onclick="getRecommendations()" style="width: 100%; margin-top: 8px;">取得推薦</button>
-    <div id="recommend-list" style="margin-top: 20px;"></div>
-
-    <div class="button-group" style="margin-top: 28px;">
-        <button type="button" class="btn-back" onclick="goPage('menu')">返回</button>
-    </div>
-</div>
-
-       <!-- 揪團 -->
-        <div id="page-groups" class="page">
+       <div id="page-groups" class="page">
             <div class="title">揪團</div>
 
             <button type="button" id="btn-show-create-group" class="btn-primary" onclick="showCreateGroupInput()" 
                     style="width: 100%; margin-bottom: 16px;">建立新群組</button>
-
 
             <div id="create-group-panel" class="hidden" style="margin-bottom: 16px; padding: 16px; background: var(--surface-raised); border-radius: var(--radius-md); border: 1px solid var(--border);">
                 <div class="form-group" style="margin-bottom: 12px;">
@@ -198,7 +187,6 @@
                     style="width: 100%; margin-bottom: 12px;">查看我的群組</button>
             <div id="my-groups-list"></div>
 
-            <!-- 群組詳情展開區 -->
             <div id="group-detail-panel" class="hidden" style="margin-top: 16px;">
                 <div id="group-detail-header" 
                     style="font-size: 13px; font-weight: 600; color: var(--text-muted); 
@@ -211,7 +199,6 @@
                 </div>
                 <div id="group-recommend-list"></div>
 
-                <!-- 確認選擇後的記錄表單 -->
                 <div id="record-form-panel" class="hidden" 
                         style="margin-top: 16px; padding: 14px; 
                             background: var(--surface); border-radius: 10px; 
@@ -225,7 +212,6 @@
                         style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
                     </div>
 
-                    <!-- 已選餐點 -->
                     <div style="margin-bottom: 14px;">
                         <div style="font-size: 13px; font-weight: 600; margin-bottom: 6px;">
                             已選餐點
@@ -240,15 +226,12 @@
                         </div>
                     </div>
 
-                    <!-- 參與成員 -->
                     <div style="margin-bottom: 14px;">
                         <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px;">參與成員（選填）</div>
                         <div id="record-participants-list" style="display: flex; flex-wrap: wrap; gap: 8px;">
-                            <!-- 動態產生 -->
-                        </div>
+                            </div>
                     </div>
 
-                    <!-- 備註 -->
                     <div class="form-group">
                         <label>備註（選填）</label>
                         <textarea id="record-note" placeholder="備註…"></textarea>
@@ -265,7 +248,6 @@
                     </div>
                 </div>
 
-                <!-- 歷史紀錄 -->
                 <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; 
                             letter-spacing: 0.4px; color: var(--text-muted); 
                             margin: 20px 0 8px;">群組紀錄</div>
@@ -308,6 +290,15 @@
     <div id="review-container">
       </div>
   </div>
+</div>
+
+<div id="my-reviews-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-btn" onclick="document.getElementById('my-reviews-modal').style.display='none'">&times;</span>
+        <h3>我的評論紀錄</h3>
+        <div id="my-reviews-list">
+            </div>
+    </div>
 </div>
 
 <script src="/app.js"></script>

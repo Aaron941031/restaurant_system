@@ -17,13 +17,14 @@ import java.util.Optional;
 
 @Repository
 public class RatingRepository {
-
+    
     private final JdbcTemplate jdbcTemplate;
 
     public RatingRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    
     private static final String BASE_SELECT =
             "SELECT r.ratingId, r.score, r.comment, r.ratedAt, " +
                     "u.userId AS u_userId, u.name AS u_name, u.email AS u_email, u.password AS u_password, u.createdAt AS u_createdAt, u.updatedAt AS u_updatedAt, " +
@@ -140,4 +141,10 @@ public class RatingRepository {
     public void deleteAllInBatch() {
         jdbcTemplate.update("DELETE FROM ratings");
     }
+
+    // 2. 刪除方法 (你們原本就有一個 delete(Rating rating)，這裡可以加一個直接透過 ID 刪除的)
+    public void deleteById(Integer ratingId) {
+        jdbcTemplate.update("DELETE FROM ratings WHERE ratingId = ?", ratingId);
+    }
+    
 }

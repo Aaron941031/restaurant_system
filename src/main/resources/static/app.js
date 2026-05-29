@@ -641,6 +641,70 @@ async function getRecommendations() {
     }
 }
 
+// ============ 我的評論功能 ============
+// 綁定「我的評論」按鈕點擊事件
+document.getElementById("my-reviews-btn")?.addEventListener("click", async () => {
+    try {
+        if (!state.token) throw new Error("請先登入");
+        
+        // ⚠️ 修正 1：網址改為 /api/restaurant/reviews/me (去掉 s)
+        const response = await request("/api/restaurant/reviews/me", { method: "GET" });
+        
+        // ⚠️ 修正 2：因為後端是用 ApiResponse 回傳，真正的陣列放在 data 裡面
+        const myReviews = response.data || response; 
+        
+        renderMyReviews(myReviews);
+        document.getElementById("my-reviews-modal").style.display = "block";
+    } catch (error) {
+        alert("無法載入評論：" + error.message);
+    }
+});
+
+// 動態渲染我的評論列表
+function renderMyReviews(reviews) {
+    const container = document.getElementById("my-reviews-list");
+    if (!reviews || reviews.length === 0) {
+        container.innerHTML = "<p style='text-align:center; color:#888;'>你還沒有寫過任何評論喔！</p>";
+        return;
+    }
+
+    container.innerHTML = reviews.map(review => {
+        // 格式化日期顯示
+        const dateStr = review.createdAt ? new Date(review.createdAt).toLocaleDateString() : "未知日期";
+        
+        return `
+            <div class="review-item" style="border-bottom: 1px solid var(--border, #ccc); padding: 12px 0;">
+                <h4 style="margin: 0 0 6px 0; color: var(--text, #333);">餐廳：${review.restaurantName || '未知餐廳'}</h4>
+                <div style="font-size: 12px; color: var(--text-muted, #666); margin-bottom: 6px;">
+                    <span>評分：⭐ ${review.rating}</span> | <span>日期：${dateStr}</span>
+                </div>
+                <p style="margin: 0 0 10px 0; font-size: 14px;">${review.comment || '(無評論內容)'}</p>
+                <button onclick="deleteReview(${review.id})" style="background-color: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                    刪除評論
+                </button>
+            </div>
+        `;
+    }).join("");
+}
+
+// 刪除評論前端觸發邏輯
+window.deleteReview = async function(reviewId) {
+    if (!confirm("確定要刪除這則評論嗎？")) return;
+    
+    try {
+        // ⚠️ 修正 3：網址改為 /api/restaurant/reviews/... (去掉 s)
+        await request(`/api/restaurant/reviews/${reviewId}`, { method: "DELETE" });
+        alert("評論已成功刪除！");
+        
+        // 刪除成功後，重新向後端更新並渲染最新的列表
+        const response = await request("/api/restaurant/reviews/me", { method: "GET" });
+        const myReviews = response.data || response;
+        renderMyReviews(myReviews);
+    } catch (error) {
+        alert("刪除失敗：" + error.message);
+    }
+};
+
 // ============ 揪團功能 ============
 
 function showCreateGroupInput() {
@@ -690,7 +754,7 @@ async function submitCreateGroup() {
     }
 }
 
-// 補回加入群組的表單送出事件
+// 加入群組的表單送出事件
 document.getElementById("join-group-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     try {
@@ -1328,21 +1392,45 @@ window.cancelRecord = function() {
 window.viewReviews = async function(restaurantId) {
     const modal = document.getElementById("review-modal");
     if (modal) modal.style.display = "block";
+    
     const container = document.getElementById("review-container");
     if (!container) return;
+    
     container.innerHTML = "<p style='color:#666;'>載入中...</p>";
+    
     try {
-        const reviews = await request(`/api/restaurant/${restaurantId}/ratings`);
-        container.innerHTML = reviews && reviews.length
-            ? reviews.map(r =>
-                `<div style="margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 8px;">
-                    <p style="margin: 0;">⭐ <strong>${r.score} / 5</strong></p>
-                    <p style="margin: 5px 0 0 0; color: #555;">${r.comment || '無文字評論'}</p>
-                 </div>`).join('')
-            : "<p style='color:#999;'>這間餐廳目前還沒有人留下評論喔！</p>";
+        // 請求後端 API 取得評論列表
+        const reviews = await request(`/api/restaurant/${restaurantId}/ratings`, { method: "GET" });
+        
+        if (!reviews || reviews.length === 0) {
+            container.innerHTML = "<p style='color:#999; text-align:center;'>這間餐廳目前還沒有人留下評論喔！</p>";
+        } else {
+            container.innerHTML = reviews.map(r => {
+                // 處理時間格式，對應後端的 ratedAt
+                const dateStr = r.ratedAt ? new Date(r.ratedAt).toLocaleDateString('zh-TW') : "未知日期";
+                
+                // 處理使用者名稱，對應後端的 user.name
+                const authorName = (r.user && r.user.name) ? r.user.name : "匿名使用者";
+                
+                // 處理評分分數與文字
+                const ratingScore = r.score || 0;
+                const commentText = r.comment || "無文字評論";
+
+                return `
+                    <div class="review-card" style="border: 1px solid #eee; padding: 12px; margin-bottom: 12px; border-radius: 8px; background-color: #fafafa;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 8px;">
+                            <strong style="color: #333; font-size: 15px;">👤 ${authorName}</strong>
+                            <span style="font-size: 12px; color: #888;">${dateStr}</span>
+                        </div>
+                        <div style="color: #f39c12; margin-bottom: 6px; font-weight: bold;">⭐ ${ratingScore} / 5</div>
+                        <p style="margin: 0; color: #444; font-size: 14px; line-height: 1.5;">${commentText}</p>
+                    </div>
+                `;
+            }).join("");
+        }
     } catch (error) {
         container.innerHTML = "<p style='color:red;'>無法載入評論，請確認伺服器連線或 API 路徑是否正確。</p>";
-        console.error(error);
+        console.error("無法載入評論：", error);
     }
 };
 

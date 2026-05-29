@@ -22,6 +22,8 @@ public class Record {
 
     private LocalDateTime createdAt;
 
+    private Boolean isEdited = false;
+
     // 不存在 DB，查詢時由 record_participants 填入
     private List<ParticipantInfo> participants = new ArrayList<>();
 
@@ -77,6 +79,9 @@ public class Record {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public Boolean getIsEdited() { return isEdited; }
+    public void setIsEdited(Boolean isEdited) { this.isEdited = isEdited; }
 
     public List<ParticipantInfo> getParticipants() { return participants; }
     public void setParticipants(List<ParticipantInfo> participants) { this.participants = participants; }

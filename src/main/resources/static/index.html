@@ -112,7 +112,10 @@
         </div>
 
        <div id="page-recommend" class="page">
-           <div class="title">個人推薦</div>
+           <div class="title" style="margin-bottom:0;">個人推薦</div>
+           <div style="display:flex;align-items:center;padding:18px 0;">
+               <button type="button" class="btn-back" style="flex:0 0 auto;" onclick="goPage('menu')">返回</button>
+           </div>
            <div class="form-group">
                <label>排除設定（選填）</label>
                <div class="exclusion-panel">
@@ -152,10 +155,6 @@
 
            <button type="button" class="btn-primary" onclick="getRecommendations()" style="width: 100%; margin-top: 8px;">取得推薦</button>
            <div id="recommend-list" style="margin-top: 20px;"></div>
-
-           <div class="button-group" style="margin-top: 28px;">
-               <button type="button" class="btn-back" onclick="goPage('menu')">返回</button>
-           </div>
        </div>
 
        <div id="page-groups" class="page">
@@ -296,6 +295,14 @@
         <h3>我的評論紀錄</h3>
         <div id="my-reviews-list">
             </div>
+    </div>
+</div>
+
+<div id="member-exclusions-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close-btn" onclick="document.getElementById('member-exclusions-modal').style.display='none'">&times;</span>
+        <h3>成員排除項目</h3>
+        <div id="member-exclusions-list"></div>
     </div>
 </div>
 

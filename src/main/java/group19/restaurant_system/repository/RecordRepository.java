@@ -25,7 +25,7 @@ public class RecordRepository {
     }
 
     private static final String BASE_SELECT =
-            "SELECT r.recordId, r.visitDate, r.mealName, r.note, r.groupSessionId, r.createdAt, " +
+            "SELECT r.recordId, r.visitDate, r.mealName, r.note, r.groupSessionId, r.createdAt, r.isEdited, " +
                     "u.userId AS u_userId, u.name AS u_name, u.email AS u_email, u.password AS u_password, " +
                     "res.restaurantId AS res_restaurantId, res.name AS res_name, res.category AS res_category, res.priceRange AS res_priceRange, " +
                     "res.avgScore AS res_avgScore, res.ratingCount AS res_ratingCount, res.locationAt AS res_locationAt " +
@@ -43,6 +43,7 @@ public class RecordRepository {
         record.setMealName(rs.getString("mealName"));
         record.setNote(rs.getString("note"));
         record.setGroupSessionId((Integer) rs.getObject("groupSessionId"));
+        record.setIsEdited(rs.getBoolean("isEdited"));
         Timestamp createdAt = rs.getTimestamp("createdAt");
         if (createdAt != null) {
             record.setCreatedAt(createdAt.toLocalDateTime());
@@ -94,7 +95,7 @@ public class RecordRepository {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(
-                        "INSERT INTO records (userId, restaurantId, visitDate, mealName, note, groupSessionId, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                        "INSERT INTO records (userId, restaurantId, visitDate, mealName, note, groupSessionId, createdAt, isEdited) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS
                 );
                 ps.setInt(1, record.getUser().getUserId());
@@ -104,6 +105,7 @@ public class RecordRepository {
                 ps.setString(5, record.getNote());
                 ps.setObject(6, record.getGroupSessionId());
                 ps.setTimestamp(7, Timestamp.valueOf(record.getCreatedAt()));
+                ps.setBoolean(8, Boolean.TRUE.equals(record.getIsEdited()));
                 return ps;
             }, keyHolder);
 
@@ -118,12 +120,13 @@ public class RecordRepository {
         }
 
         jdbcTemplate.update(
-                "UPDATE records SET userId = ?, restaurantId = ?, visitDate = ?, mealName = ?, note = ? WHERE recordId = ?",
+                "UPDATE records SET userId = ?, restaurantId = ?, visitDate = ?, mealName = ?, note = ?, isEdited = ? WHERE recordId = ?",
                 record.getUser().getUserId(),
                 record.getRestaurant().getRestaurantId(),
                 Timestamp.valueOf(record.getVisitDate()),
                 record.getMealName(),
                 record.getNote(),
+                Boolean.TRUE.equals(record.getIsEdited()),
                 record.getRecordId()
         );
         return findById(record.getRecordId()).orElse(record);

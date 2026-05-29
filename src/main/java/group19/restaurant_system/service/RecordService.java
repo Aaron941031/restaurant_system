@@ -99,4 +99,15 @@ public class RecordService {
         if (!recordOpt.isPresent()) throw new Exception("Record not found");
         recordRepository.delete(recordOpt.get());
     }
+
+    public void updateRecord(Integer recordId, Integer userId, String mealName, String note) throws Exception {
+        Record record = recordRepository.findById(recordId)
+                .orElseThrow(() -> new Exception("Record not found"));
+        if (!record.getUser().getUserId().equals(userId))
+            throw new Exception("無權編輯此紀錄");
+        record.setMealName(mealName);
+        record.setNote(note);
+        record.setIsEdited(true);
+        recordRepository.save(record);
+    }
 }

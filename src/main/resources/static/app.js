@@ -1006,11 +1006,10 @@ async function loadGroupMembers(sessionId) {
                         letter-spacing: 0.4px; color: var(--text-muted); margin-bottom: 6px;">
                 成員
             </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;">
                 ${members.map(m => {
                     const label = m.name ? m.name : `用戶 #${m.userId || m}`;
                     const isMe = String(m.userId) === String(state.userId);
-
                     return `
                         <span style="background: var(--surface); border: 1px solid var(--border);
                                      border-radius: 20px; padding: 3px 10px; font-size: 12px;
@@ -1018,11 +1017,61 @@ async function loadGroupMembers(sessionId) {
                             ${label}${isMe ? ' （我）' : ''}
                         </span>`;
                 }).join('')}
-            </div>`;
+            </div>
+            <button type="button" class="btn-secondary"
+                    style="width:100%;font-size:13px;"
+                    onclick="showMemberExclusions(${sessionId})">
+                成員排除項目
+            </button>`;
     } catch {
         container.innerHTML = '<p style="color:#999; font-size:13px;">無法載入成員</p>';
     }
 }
+
+window.showMemberExclusions = async function(sessionId) {
+    const modal = document.getElementById("member-exclusions-modal");
+    const container = document.getElementById("member-exclusions-list");
+    modal.style.display = "block";
+    container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">載入中…</p>';
+
+    try {
+        const members = await request(`/api/groups/${sessionId}/members`);
+        if (!members || !members.length) {
+            container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">無成員資料</p>';
+            return;
+        }
+
+        const results = await Promise.all(members.map(async m => {
+            const userId = m.userId;
+            const name = m.name || `用戶 #${userId}`;
+            try {
+                const exclusions = await request(`/api/user/${userId}/exclusions`);
+                return { name, exclusions: exclusions || [] };
+            } catch {
+                return { name, exclusions: [] };
+            }
+        }));
+
+        container.innerHTML = results.map(({ name, exclusions }) => {
+            const ingredients = exclusions.filter(e => e.ingredient).map(e => e.ingredient.name);
+            const dishes      = exclusions.filter(e => e.dish).map(e => e.dish.name);
+            const restaurants = exclusions.filter(e => e.restaurant).map(e => e.restaurant.name);
+            const hasAny = ingredients.length || dishes.length || restaurants.length;
+
+            return `
+            <div class="list-item" style="margin-bottom:8px;">
+                <div class="list-item-title">${name}</div>
+                ${hasAny ? `
+                    ${ingredients.length ? `<div class="list-item-meta" style="margin-top:4px;">食材：${ingredients.join('、')}</div>` : ''}
+                    ${dishes.length      ? `<div class="list-item-meta">菜餚：${dishes.join('、')}</div>` : ''}
+                    ${restaurants.length ? `<div class="list-item-meta">餐廳：${restaurants.join('、')}</div>` : ''}
+                ` : `<div class="list-item-meta" style="margin-top:4px;">無排除項目</div>`}
+            </div>`;
+        }).join('');
+    } catch (e) {
+        container.innerHTML = `<p style="color:var(--text-muted);font-size:13px;">載入失敗：${e.message}</p>`;
+    }
+};
 
 async function loadGroupRecommendations(sessionId) {
     const container = document.getElementById("group-recommend-list");
@@ -1096,20 +1145,33 @@ async function loadGroupHistory(sessionId) {
             const participants = (h.participants && h.participants.length)
                 ? h.participants.map(p => p.name).join('、')
                 : '';
+            const editedTag = h.isEdited ? `<span style="font-size:11px;color:var(--text-muted);margin-left:4px;">（已編輯）</span>` : '';
+            const restaurantId = h.restaurant?.restaurantId;
+            _recordEditData[h.recordId] = { restaurantId, mealName: h.mealName || '' };
             return `
-            <div class="list-item">
-                <div class="list-item-title">${h.mealName || '未命名'}</div>
+            <div class="list-item" id="record-item-${h.recordId}">
+                <div class="list-item-title">${h.mealName || '未命名'}${editedTag}</div>
                 <div class="list-item-meta">
-                    餐廳：${h.restaurant?.name || `#${h.restaurantId}`} ｜ ${dateStr}
+                    餐廳：${h.restaurant?.name || `#${restaurantId}`} ｜ ${dateStr}
                 </div>
                 ${participants ? `<div class="list-item-meta">成員： ${participants}</div>` : ''}
-                ${h.note ? `<div class="list-item-meta">小記： ${h.note}</div>` : ''}
-                <div style="margin-top:10px;">
-                    <button type="button" class="btn-danger"
-                            style="padding:4px 12px;font-size:12px;border-radius:6px;"
-                            onclick="deleteHistoryRecord(${h.recordId})">
-                        刪除紀錄
-                    </button>
+                <div class="list-item-meta">${h.note ? `小記： ${h.note}` : ''}</div>
+                <div id="record-edit-form-${h.recordId}" style="display:none;margin-top:10px;">
+                    <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">選擇品項</div>
+                    <div id="record-edit-dishes-${h.recordId}" style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 8px;margin-bottom:8px;">
+                        <span style="color:var(--text-muted);font-size:13px;">載入中…</span>
+                    </div>
+                    <textarea id="record-edit-note-${h.recordId}"
+                        placeholder="小記（選填）"
+                        style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;resize:vertical;min-height:50px;">${h.note || ''}</textarea>
+                    <div style="display:flex;gap:8px;margin-top:8px;">
+                        <button class="btn-primary" style="flex:1;" onclick="submitEditRecord(${h.recordId})">儲存</button>
+                        <button class="btn-back" onclick="cancelEditRecord(${h.recordId})">取消</button>
+                    </div>
+                </div>
+                <div id="record-actions-${h.recordId}" style="display:flex;gap:8px;margin-top:10px;">
+                    <button type="button" class="btn-warning" onclick="showEditRecord(${h.recordId})">編輯</button>
+                    <button type="button" class="btn-danger" onclick="deleteHistoryRecord(${h.recordId})">刪除紀錄</button>
                 </div>
             </div>`;
         }).join('');
@@ -1117,6 +1179,116 @@ async function loadGroupHistory(sessionId) {
         container.innerHTML = '<p style="color:#999; font-size:13px;">無法載入紀錄</p>';
     }
 }
+
+const _editRecordQtys = {};   // { recordId: { dishId: { name, price, qty } } }
+const _recordEditData = {};   // { recordId: { restaurantId, mealName } }
+
+function parseMealName(mealName) {
+    // "叉燒飯 × 1、炒飯 × 2（合計 $220）" → { "叉燒飯": 1, "炒飯": 2 }
+    const base = mealName.replace(/（合計.*?）/, '').trim();
+    const result = {};
+    base.split('、').forEach(part => {
+        const m = part.match(/^(.+?)\s*×\s*(\d+)$/);
+        if (m) result[m[1].trim()] = parseInt(m[2]);
+    });
+    return result;
+}
+
+window.showEditRecord = async function(recordId) {
+    const { restaurantId, mealName } = _recordEditData?.[recordId] || {};
+    document.getElementById(`record-edit-form-${recordId}`).style.display = "block";
+    document.getElementById(`record-actions-${recordId}`).style.display = "none";
+    _editRecordQtys[recordId] = {};
+    const preSelected = parseMealName(mealName || '');
+
+    const container = document.getElementById(`record-edit-dishes-${recordId}`);
+    try {
+        const dishes = await request(`/api/dish/restaurant/${restaurantId}`);
+        if (!dishes || dishes.length === 0) {
+            container.innerHTML = '<span style="color:var(--text-muted);font-size:13px;">此餐廳無菜單</span>';
+            return;
+        }
+        container.innerHTML = dishes.map(d => {
+            const safeName = d.name.replace(/'/g, "\\'");
+            const preQty = preSelected[d.name] || 0;
+            const isSelected = preQty > 0;
+            if (isSelected) {
+                _editRecordQtys[recordId][d.dishId] = { name: d.name, price: d.price || 0, qty: preQty };
+            }
+            return `
+            <div class="dish-select-item ${isSelected ? 'selected' : ''}" id="edit-dish-item-${recordId}-${d.dishId}"
+                 onclick="editToggleDish(${recordId},${d.dishId},'${safeName}',${d.price||0})"
+                 style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;cursor:pointer;">
+                <div style="font-weight:500;">${d.name}</div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="color:#e44d26;font-weight:bold;">$${d.price || 0}</span>
+                    <div class="dish-qty-control ${isSelected ? '' : 'hidden'}" id="edit-qty-ctrl-${recordId}-${d.dishId}">
+                        <button class="dish-qty-btn" onclick="editChangeDishQty(${recordId},${d.dishId},-1);event.stopPropagation()">−</button>
+                        <span id="edit-qty-val-${recordId}-${d.dishId}">${isSelected ? preQty : 1}</span>
+                        <button class="dish-qty-btn" onclick="editChangeDishQty(${recordId},${d.dishId},1);event.stopPropagation()">+</button>
+                    </div>
+                    <div class="dish-check-circle" id="edit-check-${recordId}-${d.dishId}">✓</div>
+                </div>
+            </div>`;
+        }).join('');
+    } catch {
+        container.innerHTML = '<span style="color:var(--text-muted);font-size:13px;">無法載入菜單</span>';
+    }
+};
+
+window.editToggleDish = function(recordId, dishId, name, price) {
+    if (!_editRecordQtys[recordId]) _editRecordQtys[recordId] = {};
+    const qtys = _editRecordQtys[recordId];
+    const item = document.getElementById(`edit-dish-item-${recordId}-${dishId}`);
+    const qtyCtrl = document.getElementById(`edit-qty-ctrl-${recordId}-${dishId}`);
+    const qtyVal = document.getElementById(`edit-qty-val-${recordId}-${dishId}`);
+
+    if (qtys[dishId]) {
+        delete qtys[dishId];
+        item?.classList.remove('selected');
+        qtyCtrl?.classList.add('hidden');
+    } else {
+        qtys[dishId] = { name, price, qty: 1 };
+        item?.classList.add('selected');
+        qtyCtrl?.classList.remove('hidden');
+        if (qtyVal) qtyVal.textContent = 1;
+    }
+};
+
+window.editChangeDishQty = function(recordId, dishId, delta) {
+    if (!_editRecordQtys[recordId]?.[dishId]) return;
+    const next = Math.max(1, _editRecordQtys[recordId][dishId].qty + delta);
+    _editRecordQtys[recordId][dishId].qty = next;
+    const el = document.getElementById(`edit-qty-val-${recordId}-${dishId}`);
+    if (el) el.textContent = next;
+};
+
+window.cancelEditRecord = function(recordId) {
+    document.getElementById(`record-edit-form-${recordId}`).style.display = "none";
+    document.getElementById(`record-actions-${recordId}`).style.display = "flex";
+    delete _editRecordQtys[recordId];
+};
+
+window.submitEditRecord = async function(recordId) {
+    const qtys = _editRecordQtys[recordId] || {};
+    const selected = Object.values(qtys);
+    if (selected.length === 0) { showToast("請至少選擇一項品項", "error"); return; }
+    const total = selected.reduce((s, d) => s + d.price * d.qty, 0);
+    const dishNames = selected.map(d => `${d.name} × ${d.qty}`).join("、");
+    const mealName = total > 0 ? `${dishNames}（合計 $${total}）` : dishNames;
+    const note = document.getElementById(`record-edit-note-${recordId}`).value.trim();
+    try {
+        await request(`/api/history/${recordId}`, {
+            method: "PUT",
+            body: JSON.stringify({ mealName, note })
+        });
+        showToast("紀錄已更新", "success");
+        delete _editRecordQtys[recordId];
+        if (state._activeGroupSessionId) await loadGroupHistory(state._activeGroupSessionId);
+    } catch (e) {
+        showToast("編輯失敗：" + e.message, "error");
+    }
+};
 
 window.deleteHistoryRecord = async function(recordId) {
     if (!confirm("確定要刪除這筆紀錄嗎？")) return;

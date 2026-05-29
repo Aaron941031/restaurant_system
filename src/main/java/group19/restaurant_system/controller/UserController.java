@@ -125,6 +125,16 @@ public class UserController {
         }
     }
 
+    @GetMapping("/{userId}/exclusions")
+    public ResponseEntity<?> getExclusionsByUserId(@PathVariable Integer userId) {
+        try {
+            List<UserExclusion> exclusions = userExclusionService.getUserExclusions(userId);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Exclusions retrieved", exclusions));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
+        }
+    }
+
     @DeleteMapping("/exclusion/{dishId}")
     public ResponseEntity<?> removeExclusion(@RequestHeader("Authorization") String authHeader, 
                                              @PathVariable Integer dishId) {

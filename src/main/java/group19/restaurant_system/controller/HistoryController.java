@@ -80,4 +80,17 @@ public class HistoryController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
         }
     }
+
+    @PutMapping("/{recordId}")
+    public ResponseEntity<?> updateRecord(@RequestHeader("Authorization") String authHeader,
+                                          @PathVariable Integer recordId,
+                                          @RequestBody java.util.Map<String, String> body) {
+        try {
+            Integer userId = getUserIdFromHeader(authHeader);
+            recordService.updateRecord(recordId, userId, body.get("mealName"), body.get("note"));
+            return ResponseEntity.ok(new ApiResponse<>(true, "Record updated"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
+        }
+    }
 }

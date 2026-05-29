@@ -60,16 +60,11 @@
         <!-- 主選單 -->
         <div id="page-menu" class="page">
             <div class="title">選單</div>
+
             <div class="button-group">
                 <button class="btn-primary" onclick="goPage('restaurants')">&nbsp;查看餐廳</button>
-            </div>
-            <div class="button-group" style="margin-top: 0;">
                 <button class="btn-primary" onclick="goPage('recommend')">&nbsp;個人推薦</button>
-            </div>
-            <div class="button-group" style="margin-top: 0;">
                 <button class="btn-primary" onclick="goPage('rate')">&nbsp;評分</button>
-            </div>
-            <div class="button-group" style="margin-top: 0;">
                 <button class="btn-primary" onclick="goPage('groups')">&nbsp;揪團</button>
             </div>
             <div class="button-group" style="margin-top: 16px;">
@@ -178,8 +173,20 @@
         <div id="page-groups" class="page">
             <div class="title">揪團</div>
 
-            <button type="button" class="btn-primary" onclick="createGroup()" 
+            <button type="button" id="btn-show-create-group" class="btn-primary" onclick="showCreateGroupInput()" 
                     style="width: 100%; margin-bottom: 16px;">建立新群組</button>
+
+
+            <div id="create-group-panel" class="hidden" style="margin-bottom: 16px; padding: 16px; background: var(--surface-raised); border-radius: var(--radius-md); border: 1px solid var(--border);">
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label>群組名稱（選填）</label>
+                    <input type="text" id="new-group-name" placeholder="輸入群組名稱，或直接按建立">
+                </div>
+                <div class="button-group" style="margin-top: 0;">
+                    <button type="button" class="btn-primary" onclick="submitCreateGroup()">建立</button>
+                    <button type="button" class="btn-secondary" onclick="hideCreateGroupInput()">取消</button>
+                </div>
+            </div>
 
             <div id="group-display"></div>
 

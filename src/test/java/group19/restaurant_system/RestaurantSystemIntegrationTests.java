@@ -152,7 +152,7 @@ public class RestaurantSystemIntegrationTests {
 
     @Test
     public void testGroupCreation() throws Exception {
-        GroupSession session = groupSessionService.createGroup(testUser.getUserId());
+        GroupSession session = groupSessionService.createGroup(testUser.getUserId(), "Test Group");
         
         assertNotNull(session.getSessionId());
         assertNotNull(session.getInviteCode());
@@ -161,7 +161,7 @@ public class RestaurantSystemIntegrationTests {
 
     @Test
     public void testGroupJoin() throws Exception {
-        GroupSession session = groupSessionService.createGroup(testUser.getUserId());
+        GroupSession session = groupSessionService.createGroup(testUser.getUserId(), "Test Group");
         String inviteCode = session.getInviteCode();
         
         User user2 = new User("user2", "user2@example.com", "password");

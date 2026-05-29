@@ -44,12 +44,16 @@ public class GroupMemberRepository {
         }
 
         session.setStatus(rs.getString("status"));
+        
+        // 👇 這裡補上了讀取 group_name
+        session.setGroupName(rs.getString("group_name"));
+
         return session;
     };
 
     public boolean existsBySessionIdAndUserId(Integer sessionId, Integer userId) {
         Integer count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(1) FROM group_members WHERE sessionId = ? AND userId = ?",
+                "SELECT COUNT(*) FROM group_members WHERE sessionId = ? AND userId = ?",
                 Integer.class,
                 sessionId,
                 userId
@@ -97,7 +101,8 @@ public class GroupMemberRepository {
 
     public List<GroupSession> findSessionsByUserId(Integer userId) {
         return jdbcTemplate.query(
-                "SELECT gs.sessionId, gs.creatorId, gs.inviteCode, gs.createdAt, gs.status " +
+                // 👇 這裡的 SELECT 語法補上了 gs.group_name
+                "SELECT gs.sessionId, gs.creatorId, gs.inviteCode, gs.createdAt, gs.status, gs.group_name " +
                         "FROM group_sessions gs " +
                         "JOIN group_members gm ON gm.sessionId = gs.sessionId " +
                         "WHERE gm.userId = ? " +

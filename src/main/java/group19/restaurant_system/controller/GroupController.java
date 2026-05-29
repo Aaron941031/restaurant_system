@@ -43,10 +43,19 @@ public class GroupController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createGroup(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> createGroup(@RequestHeader("Authorization") String authHeader,
+                                         @RequestBody(required = false) java.util.Map<String, String> payload) { // 👈 直接用 Map 接，絕對不會漏
         try {
             Integer userId = getUserIdFromHeader(authHeader);
-            GroupSession session = groupSessionService.createGroup(userId);
+            
+            // 從 Map 中抓出 groupName
+            String groupName = (payload != null) ? payload.get("groupName") : null;
+            
+            // 👇 加這行，讓你在 VS Code 終端機可以直接看到有沒有成功收到！
+            System.out.println("========== 收到前端傳來的群組名稱: " + groupName + " ==========");
+            
+            GroupSession session = groupSessionService.createGroup(userId, groupName);
+            
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new ApiResponse<>(true, "Group created", session));
         } catch (Exception e) {
@@ -190,4 +199,7 @@ public class GroupController {
                     .body(new ApiResponse<>(false, e.getMessage()));
         }
     }
+
 }
+
+

@@ -643,18 +643,38 @@ async function getRecommendations() {
 
 // ============ 揪團功能 ============
 
-async function createGroup() {
+function showCreateGroupInput() {
+    document.getElementById('btn-show-create-group').classList.add('hidden');
+    document.getElementById('create-group-panel').classList.remove('hidden');
+    document.getElementById('new-group-name').value = ''; 
+    document.getElementById('new-group-name').focus();
+}
+
+function hideCreateGroupInput() {
+    document.getElementById('btn-show-create-group').classList.remove('hidden');
+    document.getElementById('create-group-panel').classList.add('hidden');
+}
+
+async function submitCreateGroup() {
     try {
         if (!state.token) throw new Error("請先登入");
-        const session = await request("/api/groups/create", { method: "POST" });
+
+        const groupName = document.getElementById('new-group-name').value.trim();
+        
+        // 將名稱傳給後端
+        const bodyData = groupName ? { groupName: groupName } : {};
+
+        const session = await request("/api/groups/create", { 
+            method: "POST",
+            body: JSON.stringify(bodyData)
+        });
+
+        const displayName = session.groupName ? session.groupName : `群組 #${session.sessionId}`;
 
         document.getElementById("group-display").innerHTML = `
             <div class="list-item">
-                <strong>群組已建立！</strong>
+                <strong>群組「${displayName}」已建立！</strong>
                 <p style="margin-top: 10px; font-size: 14px;">
-                    群組編號：<code>${session.sessionId}</code>
-                </p>
-                <p style="margin-top: 8px; font-size: 14px;">
                     邀請碼：<code>${session.inviteCode}</code>
                 </p>
                 <p style="margin-top: 12px; font-size: 12px; color: #999;">
@@ -663,12 +683,14 @@ async function createGroup() {
             </div>`;
 
         showToast("群組已建立", "success");
-        loadMyGroups();
+        hideCreateGroupInput(); // 成功後收回面板
+        loadMyGroups(); // 重新載入群組列表
     } catch (err) {
         showToast(err.message, "error");
     }
 }
 
+// 補回加入群組的表單送出事件
 document.getElementById("join-group-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     try {
@@ -695,6 +717,7 @@ document.getElementById("join-group-form").addEventListener("submit", async (e) 
     }
 });
 
+
 async function loadMyGroups() {
     try {
         if (!state.token) throw new Error("請先登入");
@@ -720,11 +743,11 @@ function renderMyGroups(groups) {
             : '—';
 
         const isCreator = String(group.creator?.userId) === String(state.userId);
+        const displayName = group.groupName ? group.groupName : `群組 #${group.sessionId}`; // 加入這行判斷
 
         return `
             <div class="list-item">
-                <div class="list-item-title">群組 #${group.sessionId}</div>
-                <div class="list-item-meta">
+                <div class="list-item-title">${displayName}</div> <div class="list-item-meta">
                     建立日期：${createdAt} ｜ 邀請碼：${group.inviteCode}
                     ${isCreator ? ' ｜ <span style="color: var(--primary); font-size:11px;">建立者</span>' : ''}
                 </div>
@@ -788,9 +811,10 @@ async function loadGroupDetail(sessionId) {
             ? new Date(group.createdAt).toLocaleDateString('zh-TW')
             : '—';
 
+        const displayName = group.groupName ? group.groupName : `群組 #${sessionId}`; // 加入這行判斷
+
         header.innerHTML = `
-            群組 #${sessionId}
-            <span style="font-size: 12px; font-weight: 400; color: var(--text-muted); margin-left: 8px;">
+            ${displayName} <span style="font-size: 12px; font-weight: 400; color: var(--text-muted); margin-left: 8px;">
                 ${createdAt}
             </span>
         `;

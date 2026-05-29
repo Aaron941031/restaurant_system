@@ -9,6 +9,9 @@ public class GroupSession {
     private User creator;
 
     private String inviteCode;
+    
+    @com.fasterxml.jackson.annotation.JsonProperty("groupName")
+    private String groupName;
 
     private LocalDateTime createdAt;
 
@@ -41,6 +44,10 @@ public class GroupSession {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getGroupName() { return groupName; }
+
+    public void setGroupName(String groupName) { this.groupName = groupName; }
 
     @Override
     public String toString() {

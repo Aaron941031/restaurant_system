@@ -25,7 +25,7 @@ public class GroupSessionService {
     private UserRepository userRepository;
 
     @Transactional
-    public GroupSession createGroup(Integer userId) throws Exception {
+    public GroupSession createGroup(Integer userId, String groupName) throws Exception { // 👈 這裡多加了 String groupName
         Optional<User> userOpt = userRepository.findById(userId);
         if (!userOpt.isPresent()) {
             throw new Exception("User not found");
@@ -35,6 +35,7 @@ public class GroupSessionService {
         String inviteCode = generateUniqueInviteCode();
         
         GroupSession session = new GroupSession(userOpt.get(), inviteCode);
+        session.setGroupName(groupName); // 👈 將前端傳來的群組名稱存入實體
         GroupSession saved = groupSessionRepository.save(session);
         groupMemberRepository.addMember(saved.getSessionId(), userId);
         return saved;

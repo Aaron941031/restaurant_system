@@ -207,7 +207,7 @@ textarea {
 /* ─── Buttons ─── */
 .button-group {
     display: flex;
-    gap: 8px;
+    gap: 30px;
     margin-top: 24px;
 }
 
@@ -227,6 +227,7 @@ button {
 
 .btn-primary {
     background: var(--text-primary);
+    gap: 8px;
     color: white;
 }
 
@@ -280,7 +281,7 @@ button {
 /* ─── Menu Page ─── */
 #page-menu .button-group {
     flex-direction: column;
-    gap: 8px;
+    gap: 20px;
     margin-top: 0;
 }
 
@@ -290,7 +291,7 @@ button {
     text-align: left;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 50px;
     background: var(--surface-raised);
     color: var(--text-primary);
     border: 1px solid var(--border);

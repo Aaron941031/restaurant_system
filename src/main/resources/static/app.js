@@ -664,44 +664,80 @@ document.getElementById("my-reviews-btn")?.addEventListener("click", async () =>
 function renderMyReviews(reviews) {
     const container = document.getElementById("my-reviews-list");
     if (!reviews || reviews.length === 0) {
-        container.innerHTML = "<p style='text-align:center; color:#888;'>你還沒有寫過任何評論喔！</p>";
+        container.innerHTML = "<p style='text-align:center;color:var(--text-muted);padding:20px 0;'>你還沒有寫過任何評論喔！</p>";
         return;
     }
 
     container.innerHTML = reviews.map(review => {
-        // 格式化日期顯示
         const dateStr = review.createdAt ? new Date(review.createdAt).toLocaleDateString() : "未知日期";
-        
+        const stars = "⭐".repeat(review.rating);
+        const editedTag = review.isEdited ? `<span style="font-size:11px;color:var(--text-muted);">（已編輯）</span>` : "";
         return `
-            <div class="review-item" style="border-bottom: 1px solid var(--border, #ccc); padding: 12px 0;">
-                <h4 style="margin: 0 0 6px 0; color: var(--text, #333);">餐廳：${review.restaurantName || '未知餐廳'}</h4>
-                <div style="font-size: 12px; color: var(--text-muted, #666); margin-bottom: 6px;">
-                    <span>評分：⭐ ${review.rating}</span> | <span>日期：${dateStr}</span>
+            <div class="list-item" id="review-item-${review.id}">
+                <div class="list-item-title">${review.restaurantName || '未知餐廳'}</div>
+                <div class="list-item-meta">${stars} ${review.rating} 分 ・ ${dateStr} ${editedTag}</div>
+                <div class="list-item-meta" style="margin-top:4px;" id="review-comment-${review.id}">${review.comment || '(無評論內容)'}</div>
+                <div id="review-edit-form-${review.id}" style="display:none;margin-top:10px;">
+                    <select id="review-edit-score-${review.id}" style="width:100%;margin-bottom:8px;padding:8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;">
+                        <option value="5" ${review.rating===5?'selected':''}>⭐⭐⭐⭐⭐ 非常好</option>
+                        <option value="4" ${review.rating===4?'selected':''}>⭐⭐⭐⭐ 很好</option>
+                        <option value="3" ${review.rating===3?'selected':''}>⭐⭐⭐ 普通</option>
+                        <option value="2" ${review.rating===2?'selected':''}>⭐⭐ 不太好</option>
+                        <option value="1" ${review.rating===1?'selected':''}>⭐ 很差</option>
+                    </select>
+                    <textarea id="review-edit-comment-${review.id}" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;resize:vertical;min-height:60px;">${review.comment || ''}</textarea>
+                    <div style="display:flex;gap:8px;margin-top:8px;">
+                        <button class="btn-primary" style="flex:1;" onclick="submitEditReview(${review.id})">儲存</button>
+                        <button class="btn-back" onclick="cancelEditReview(${review.id})">取消</button>
+                    </div>
                 </div>
-                <p style="margin: 0 0 10px 0; font-size: 14px;">${review.comment || '(無評論內容)'}</p>
-                <button onclick="deleteReview(${review.id})" style="background-color: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                    刪除評論
-                </button>
+                <div id="review-actions-${review.id}" style="display:flex;gap:8px;margin-top:10px;">
+                    <button class="btn-warning" onclick="showEditReview(${review.id})">編輯</button>
+                    <button class="btn-danger" style="flex:0 0 auto;" onclick="deleteReview(${review.id})">刪除</button>
+                </div>
             </div>
         `;
     }).join("");
 }
 
+window.showEditReview = function(id) {
+    document.getElementById(`review-edit-form-${id}`).style.display = "block";
+    document.getElementById(`review-actions-${id}`).style.display = "none";
+};
+
+window.cancelEditReview = function(id) {
+    document.getElementById(`review-edit-form-${id}`).style.display = "none";
+    document.getElementById(`review-actions-${id}`).style.display = "flex";
+};
+
+window.submitEditReview = async function(id) {
+    const score = parseInt(document.getElementById(`review-edit-score-${id}`).value);
+    const comment = document.getElementById(`review-edit-comment-${id}`).value;
+    try {
+        await request(`/api/restaurant/reviews/${id}`, {
+            method: "PUT",
+            body: JSON.stringify({ score, comment })
+        });
+        showToast("評論已更新", "success");
+        const response = await request("/api/restaurant/reviews/me", { method: "GET" });
+        renderMyReviews(response.data || response);
+    } catch (e) {
+        showToast("編輯失敗：" + e.message, "error");
+    }
+};
+
 // 刪除評論前端觸發邏輯
 window.deleteReview = async function(reviewId) {
     if (!confirm("確定要刪除這則評論嗎？")) return;
-    
+
     try {
-        // ⚠️ 修正 3：網址改為 /api/restaurant/reviews/... (去掉 s)
         await request(`/api/restaurant/reviews/${reviewId}`, { method: "DELETE" });
-        alert("評論已成功刪除！");
-        
-        // 刪除成功後，重新向後端更新並渲染最新的列表
+        showToast("評論已刪除", "success");
         const response = await request("/api/restaurant/reviews/me", { method: "GET" });
         const myReviews = response.data || response;
         renderMyReviews(myReviews);
     } catch (error) {
-        alert("刪除失敗：" + error.message);
+        showToast("刪除失敗：" + error.message, "error");
     }
 };
 
@@ -807,33 +843,92 @@ function renderMyGroups(groups) {
             : '—';
 
         const isCreator = String(group.creator?.userId) === String(state.userId);
-        const displayName = group.groupName ? group.groupName : `群組 #${group.sessionId}`; // 加入這行判斷
+        const displayName = group.groupName ? group.groupName : `群組 #${group.sessionId}`;
+        const idLine = group.groupName
+            ? `<div class="list-item-meta" style="margin-top:2px;">群組 #${group.sessionId}</div>`
+            : '';
+
+        const titleHtml = isCreator
+            ? `<div style="display:flex;align-items:center;gap:6px;">
+                   <span id="rename-label-${group.sessionId}" class="list-item-title"
+                         style="cursor:pointer;"
+                         onclick="showRenameGroup(${group.sessionId})">${displayName}</span>
+                   <div id="rename-form-${group.sessionId}" style="display:none;flex:1;display:none;align-items:center;gap:6px;">
+                       <input type="text" id="rename-input-${group.sessionId}" value="${group.groupName || ''}"
+                           placeholder="輸入群組名稱"
+                           style="flex:1;padding:5px 8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-weight:600;">
+                       <button class="btn-primary" style="flex:0 0 auto;padding:5px 12px;" onclick="submitRenameGroup(${group.sessionId})">確認</button>
+                       <button class="btn-back" style="flex:0 0 auto;padding:5px 10px;" onclick="cancelRenameGroup(${group.sessionId})">✕</button>
+                   </div>
+               </div>`
+            : `<div class="list-item-title">${displayName}</div>`;
 
         return `
-            <div class="list-item">
-                <div class="list-item-title">${displayName}</div> <div class="list-item-meta">
+            <div class="list-item" id="group-list-item-${group.sessionId}">
+                ${titleHtml}
+                ${idLine}
+                <div class="list-item-meta">
                     建立日期：${createdAt} ｜ 邀請碼：${group.inviteCode}
-                    ${isCreator ? ' ｜ <span style="color: var(--primary); font-size:11px;">建立者</span>' : ''}
+                    ${isCreator ? ' ｜ <span style="font-size:11px;">建立者</span>' : ''}
                 </div>
-
-                <div class="button-group" style="margin-top: 10px;">
-                    <button type="button" class="btn-secondary" onclick="loadGroupDetail(${group.sessionId})">
-                        查看詳情
-                    </button>
-
+                <div class="button-group" style="margin-top:10px;">
+                    <button type="button" class="btn-secondary" onclick="loadGroupDetail(${group.sessionId})">查看詳情</button>
                     ${isCreator ? `
-                        <button type="button" class="btn-danger" onclick="deleteGroup(${group.sessionId})">
-                            刪除群組
-                        </button>
+                        <button type="button" class="btn-danger" onclick="deleteGroup(${group.sessionId})">刪除</button>
                     ` : `
-                        <button type="button" class="btn-danger" onclick="leaveGroup(${group.sessionId})">
-                            退出群組
-                        </button>
+                        <button type="button" class="btn-danger" onclick="leaveGroup(${group.sessionId})">退出</button>
                     `}
                 </div>
             </div>`;
     }).join('');
 }
+
+let _activeRenameSessionId = null;
+let _renameOutsideHandler = null;
+
+window.showRenameGroup = function(sessionId) {
+    if (_activeRenameSessionId !== null && _activeRenameSessionId !== sessionId) {
+        cancelRenameGroup(_activeRenameSessionId);
+    }
+
+    _activeRenameSessionId = sessionId;
+    document.getElementById(`rename-label-${sessionId}`).style.display = "none";
+    const form = document.getElementById(`rename-form-${sessionId}`);
+    form.style.display = "flex";
+    document.getElementById(`rename-input-${sessionId}`).focus();
+
+    if (_renameOutsideHandler) document.removeEventListener("click", _renameOutsideHandler);
+    _renameOutsideHandler = function(e) {
+        if (!form.contains(e.target)) {
+            cancelRenameGroup(sessionId);
+        }
+    };
+    setTimeout(() => document.addEventListener("click", _renameOutsideHandler), 0);
+};
+
+window.cancelRenameGroup = function(sessionId) {
+    document.getElementById(`rename-form-${sessionId}`).style.display = "none";
+    document.getElementById(`rename-label-${sessionId}`).style.display = "";
+    if (_renameOutsideHandler) {
+        document.removeEventListener("click", _renameOutsideHandler);
+        _renameOutsideHandler = null;
+    }
+    _activeRenameSessionId = null;
+};
+
+window.submitRenameGroup = async function(sessionId) {
+    const name = document.getElementById(`rename-input-${sessionId}`).value.trim();
+    try {
+        await request(`/api/groups/${sessionId}/name`, {
+            method: "PATCH",
+            body: JSON.stringify({ name })
+        });
+        showToast("群組已改名", "success");
+        loadMyGroups();
+    } catch (e) {
+        showToast("改名失敗：" + e.message, "error");
+    }
+};
 
 // ============ 群組詳情 ============
 
@@ -875,13 +970,12 @@ async function loadGroupDetail(sessionId) {
             ? new Date(group.createdAt).toLocaleDateString('zh-TW')
             : '—';
 
-        const displayName = group.groupName ? group.groupName : `群組 #${sessionId}`; // 加入這行判斷
+        const displayName = group.groupName ? group.groupName : `群組 #${sessionId}`;
+        const idLabel = group.groupName
+            ? `<div style="font-size:11px;font-weight:400;color:var(--text-muted);margin-top:2px;">群組 #${sessionId} ・ ${createdAt}</div>`
+            : `<div style="font-size:11px;font-weight:400;color:var(--text-muted);margin-top:2px;">${createdAt}</div>`;
 
-        header.innerHTML = `
-            ${displayName} <span style="font-size: 12px; font-weight: 400; color: var(--text-muted); margin-left: 8px;">
-                ${createdAt}
-            </span>
-        `;
+        header.innerHTML = `<div style="font-size:15px;font-weight:600;color:var(--text-primary);">${displayName}</div>${idLabel}`;
 
         const endBtnArea = document.getElementById("group-end-btn-area");
         if (endBtnArea) endBtnArea.innerHTML = "";
@@ -1403,27 +1497,23 @@ window.viewReviews = async function(restaurantId) {
         const reviews = await request(`/api/restaurant/${restaurantId}/ratings`, { method: "GET" });
         
         if (!reviews || reviews.length === 0) {
-            container.innerHTML = "<p style='color:#999; text-align:center;'>這間餐廳目前還沒有人留下評論喔！</p>";
+            container.innerHTML = "<p style='color:var(--text-muted);text-align:center;padding:20px 0;'>這間餐廳目前還沒有人留下評論喔！</p>";
         } else {
             container.innerHTML = reviews.map(r => {
-                // 處理時間格式，對應後端的 ratedAt
                 const dateStr = r.ratedAt ? new Date(r.ratedAt).toLocaleDateString('zh-TW') : "未知日期";
-                
-                // 處理使用者名稱，對應後端的 user.name
                 const authorName = (r.user && r.user.name) ? r.user.name : "匿名使用者";
-                
-                // 處理評分分數與文字
                 const ratingScore = r.score || 0;
                 const commentText = r.comment || "無文字評論";
+                const editedTag = r.isEdited ? `<span style="font-size:11px;color:var(--text-muted);margin-left:4px;">（已編輯）</span>` : "";
 
                 return `
-                    <div class="review-card" style="border: 1px solid #eee; padding: 12px; margin-bottom: 12px; border-radius: 8px; background-color: #fafafa;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 8px;">
-                            <strong style="color: #333; font-size: 15px;">👤 ${authorName}</strong>
-                            <span style="font-size: 12px; color: #888;">${dateStr}</span>
+                    <div class="list-item">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <span class="list-item-title" style="margin-bottom:0;">${authorName}</span>
+                            <span class="list-item-meta">${dateStr}${editedTag}</span>
                         </div>
-                        <div style="color: #f39c12; margin-bottom: 6px; font-weight: bold;">⭐ ${ratingScore} / 5</div>
-                        <p style="margin: 0; color: #444; font-size: 14px; line-height: 1.5;">${commentText}</p>
+                        <div class="list-item-meta" style="margin-bottom:4px;">⭐ ${ratingScore} / 5</div>
+                        <div class="list-item-meta">${commentText}</div>
                     </div>
                 `;
             }).join("");

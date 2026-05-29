@@ -129,4 +129,17 @@ public class GroupSessionService {
 
         groupSessionRepository.deleteById(sessionId);
     }
+
+    @Transactional
+    public void renameGroup(Integer sessionId, Integer userId, String name) throws Exception {
+        GroupSession session = groupSessionRepository.findById(sessionId)
+            .orElseThrow(() -> new Exception("Group not found"));
+
+        if (!session.getCreator().getUserId().equals(userId)) {
+            throw new Exception("只有建立者可以改名");
+        }
+
+        session.setGroupName(name == null || name.isBlank() ? null : name.trim());
+        groupSessionRepository.save(session);
+    }
 }

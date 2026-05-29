@@ -186,6 +186,20 @@ public class GroupController {
         }
     }
 
+    @PatchMapping("/{id}/name")
+    public ResponseEntity<?> renameGroup(@RequestHeader("Authorization") String authHeader,
+                                         @PathVariable Integer id,
+                                         @RequestBody java.util.Map<String, String> body) {
+        try {
+            Integer userId = getUserIdFromHeader(authHeader);
+            groupSessionService.renameGroup(id, userId, body.get("name"));
+            return ResponseEntity.ok(new ApiResponse<>(true, "群組已改名"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, e.getMessage()));
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity deleteGroup(
             @RequestHeader("Authorization") String authHeader,

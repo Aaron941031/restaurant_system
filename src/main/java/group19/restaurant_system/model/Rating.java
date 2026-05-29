@@ -16,6 +16,8 @@ public class Rating {
 
     private LocalDateTime ratedAt;
 
+    private Boolean isEdited = false;
+
     public Rating() {
         this.ratedAt = LocalDateTime.now();
     }
@@ -26,6 +28,7 @@ public class Rating {
         this.score = score;
         this.comment = comment;
         this.ratedAt = LocalDateTime.now();
+        this.isEdited = false;
     }
 
     // Getters and Setters
@@ -46,6 +49,9 @@ public class Rating {
 
     public LocalDateTime getRatedAt() { return ratedAt; }
     public void setRatedAt(LocalDateTime ratedAt) { this.ratedAt = ratedAt; }
+
+    public Boolean getIsEdited() { return isEdited; }
+    public void setIsEdited(Boolean isEdited) { this.isEdited = isEdited; }
 
     @Override
     public String toString() {

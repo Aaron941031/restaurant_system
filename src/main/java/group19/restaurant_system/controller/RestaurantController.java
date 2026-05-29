@@ -114,19 +114,31 @@ public class RestaurantController {
         }
     }
 
-    // 3. 新增「刪除評論」API
     @DeleteMapping("/reviews/{reviewId}")
     public ResponseEntity<?> deleteReview(@PathVariable Integer reviewId, @RequestHeader("Authorization") String authHeader) {
         try {
-            // 透過 Token 取得 userId，確保只有本人能刪除
             Integer userId = getUserIdFromHeader(authHeader);
-            
             ratingService.deleteReview(reviewId, userId);
-            
             return ResponseEntity.ok(new ApiResponse<>(true, "刪除成功", null));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ApiResponse<>(false, "刪除失敗：" + e.getMessage()));
+        }
+    }
+
+    @PutMapping("/reviews/{reviewId}")
+    public ResponseEntity<?> updateReview(@PathVariable Integer reviewId,
+                                          @RequestHeader("Authorization") String authHeader,
+                                          @RequestBody java.util.Map<String, Object> body) {
+        try {
+            Integer userId = getUserIdFromHeader(authHeader);
+            Integer score = (Integer) body.get("score");
+            String comment = (String) body.get("comment");
+            ratingService.updateReview(reviewId, userId, score, comment);
+            return ResponseEntity.ok(new ApiResponse<>(true, "編輯成功", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, "編輯失敗：" + e.getMessage()));
         }
     }
 }

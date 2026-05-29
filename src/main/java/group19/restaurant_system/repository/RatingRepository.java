@@ -26,7 +26,7 @@ public class RatingRepository {
 
     
     private static final String BASE_SELECT =
-            "SELECT r.ratingId, r.score, r.comment, r.ratedAt, " +
+            "SELECT r.ratingId, r.score, r.comment, r.ratedAt, r.isEdited, " +
                     "u.userId AS u_userId, u.name AS u_name, u.email AS u_email, u.password AS u_password, u.createdAt AS u_createdAt, u.updatedAt AS u_updatedAt, " +
                     "res.restaurantId AS res_restaurantId, res.name AS res_name, res.category AS res_category, res.priceRange AS res_priceRange, " +
                     "res.avgScore AS res_avgScore, res.ratingCount AS res_ratingCount, res.locationAt AS res_locationAt " +
@@ -39,6 +39,7 @@ public class RatingRepository {
         rating.setRatingId(rs.getInt("ratingId"));
         rating.setScore(rs.getInt("score"));
         rating.setComment(rs.getString("comment"));
+        rating.setIsEdited(rs.getBoolean("isEdited"));
         Timestamp ratedAt = rs.getTimestamp("ratedAt");
         if (ratedAt != null) {
             rating.setRatedAt(ratedAt.toLocalDateTime());
@@ -100,7 +101,7 @@ public class RatingRepository {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(
-                        "INSERT INTO ratings (userId, restaurantId, score, comment, ratedAt) VALUES (?, ?, ?, ?, ?)",
+                        "INSERT INTO ratings (userId, restaurantId, score, comment, ratedAt, isEdited) VALUES (?, ?, ?, ?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS
                 );
                 ps.setInt(1, rating.getUser().getUserId());
@@ -108,6 +109,7 @@ public class RatingRepository {
                 ps.setInt(3, rating.getScore());
                 ps.setString(4, rating.getComment());
                 ps.setTimestamp(5, Timestamp.valueOf(rating.getRatedAt()));
+                ps.setBoolean(6, Boolean.TRUE.equals(rating.getIsEdited()));
                 return ps;
             }, keyHolder);
 
@@ -122,11 +124,12 @@ public class RatingRepository {
         }
 
         jdbcTemplate.update(
-                "UPDATE ratings SET userId = ?, restaurantId = ?, score = ?, comment = ? WHERE ratingId = ?",
+                "UPDATE ratings SET userId = ?, restaurantId = ?, score = ?, comment = ?, isEdited = ? WHERE ratingId = ?",
                 rating.getUser().getUserId(),
                 rating.getRestaurant().getRestaurantId(),
                 rating.getScore(),
                 rating.getComment(),
+                Boolean.TRUE.equals(rating.getIsEdited()),
                 rating.getRatingId()
         );
         return findById(rating.getRatingId()).orElse(rating);

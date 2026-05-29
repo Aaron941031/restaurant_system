@@ -278,14 +278,26 @@ button {
     border-color: var(--error);
 }
 
+.btn-warning {
+    background: transparent;
+    color: #EA580C;
+    border: 1px solid rgba(234,88,12,0.3);
+    flex: 0 0 auto;
+}
+
+.btn-warning:hover {
+    background: rgba(234,88,12,0.06);
+    border-color: #EA580C;
+}
+
 /* ─── Menu Page ─── */
 #page-menu .button-group {
     flex-direction: column;
-    gap: 20px;
+    gap: 0;
     margin-top: 0;
 }
 
-#page-menu .btn-primary {
+#page-menu .button-group .btn-primary {
     font-size: 14px;
     padding: 14px 20px;
     text-align: left;
@@ -295,9 +307,24 @@ button {
     background: var(--surface-raised);
     color: var(--text-primary);
     border: 1px solid var(--border);
-    border-radius: var(--radius-md);
+    border-radius: 0;
+    border-bottom: none;
     box-shadow: none;
     letter-spacing: 0;
+}
+
+#page-menu .button-group .btn-primary:first-child {
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+#page-menu .button-group .btn-primary:last-child {
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    border-bottom: 1px solid var(--border);
+}
+
+#page-menu .button-group .btn-primary:only-child {
+    border-radius: var(--radius-md);
+    border-bottom: 1px solid var(--border);
 }
 
 #page-menu .btn-primary:hover {
@@ -570,13 +597,14 @@ hr {
 }
 
 .modal-content {
-    background-color: #fefefe;
+    background: var(--surface);
     margin: 5% auto;
     padding: 24px;
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     width: 80%;
     max-width: 500px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
     max-height: 80vh;
     display: flex;
     flex-direction: column;
@@ -587,9 +615,13 @@ hr {
     flex-shrink: 0;
     margin-bottom: 16px;
     padding-right: 32px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
 }
 
-#menu-container {
+#menu-container,
+#my-reviews-list {
     overflow-y: auto;
     flex: 1;
     min-height: 0;
@@ -600,7 +632,7 @@ hr {
 }
 
 .close-btn {
-    color: #aaa;
+    color: var(--text-muted);
     position: absolute;
     top: 16px;
     right: 20px;
@@ -611,23 +643,21 @@ hr {
 }
 
 .close-btn:hover {
-    color: #333;
+    color: var(--text-primary);
 }
 
-/* 自訂彈窗捲軸樣式 (僅支援 Chrome/Edge/Safari) */
 .modal-content::-webkit-scrollbar {
-    width: 8px;
+    width: 4px;
 }
 .modal-content::-webkit-scrollbar-track {
-    background: #f1f1f1; 
-    border-radius: 8px;
+    background: transparent;
 }
 .modal-content::-webkit-scrollbar-thumb {
-    background: #ccc; 
-    border-radius: 8px;
+    background: var(--border-strong);
+    border-radius: 2px;
 }
 .modal-content::-webkit-scrollbar-thumb:hover {
-    background: #aaa; 
+    background: var(--text-muted);
 }
 .list-item {
     max-width: 100%;

@@ -3,16 +3,16 @@ package group19.restaurant_system.dto;
 import java.time.LocalDateTime;
 
 public class ReviewResponse {
-    private Integer id; // ⚠️ 改為 Integer
+    private Integer id;
     private String restaurantName;
     private String userName;
     private Integer rating;
     private String comment;
     private LocalDateTime createdAt;
+    private Boolean isEdited;
 
-    // Getter 和 Setter 方法
-    public Integer getId() { return id; } // ⚠️ 改為 Integer
-    public void setId(Integer id) { this.id = id; } // ⚠️ 改為 Integer
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
     public String getRestaurantName() { return restaurantName; }
     public void setRestaurantName(String restaurantName) { this.restaurantName = restaurantName; }
@@ -28,4 +28,7 @@ public class ReviewResponse {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public Boolean getIsEdited() { return isEdited; }
+    public void setIsEdited(Boolean isEdited) { this.isEdited = isEdited; }
 }

@@ -86,33 +86,52 @@ public class RatingService {
         restaurantService.updateRestaurantRating(restaurantId);
     }
 
-    // 新增方法 A：根據用戶 ID 取得所有評論紀錄
-    public List<ReviewResponse> getReviewsByUserId(Integer userId) { // ⚠️ 參數改為 Integer
+    public List<ReviewResponse> getReviewsByUserId(Integer userId) {
         List<Rating> ratings = ratingRepository.findByUserUserId(userId);
-        
+
         return ratings.stream().map(rating -> {
             ReviewResponse dto = new ReviewResponse();
-            // 這裡就不會報錯了，因為兩邊都是 Integer
-            dto.setId(rating.getRatingId()); 
+            dto.setId(rating.getRatingId());
             dto.setRating(rating.getScore());
             dto.setComment(rating.getComment());
             dto.setCreatedAt(rating.getRatedAt());
+            dto.setIsEdited(rating.getIsEdited());
             dto.setRestaurantName(rating.getRestaurant() != null ? rating.getRestaurant().getName() : "未知餐廳");
             return dto;
         }).collect(java.util.stream.Collectors.toList());
     }
 
+    @Transactional
+    public void updateReview(Integer ratingId, Integer userId, Integer score, String comment) throws Exception {
+        Rating rating = ratingRepository.findById(ratingId)
+                .orElseThrow(() -> new Exception("找不到該評論"));
+
+        if (!rating.getUser().getUserId().equals(userId)) {
+            throw new Exception("無權編輯此評論");
+        }
+        if (score < 1 || score > 5) {
+            throw new Exception("評分必須介於 1 到 5");
+        }
+
+        rating.setScore(score);
+        rating.setComment(comment);
+        rating.setIsEdited(true);
+        ratingRepository.save(rating);
+        restaurantService.updateRestaurantRating(rating.getRestaurant().getRestaurantId());
+    }
+
     // 新增方法 B：刪除評論（含安全檢查）
-    public void deleteReview(Integer ratingId, Integer userId) { // ⚠️ 參數改為 Integer
+    @Transactional
+    public void deleteReview(Integer ratingId, Integer userId) throws Exception {
         Rating rating = ratingRepository.findById(ratingId)
                 .orElseThrow(() -> new IllegalArgumentException("找不到該評論"));
-        
-        // 檢查是否為本人
+
         if (!rating.getUser().getUserId().equals(userId)) {
             throw new RuntimeException("無權刪除此評論");
         }
-        
-        // 你們原本就有 delete 方法了，直接用這個即可
-        ratingRepository.delete(rating); 
+
+        Integer restaurantId = rating.getRestaurant().getRestaurantId();
+        ratingRepository.delete(rating);
+        restaurantService.updateRestaurantRating(restaurantId);
     }
 }

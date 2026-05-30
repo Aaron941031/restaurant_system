@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.Collections;
 
 import group19.restaurant_system.dto.RestaurantRemainingDto;
 
@@ -72,27 +75,53 @@ public class RestaurantService {
 
     @Transactional
     public List<Restaurant> getRecommendedRestaurants(Integer userId) throws Exception {
-        // Get user's excluded dishes/ingredients/restaurants
+        return buildRecommendedRestaurants(userId, Collections.emptySet(), false, 5);
+    }
+
+    @Transactional
+    public List<Restaurant> getRandomRecommendedRestaurants(Integer userId, List<Integer> excludedRestaurantIds, int limit) throws Exception {
+        Set<Integer> alreadyShown = excludedRestaurantIds == null
+            ? Collections.emptySet()
+            : new LinkedHashSet<>(excludedRestaurantIds);
+        return buildRecommendedRestaurants(userId, alreadyShown, true, limit);
+    }
+
+    @Transactional
+    public List<Restaurant> getGroupRecommendations(Integer sessionId,
+                                                     List<Integer> memberIds) throws Exception {
+        return buildGroupRecommendations(memberIds, Collections.emptySet(), false, 5);
+    }
+
+    @Transactional
+    public List<Restaurant> getRandomGroupRecommendations(Integer sessionId,
+                                                          List<Integer> memberIds,
+                                                          List<Integer> excludedRestaurantIds,
+                                                          int limit) throws Exception {
+        return buildGroupRecommendations(memberIds, Collections.emptySet(), true, limit);
+    }
+
+    private List<Restaurant> buildRecommendedRestaurants(Integer userId,
+                                                         Set<Integer> additionalExcludedRestaurantIds,
+                                                         boolean randomOrder,
+                                                         int limit) throws Exception {
         List<UserExclusion> exclusions = userExclusionRepository.findByUserUserId(userId);
-        List<Integer> excludedDishIds = exclusions.stream()
+        Set<Integer> excludedDishIds = exclusions.stream()
             .filter(ue -> ue.getDish() != null)
             .map(ue -> ue.getDish().getDishId())
-            .distinct()
-            .collect(Collectors.toList());
-        List<Integer> excludedRestaurantIds = exclusions.stream()
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<Integer> excludedRestaurantIds = exclusions.stream()
             .filter(ue -> ue.getRestaurant() != null)
             .map(ue -> ue.getRestaurant().getRestaurantId())
-            .distinct()
-            .collect(Collectors.toList());
-        List<Integer> excludedIngredientIds = exclusions.stream()
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<Integer> excludedIngredientIds = exclusions.stream()
             .filter(ue -> ue.getIngredient() != null)
             .map(ue -> ue.getIngredient().getIngredientId())
-            .distinct()
-            .collect(Collectors.toList());
+            .collect(Collectors.toCollection(LinkedHashSet::new));
 
-        // Determine how many non-excluded dishes remain per restaurant
+        excludedRestaurantIds.addAll(additionalExcludedRestaurantIds);
+
         List<Map<String, Object>> rows = restaurantDishRepository
-            .findRemainingDishCountsByExclusions(excludedDishIds, excludedIngredientIds, 1000);
+            .findRemainingDishCountsByExclusions(new ArrayList<>(excludedDishIds), new ArrayList<>(excludedIngredientIds), 1000);
 
         Map<Integer, Integer> remainingMap = new HashMap<>();
         for (Map<String, Object> row : rows) {
@@ -101,30 +130,55 @@ public class RestaurantService {
             remainingMap.put(restaurantId, remaining);
         }
 
-        // Start from all restaurants ordered by avgScore
-        List<Restaurant> allByScore = restaurantRepository.findAllByOrderByAvgScoreDesc();
-
-        // Filter out explicitly excluded restaurants and those with zero remaining dishes
-        List<Restaurant> candidates = allByScore.stream()
+        List<Restaurant> candidates = restaurantRepository.findAll().stream()
             .filter(r -> !excludedRestaurantIds.contains(r.getRestaurantId()))
-            .filter(r -> remainingMap.containsKey(r.getRestaurantId()) && remainingMap.get(r.getRestaurantId()) > 0)
-            .sorted(Comparator
-                .comparing((Restaurant r) -> remainingMap.get(r.getRestaurantId()))
-                .reversed()
-                .thenComparing(Restaurant::getAvgScore, Comparator.reverseOrder())
-            )
-            .limit(5)
+            .filter(r -> remainingMap.getOrDefault(r.getRestaurantId(), 0) > 0)
             .collect(Collectors.toList());
 
-        // Fallback: if no candidate after applying exclusions, fall back to top-rated non-excluded restaurants
-        if (candidates.isEmpty()) {
-            candidates = allByScore.stream()
-                .filter(r -> !excludedRestaurantIds.contains(r.getRestaurantId()))
-                .limit(5)
+        if (randomOrder) {
+            Collections.shuffle(candidates);
+        } else {
+            candidates = candidates.stream()
+                .sorted(Comparator
+                    .comparing((Restaurant r) -> remainingMap.get(r.getRestaurantId()))
+                    .reversed()
+                    .thenComparing(Restaurant::getAvgScore, Comparator.reverseOrder())
+                )
                 .collect(Collectors.toList());
         }
 
-        return candidates;
+        return candidates.stream().limit(limit).collect(Collectors.toList());
+    }
+
+    private List<Restaurant> buildGroupRecommendations(List<Integer> memberIds,
+                                                       Set<Integer> additionalExcludedRestaurantIds,
+                                                       boolean randomOrder,
+                                                       int limit) throws Exception {
+        List<Integer> excludedDishIds = collectExcludedDishIds(memberIds);
+        List<Integer> excludedIngredientIds = collectExcludedIngredientIds(memberIds);
+        Set<Integer> excludedRestaurantIds = new LinkedHashSet<>(collectExcludedRestaurantIds(memberIds));
+        excludedRestaurantIds.addAll(additionalExcludedRestaurantIds);
+
+        Map<Integer, Integer> remainingMap = buildRemainingCountMap(excludedDishIds, excludedIngredientIds, 1000);
+
+        List<Restaurant> candidates = restaurantRepository.findAll().stream()
+            .filter(r -> !excludedRestaurantIds.contains(r.getRestaurantId()))
+            .filter(r -> remainingMap.getOrDefault(r.getRestaurantId(), 0) > 0)
+            .collect(Collectors.toList());
+
+        if (randomOrder) {
+            Collections.shuffle(candidates);
+        } else {
+            candidates = candidates.stream()
+                .sorted(Comparator
+                    .comparing((Restaurant r) -> remainingMap.get(r.getRestaurantId()))
+                    .reversed()
+                    .thenComparing(Restaurant::getAvgScore, Comparator.reverseOrder())
+                )
+                .collect(Collectors.toList());
+        }
+
+        return candidates.stream().limit(limit).collect(Collectors.toList());
     }
 
     public List<Restaurant> searchRestaurants(String q, int limit) {
@@ -171,37 +225,6 @@ public class RestaurantService {
             remainingMap.put(restaurantId, remaining);
         }
         return remainingMap;
-    }
-
-    @Transactional
-        public List<Restaurant> getGroupRecommendations(Integer sessionId,
-                                                        List<Integer> memberIds) throws Exception {
-        List<Integer> excludedDishIds = collectExcludedDishIds(memberIds);
-        List<Integer> excludedIngredientIds = collectExcludedIngredientIds(memberIds);
-        List<Integer> excludedRestaurantIds = collectExcludedRestaurantIds(memberIds);
-
-        Map<Integer, Integer> remainingMap = buildRemainingCountMap(excludedDishIds, excludedIngredientIds, 1000);
-
-        List<Restaurant> allByScore = restaurantRepository.findAllByOrderByAvgScoreDesc();
-        List<Restaurant> candidates = allByScore.stream()
-            .filter(r -> !excludedRestaurantIds.contains(r.getRestaurantId()))
-            .filter(r -> remainingMap.containsKey(r.getRestaurantId()) && remainingMap.get(r.getRestaurantId()) > 0)
-            .sorted(Comparator
-                .comparing((Restaurant r) -> remainingMap.get(r.getRestaurantId()))
-                .reversed()
-                .thenComparing(Restaurant::getAvgScore, Comparator.reverseOrder())
-            )
-            .limit(5)
-            .collect(Collectors.toList());
-
-        if (candidates.isEmpty()) {
-            candidates = allByScore.stream()
-                .filter(r -> !excludedRestaurantIds.contains(r.getRestaurantId()))
-                .limit(5)
-                .collect(Collectors.toList());
-        }
-
-        return candidates;
     }
 
     @Transactional

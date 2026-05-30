@@ -10,6 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/recommend")
@@ -38,6 +41,24 @@ public class RecommendationController {
         try {
             Integer userId = getUserIdFromHeader(authHeader);
             List<Restaurant> recommendations = restaurantService.getRecommendedRestaurants(userId);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Recommendations retrieved", recommendations));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
+        }
+    }
+
+    @GetMapping("/personal/random")
+    public ResponseEntity<?> getRandomPersonalRecommendations(@RequestHeader("Authorization") String authHeader,
+                                                              @RequestParam(required = false, defaultValue = "") String excludeIds,
+                                                              @RequestParam(required = false, defaultValue = "5") Integer limit) {
+        try {
+            Integer userId = getUserIdFromHeader(authHeader);
+            List<Integer> excluded = Arrays.stream(excludeIds.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .map(Integer::valueOf)
+                    .collect(Collectors.toList());
+            List<Restaurant> recommendations = restaurantService.getRandomRecommendedRestaurants(userId, excluded, limit);
             return ResponseEntity.ok(new ApiResponse<>(true, "Recommendations retrieved", recommendations));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));

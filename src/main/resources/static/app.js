@@ -19,7 +19,9 @@ const state = {
     selectedDishes: [],
     currentGroupSessionId: null,
     currentGroupSelectedDishes: [], // 供雙模式菜單使用
-    currentGroupRestaurantId: null  // 供雙模式菜單使用
+    currentGroupRestaurantId: null,  // 供雙模式菜單使用
+    lastGroupRecommendedRestaurantIds: [],
+    lastRecommendedRestaurantIds: [] // 上一次推薦結果，用於「換一批」
 };
 
 // ============ 頁面導航 ============
@@ -599,6 +601,7 @@ async function getRecommendations() {
         if (!state.token) throw new Error("請先登入");
 
         const recs = await request("/api/recommend/personal");
+        state.lastRecommendedRestaurantIds = (recs || []).map(r => r.restaurantId || r.id).filter(Boolean);
         const container = document.getElementById("recommend-list");
 
         if (!recs || !recs.length) {
@@ -611,7 +614,46 @@ async function getRecommendations() {
             return;
         }
 
-        container.innerHTML = recs.map(r => {
+        renderRecommendationCards(container, recs, true);
+
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+}
+
+async function getMoreRecommendations() {
+    try {
+        if (!state.token) throw new Error("請先登入");
+
+        const excludeIds = (state.lastRecommendedRestaurantIds || []).join(",");
+        const recs = await request(`/api/recommend/personal/random?excludeIds=${encodeURIComponent(excludeIds)}&limit=5`);
+        state.lastRecommendedRestaurantIds = (recs || []).map(r => r.restaurantId || r.id).filter(Boolean);
+        const container = document.getElementById("recommend-list");
+
+        if (!recs || !recs.length) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">⭐</div>
+                    <div class="empty-state-title">暫無其他推薦</div>
+                    <div class="empty-state-desc">目前沒有更多未排除的餐廳可推薦。</div>
+                </div>`;
+            return;
+        }
+
+        renderRecommendationCards(container, recs, true);
+
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+}
+
+function renderRecommendationCards(container, recs, includeRefreshButton = false) {
+    const headerHtml = includeRefreshButton ? `
+        <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+            <button type="button" class="btn-secondary" onclick="getMoreRecommendations()">不滿意，換一批</button>
+        </div>` : '';
+
+    container.innerHTML = headerHtml + recs.map(r => {
             const targetId = r.restaurantId || r.id;
             const score = Number(r.avgScore || 0).toFixed(1);
 
@@ -652,10 +694,6 @@ async function getRecommendations() {
                     </div>
                 </div>`;
         }).join("");
-
-    } catch (err) {
-        showToast(err.message, "error");
-    }
 }
 
 // ============ 我的評論功能 ============
@@ -864,6 +902,7 @@ function renderMyGroups(groups) {
             ? new Date(group.createdAt).toLocaleDateString('zh-TW')
             : '—';
 
+        const creatorName = group.creator?.name || `用戶 #${group.creator?.userId || '未知'}`;
         const isCreator = String(group.creator?.userId) === String(state.userId);
         const displayName = group.groupName ? group.groupName : `群組 #${group.sessionId}`;
         const idLine = group.groupName
@@ -890,8 +929,7 @@ function renderMyGroups(groups) {
                 ${titleHtml}
                 ${idLine}
                 <div class="list-item-meta">
-                    建立日期：${createdAt} ｜ 邀請碼：${group.inviteCode}
-                    ${isCreator ? ' ｜ <span style="font-size:11px;">建立者</span>' : ''}
+                    建立日期：${createdAt} ｜ 建立者：${creatorName} ｜ 邀請碼：${group.inviteCode}
                 </div>
                 <div class="button-group" style="margin-top:10px;">
                     <button type="button" class="btn-secondary" onclick="loadGroupDetail(${group.sessionId})">查看詳情</button>
@@ -992,10 +1030,11 @@ async function loadGroupDetail(sessionId) {
             ? new Date(group.createdAt).toLocaleDateString('zh-TW')
             : '—';
 
+        const creatorName = group.creator?.name || `用戶 #${group.creator?.userId || '未知'}`;
         const displayName = group.groupName ? group.groupName : `群組 #${sessionId}`;
         const idLabel = group.groupName
-            ? `<div style="font-size:11px;font-weight:400;color:var(--text-muted);margin-top:2px;">群組 #${sessionId} ・ ${createdAt}</div>`
-            : `<div style="font-size:11px;font-weight:400;color:var(--text-muted);margin-top:2px;">${createdAt}</div>`;
+            ? `<div style="font-size:11px;font-weight:400;color:var(--text-muted);margin-top:2px;">群組 #${sessionId} ・ ${createdAt} ・ 建立者：${creatorName}</div>`
+            : `<div style="font-size:11px;font-weight:400;color:var(--text-muted);margin-top:2px;">${createdAt} ・ 建立者：${creatorName}</div>`;
 
         header.innerHTML = `<div style="font-size:15px;font-weight:600;color:var(--text-primary);">${displayName}</div>${idLabel}`;
 
@@ -1101,6 +1140,7 @@ async function loadGroupRecommendations(sessionId) {
 
     try {
         const recs = await request(`/api/groups/${sessionId}/recommend`);
+        state.lastGroupRecommendedRestaurantIds = (recs || []).map(r => r.restaurantId || r.id).filter(Boolean);
 
         if (!recs || !recs.length) {
             container.innerHTML = `
@@ -1112,7 +1152,45 @@ async function loadGroupRecommendations(sessionId) {
             return;
         }
 
-        container.innerHTML = recs.map(r => {
+        renderGroupRecommendationCards(container, recs, sessionId, true);
+
+    } catch {
+        container.innerHTML = '<p style="color:red; font-size:13px;">無法載入推薦</p>';
+    }
+}
+
+async function loadMoreGroupRecommendations(sessionId) {
+    const container = document.getElementById("group-recommend-list");
+    container.innerHTML = '<p style="color:#999; font-size:13px;">載入推薦中…</p>';
+
+    try {
+        const recs = await request(`/api/groups/${sessionId}/recommend/random?limit=5`);
+        state.lastGroupRecommendedRestaurantIds = (recs || []).map(r => r.restaurantId || r.id).filter(Boolean);
+
+        if (!recs || !recs.length) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">⭐</div>
+                    <div class="empty-state-title">暫無其他推薦</div>
+                    <div class="empty-state-desc">目前沒有更多未排除的餐廳可推薦。</div>
+                </div>`;
+            return;
+        }
+
+        renderGroupRecommendationCards(container, recs, sessionId, true);
+
+    } catch {
+        container.innerHTML = '<p style="color:red; font-size:13px;">無法載入推薦</p>';
+    }
+}
+
+function renderGroupRecommendationCards(container, recs, sessionId, showRefreshButton = false) {
+    const refreshHtml = showRefreshButton ? `
+        <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+            <button type="button" class="btn-secondary" onclick="loadMoreGroupRecommendations(${sessionId})">不滿意，換一批</button>
+        </div>` : '';
+
+    container.innerHTML = refreshHtml + recs.map(r => {
             const rid = r.restaurantId || r.id;
             const score = Number(r.avgScore || 0).toFixed(1);
             const safeName = String(r.name || '').replace(/'/g, "\\'");
@@ -1140,10 +1218,6 @@ async function loadGroupRecommendations(sessionId) {
                     </div>
                 </div>`;
         }).join("");
-
-    } catch {
-        container.innerHTML = '<p style="color:red; font-size:13px;">無法載入推薦</p>';
-    }
 }
 
 function pickGroupRestaurant(restaurantId, name) {

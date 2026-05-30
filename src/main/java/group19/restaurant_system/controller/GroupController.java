@@ -154,6 +154,26 @@ public class GroupController {
         }
     }
 
+    @GetMapping("/{id}/recommend/random")
+    public ResponseEntity<?> getRandomGroupRecommendations(@RequestHeader("Authorization") String authHeader,
+                                                           @PathVariable Integer id,
+                                                           @RequestParam(required = false, defaultValue = "") String excludeIds,
+                                                           @RequestParam(required = false, defaultValue = "5") Integer limit) {
+        try {
+            Integer userId = getUserIdFromHeader(authHeader);
+            if (!groupSessionService.isMember(id, userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(new ApiResponse<>(false, "Not a member of this group"));
+            }
+            List<Integer> memberIds = groupSessionService.getMemberIds(id);
+                List<Restaurant> recommendations = restaurantService.getRandomGroupRecommendations(id, memberIds, java.util.Collections.emptyList(), limit);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Group recommendations retrieved", recommendations));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, e.getMessage()));
+        }
+    }
+
     @GetMapping("/{id}/recommend/remaining")
     public ResponseEntity<?> getGroupRecommendationsByRemaining(@RequestHeader("Authorization") String authHeader,
                                                                 @PathVariable Integer id,

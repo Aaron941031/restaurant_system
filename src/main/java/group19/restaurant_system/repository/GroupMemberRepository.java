@@ -34,6 +34,7 @@ public class GroupMemberRepository {
 
         User creator = new User();
         creator.setUserId(rs.getInt("creatorId"));
+        creator.setName(rs.getString("creatorName"));
         session.setCreator(creator);
 
         session.setInviteCode(rs.getString("inviteCode"));
@@ -102,8 +103,9 @@ public class GroupMemberRepository {
     public List<GroupSession> findSessionsByUserId(Integer userId) {
         return jdbcTemplate.query(
                 // 👇 這裡的 SELECT 語法補上了 gs.group_name
-                "SELECT gs.sessionId, gs.creatorId, gs.inviteCode, gs.createdAt, gs.status, gs.group_name " +
-                        "FROM group_sessions gs " +
+                "SELECT gs.sessionId, gs.creatorId, u.name AS creatorName, gs.inviteCode, gs.createdAt, gs.status, gs.group_name " +
+                    "FROM group_sessions gs " +
+                    "JOIN users u ON u.userId = gs.creatorId " +
                         "JOIN group_members gm ON gm.sessionId = gs.sessionId " +
                         "WHERE gm.userId = ? " +
                         "ORDER BY gs.createdAt DESC",

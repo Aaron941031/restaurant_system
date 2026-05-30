@@ -30,6 +30,7 @@ public class GroupSessionRepository {
         
         User creator = new User();
         creator.setUserId(rs.getInt("creatorId"));
+        creator.setName(rs.getString("creatorName"));
         session.setCreator(creator);
         
         session.setInviteCode(rs.getString("inviteCode"));
@@ -50,14 +51,14 @@ public class GroupSessionRepository {
     public Optional<GroupSession> findById(Integer sessionId) {
         // 👇 2. SELECT 語法補上 group_name
         return queryForOptional(
-            "SELECT sessionId, creatorId, inviteCode, status, createdAt, group_name FROM group_sessions WHERE sessionId = ?", 
+            "SELECT gs.sessionId, gs.creatorId, u.name AS creatorName, gs.inviteCode, gs.status, gs.createdAt, gs.group_name FROM group_sessions gs JOIN users u ON u.userId = gs.creatorId WHERE gs.sessionId = ?", 
             sessionId
         );
     }
 
     public Optional<GroupSession> findByInviteCode(String inviteCode) {
         return queryForOptional(
-            "SELECT sessionId, creatorId, inviteCode, status, createdAt, group_name FROM group_sessions WHERE inviteCode = ?", 
+            "SELECT gs.sessionId, gs.creatorId, u.name AS creatorName, gs.inviteCode, gs.status, gs.createdAt, gs.group_name FROM group_sessions gs JOIN users u ON u.userId = gs.creatorId WHERE gs.inviteCode = ?", 
             inviteCode
         );
     }

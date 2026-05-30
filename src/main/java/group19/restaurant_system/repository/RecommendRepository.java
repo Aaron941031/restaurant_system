@@ -21,28 +21,29 @@ public class RecommendRepository {
    
     private JdbcTemplate jdbcTemplate;
 
+    public RecommendRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
     public List<Restaurant> getPersonalRecommendations(int userId) {
-        String sql = """
-            SELECT r.*
-            FROM restaurants r
-            WHERE
-                -- 排除指定菜餚
-                r.restaurantId NOT IN (
-                    SELECT DISTINCT rd.restaurantId
-                    FROM restaurant_dishes rd
-                    JOIN user_exclusions ue ON rd.dishId = ue.dishId
-                    WHERE ue.userId = ? AND ue.dishId IS NOT NULL
-                )
-                -- 排除含有指定食材的餐廳
-                AND r.restaurantId NOT IN (
-                    SELECT DISTINCT rd.restaurantId
-                    FROM restaurant_dishes rd
-                    JOIN dish_ingredients di ON di.dishId = rd.dishId
-                    JOIN user_exclusions ue ON ue.ingredientId = di.ingredientId
-                    WHERE ue.userId = ? AND ue.ingredientId IS NOT NULL
-                )
-            ORDER BY r.avgScore DESC
-            """;
+        String sql = 
+            "SELECT r.*\n" +
+            "FROM restaurants r\n" +
+            "WHERE\n" +
+            "    r.restaurantId NOT IN (\n" +
+            "        SELECT DISTINCT rd.restaurantId\n" +
+            "        FROM restaurant_dishes rd\n" +
+            "        JOIN user_dish_exclusions ude ON rd.dishId = ude.dishId\n" +
+            "        WHERE ude.userId = ?\n" +
+            "    )\n" +
+            "    AND r.restaurantId NOT IN (\n" +
+            "        SELECT DISTINCT rd.restaurantId\n" +
+            "        FROM restaurant_dishes rd\n" +
+            "        JOIN dish_ingredients di ON di.dishId = rd.dishId\n" +
+            "        JOIN user_ingredient_exclusions uie ON uie.ingredientId = di.ingredientId\n" +
+            "        WHERE uie.userId = ?\n" +
+            "    )\n" +
+            "ORDER BY r.avgScore DESC";
 
         return jdbcTemplate.query(sql,
             (rs, rowNum) -> {

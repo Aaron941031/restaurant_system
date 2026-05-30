@@ -42,20 +42,45 @@ CREATE TABLE IF NOT EXISTS ratings (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create user_exclusions table
-CREATE TABLE IF NOT EXISTS user_exclusions (
-    exclusionId INT PRIMARY KEY AUTO_INCREMENT,
+-- Previously a single table holding multiple exclusion types.
+-- Split into three dedicated tables to enforce BCNF and avoid NULL-multiplexing.
+
+CREATE TABLE IF NOT EXISTS user_dish_exclusions (
     userId INT NOT NULL,
-    dishId INT DEFAULT NULL,
-    ingredientId INT DEFAULT NULL,
-    restaurantId INT DEFAULT NULL,
-    UNIQUE KEY unique_exclusion_dish (userId, dishId),
-    UNIQUE KEY unique_exclusion_ingredient (userId, ingredientId),
-    UNIQUE KEY unique_exclusion_restaurant (userId, restaurantId),
+    dishId INT NOT NULL,
+    PRIMARY KEY (userId, dishId),
     FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE,
-    FOREIGN KEY (dishId) REFERENCES dishes(dishId) ON DELETE CASCADE,
-    FOREIGN KEY (ingredientId) REFERENCES ingredients(ingredientId) ON DELETE CASCADE,
+    FOREIGN KEY (dishId) REFERENCES dishes(dishId) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS user_ingredient_exclusions (
+    userId INT NOT NULL,
+    ingredientId INT NOT NULL,
+    PRIMARY KEY (userId, ingredientId),
+    FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE,
+    FOREIGN KEY (ingredientId) REFERENCES ingredients(ingredientId) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS user_restaurant_exclusions (
+    userId INT NOT NULL,
+    restaurantId INT NOT NULL,
+    PRIMARY KEY (userId, restaurantId),
+    FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (restaurantId) REFERENCES restaurants(restaurantId) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- If you still have the old `user_exclusions` table (not yet dropped),
+-- you can migrate rows by running these INSERTs (run only if that table exists):
+--
+-- INSERT IGNORE INTO user_dish_exclusions (userId, dishId)
+--   SELECT userId, dishId FROM user_exclusions WHERE dishId IS NOT NULL;
+-- INSERT IGNORE INTO user_ingredient_exclusions (userId, ingredientId)
+--   SELECT userId, ingredientId FROM user_exclusions WHERE ingredientId IS NOT NULL;
+-- INSERT IGNORE INTO user_restaurant_exclusions (userId, restaurantId)
+--   SELECT userId, restaurantId FROM user_exclusions WHERE restaurantId IS NOT NULL;
+--
+-- After verifying migration, drop the old table:
+-- DROP TABLE IF EXISTS user_exclusions;
 
 -- Create group_sessions table
 CREATE TABLE IF NOT EXISTS group_sessions (

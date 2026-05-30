@@ -176,21 +176,33 @@ async function loadRestaurants() {
 function renderRestaurants() {
     const container = document.getElementById("restaurants-list");
     if (!state.restaurants.length) {
-        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"></div>暫無餐廳</div>';
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">🍽️</div>
+                <div class="empty-state-title">暫無餐廳</div>
+                <div class="empty-state-desc">請稍後再試，或確認後端餐廳資料是否已載入。</div>
+            </div>`;
         return;
     }
     container.innerHTML = state.restaurants.map(r => {
         const targetId = r.restaurantId || r.id;
         return `
         <div class="list-item">
-            <div class="list-item-title">${r.name}</div>
-            <div class="list-item-meta">
-                <strong>${r.category}</strong> | ${r.priceRange} | ⭐ ${r.avgScore} (${r.ratingCount}人)
+            <div class="list-item-header">
+                <div>
+                    <div class="list-item-title">${r.name}</div>
+                    <div class="list-item-meta">${r.locationAt || '位置資訊未提供'}</div>
+                </div>
             </div>
-            <div class="list-item-meta">${r.locationAt}</div>
-            <div class="button-group" style="margin-top: 12px;">
-                <button type="button" style="padding: 4px 8px; margin-right: 5px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #f9f9f9;" onclick="viewMenu(${targetId}, 'view')">查看菜單</button>
-                <button type="button" style="padding: 4px 8px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #f9f9f9;" onclick="viewReviews(${targetId})">查看評論</button>
+            <div class="list-item-badges">
+                <span class="list-badge">${r.category || '未分類'}</span>
+                <span class="list-badge">${r.priceRange || '價格未提供'}</span>
+                <span class="list-badge accent">⭐ ${Number(r.avgScore || 0).toFixed(1)}</span>
+                <span class="list-badge">${r.ratingCount || 0} 則評分</span>
+            </div>
+            <div class="list-item-actions">
+                <button type="button" class="list-action-btn" onclick="viewMenu(${targetId}, 'view')">查看菜單</button>
+                <button type="button" class="list-action-btn" onclick="viewReviews(${targetId})">查看評論</button>
             </div>
         </div>`;
     }).join("");
@@ -590,7 +602,12 @@ async function getRecommendations() {
         const container = document.getElementById("recommend-list");
 
         if (!recs || !recs.length) {
-            container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⭐</div>暫無推薦</div>';
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">⭐</div>
+                    <div class="empty-state-title">暫無推薦</div>
+                    <div class="empty-state-desc">可以先加入喜好或排除項目，讓推薦結果更精準。</div>
+                </div>`;
             return;
         }
 
@@ -688,7 +705,7 @@ function renderMyReviews(reviews) {
                     <textarea id="review-edit-comment-${review.id}" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;resize:vertical;min-height:60px;">${review.comment || ''}</textarea>
                     <div style="display:flex;gap:8px;margin-top:8px;">
                         <button class="btn-primary" style="flex:1;" onclick="submitEditReview(${review.id})">儲存</button>
-                        <button class="btn-back" onclick="cancelEditReview(${review.id})">取消</button>
+                        <button class="btn-secondary" onclick="cancelEditReview(${review.id})">取消</button>
                     </div>
                 </div>
                 <div id="review-actions-${review.id}" style="display:flex;gap:8px;margin-top:10px;">
@@ -833,7 +850,12 @@ function renderMyGroups(groups) {
     if (!container) return;
 
     if (!groups.length) {
-        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"></div>尚未加入群組</div>';
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">👥</div>
+                <div class="empty-state-title">尚未加入群組</div>
+                <div class="empty-state-desc">先輸入邀請碼加入群組，或建立一個新的揪團。</div>
+            </div>`;
         return;
     }
 
@@ -858,7 +880,7 @@ function renderMyGroups(groups) {
                            placeholder="輸入群組名稱"
                            style="flex:1;padding:5px 8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-weight:600;">
                        <button class="btn-primary" style="flex:0 0 auto;padding:5px 12px;" onclick="submitRenameGroup(${group.sessionId})">確認</button>
-                       <button class="btn-back" style="flex:0 0 auto;padding:5px 10px;" onclick="cancelRenameGroup(${group.sessionId})">✕</button>
+                       <button class="btn-secondary" style="flex:0 0 auto;padding:5px 10px;" onclick="cancelRenameGroup(${group.sessionId})">✕</button>
                    </div>
                </div>`
             : `<div class="list-item-title">${displayName}</div>`;
@@ -1081,7 +1103,12 @@ async function loadGroupRecommendations(sessionId) {
         const recs = await request(`/api/groups/${sessionId}/recommend`);
 
         if (!recs || !recs.length) {
-            container.innerHTML = '<div class="empty-state">暫無推薦</div>';
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">⭐</div>
+                    <div class="empty-state-title">暫無推薦</div>
+                    <div class="empty-state-desc">可以先調整排除條件，再重新取得推薦。</div>
+                </div>`;
             return;
         }
 
@@ -1166,7 +1193,7 @@ async function loadGroupHistory(sessionId) {
                         style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;resize:vertical;min-height:50px;">${h.note || ''}</textarea>
                     <div style="display:flex;gap:8px;margin-top:8px;">
                         <button class="btn-primary" style="flex:1;" onclick="submitEditRecord(${h.recordId})">儲存</button>
-                        <button class="btn-back" onclick="cancelEditRecord(${h.recordId})">取消</button>
+                        <button class="btn-secondary" onclick="cancelEditRecord(${h.recordId})">取消</button>
                     </div>
                 </div>
                 <div id="record-actions-${h.recordId}" style="display:flex;gap:8px;margin-top:10px;">
@@ -1498,7 +1525,7 @@ window.updateSelectedDishNames = function() {
     }
 
     if (!state.selectedDishes || state.selectedDishes.length === 0) {
-        el.textContent = "尚未選擇餐點";
+        el.textContent = "先挑選餐點，這裡會顯示內容";
         return;
     }
 

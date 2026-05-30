@@ -133,6 +133,7 @@ public class RestaurantService {
         List<Restaurant> candidates = restaurantRepository.findAll().stream()
             .filter(r -> !excludedRestaurantIds.contains(r.getRestaurantId()))
             .filter(r -> remainingMap.getOrDefault(r.getRestaurantId(), 0) > 0)
+            .peek(r -> r.setAvailableDishCount(remainingMap.getOrDefault(r.getRestaurantId(), 0)))
             .collect(Collectors.toList());
 
         if (randomOrder) {
@@ -164,6 +165,7 @@ public class RestaurantService {
         List<Restaurant> candidates = restaurantRepository.findAll().stream()
             .filter(r -> !excludedRestaurantIds.contains(r.getRestaurantId()))
             .filter(r -> remainingMap.getOrDefault(r.getRestaurantId(), 0) > 0)
+            .peek(r -> r.setAvailableDishCount(remainingMap.getOrDefault(r.getRestaurantId(), 0)))
             .collect(Collectors.toList());
 
         if (randomOrder) {

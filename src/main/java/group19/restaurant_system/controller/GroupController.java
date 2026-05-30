@@ -12,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/groups")
@@ -138,15 +140,20 @@ public class GroupController {
 
     @GetMapping("/{id}/recommend")
     public ResponseEntity<?> getGroupRecommendations(@RequestHeader("Authorization") String authHeader,
-                                                     @PathVariable Integer id) {
+                                                     @PathVariable Integer id,
+                                                     @RequestParam(required = false, defaultValue = "") String memberIds) {
         try {
             Integer userId = getUserIdFromHeader(authHeader);
             if (!groupSessionService.isMember(id, userId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(new ApiResponse<>(false, "Not a member of this group"));
             }
-            List<Integer> memberIds = groupSessionService.getMemberIds(id);
-            List<Restaurant> recommendations = restaurantService.getGroupRecommendations(id, memberIds);
+            List<Integer> selectedMemberIds = memberIds.isBlank()
+                ? groupSessionService.getMemberIds(id)
+                : Arrays.stream(memberIds.split(","))
+                    .map(String::trim).filter(s -> !s.isEmpty())
+                    .map(Integer::valueOf).collect(Collectors.toList());
+            List<Restaurant> recommendations = restaurantService.getGroupRecommendations(id, selectedMemberIds);
             return ResponseEntity.ok(new ApiResponse<>(true, "Group recommendations retrieved", recommendations));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -158,15 +165,20 @@ public class GroupController {
     public ResponseEntity<?> getRandomGroupRecommendations(@RequestHeader("Authorization") String authHeader,
                                                            @PathVariable Integer id,
                                                            @RequestParam(required = false, defaultValue = "") String excludeIds,
-                                                           @RequestParam(required = false, defaultValue = "5") Integer limit) {
+                                                           @RequestParam(required = false, defaultValue = "5") Integer limit,
+                                                           @RequestParam(required = false, defaultValue = "") String memberIds) {
         try {
             Integer userId = getUserIdFromHeader(authHeader);
             if (!groupSessionService.isMember(id, userId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(new ApiResponse<>(false, "Not a member of this group"));
             }
-            List<Integer> memberIds = groupSessionService.getMemberIds(id);
-                List<Restaurant> recommendations = restaurantService.getRandomGroupRecommendations(id, memberIds, java.util.Collections.emptyList(), limit);
+            List<Integer> selectedMemberIds = memberIds.isBlank()
+                ? groupSessionService.getMemberIds(id)
+                : Arrays.stream(memberIds.split(","))
+                    .map(String::trim).filter(s -> !s.isEmpty())
+                    .map(Integer::valueOf).collect(Collectors.toList());
+            List<Restaurant> recommendations = restaurantService.getRandomGroupRecommendations(id, selectedMemberIds, java.util.Collections.emptyList(), limit);
             return ResponseEntity.ok(new ApiResponse<>(true, "Group recommendations retrieved", recommendations));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

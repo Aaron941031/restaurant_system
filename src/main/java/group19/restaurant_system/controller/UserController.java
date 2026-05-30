@@ -41,13 +41,22 @@ public class UserController {
         return jwtTokenProvider.getUserIdFromToken(jwt);
     }
 
+    @DeleteMapping("/account")
+    public ResponseEntity<?> deleteAccount(@RequestHeader("Authorization") String authHeader) {
+        try {
+            Integer userId = getUserIdFromHeader(authHeader);
+            userService.deleteUser(userId);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Account deleted"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
+        }
+    }
+
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile(@RequestHeader("Authorization") String authHeader) {
         try {
             Integer userId = getUserIdFromHeader(authHeader);
             User user = userService.getUserProfile(userId);
-            List<UserExclusion> exclusions = userExclusionService.getUserExclusions(userId);
-            
             return ResponseEntity.ok(new ApiResponse<>(true, "Profile retrieved", user));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(false, e.getMessage()));

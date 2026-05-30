@@ -16,6 +16,8 @@ public class Restaurant {
 
     private String locationAt;
 
+    private Integer availableDishCount;
+
     public Restaurant() {
         this.avgScore = 0.0;
         this.ratingCount = 0;
@@ -51,6 +53,9 @@ public class Restaurant {
 
     public String getLocationAt() { return locationAt; }
     public void setLocationAt(String locationAt) { this.locationAt = locationAt; }
+
+    public Integer getAvailableDishCount() { return availableDishCount; }
+    public void setAvailableDishCount(Integer availableDishCount) { this.availableDishCount = availableDishCount; }
 
     @Override
     public String toString() {

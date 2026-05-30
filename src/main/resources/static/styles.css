@@ -86,9 +86,10 @@ body {
 }
 
 .header h1 {
-    font-size: 20px;
-    font-weight: 600;
-    letter-spacing: -0.3px;
+    font-family: 'Righteous', sans-serif;
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
     margin-bottom: 3px;
 }
 
@@ -254,17 +255,16 @@ button {
 }
 
 .btn-back {
-    background: rgba(220,38,38,0.08);
-    color: var(--error);
-    border: 1px solid rgba(220,38,38,0.22);
+    background: var(--accent-soft);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
     flex: 0 0 auto;
     padding: 11px 16px;
 }
 
 .btn-back:hover {
-    background: rgba(220,38,38,0.14);
-    color: #B91C1C;
-    border-color: rgba(220,38,38,0.34);
+    background: var(--tag-bg);
+    border-color: var(--border-strong);
 }
 
 .btn-danger {
@@ -950,4 +950,40 @@ hr {
     text-align: center;
     font-size: 13px;
     font-weight: 600;
+}
+
+/* 成員勾選 */
+.member-check-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 10px 3px 5px;
+    cursor: pointer;
+    font-size: 12px;
+    user-select: none;
+}
+
+.member-check-label input[type="checkbox"] {
+    display: none;
+}
+
+.member-check-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-strong);
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 70%;
+}
+
+.member-check-label:has(input:checked) .member-check-dot {
+    background-color: #16a34a;
+    border-color: #16a34a;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' d='M13.707 4.293a1 1 0 0 1 0 1.414l-7 7a1 1 0 0 1-1.414 0l-3-3a1 1 0 0 1 1.414-1.414L6 10.586l6.293-6.293a1 1 0 0 1 1.414 0z'/%3E%3C/svg%3E");
 }

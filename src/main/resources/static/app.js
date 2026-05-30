@@ -21,7 +21,11 @@ const state = {
     currentGroupSelectedDishes: [], // 供雙模式菜單使用
     currentGroupRestaurantId: null,  // 供雙模式菜單使用
     lastGroupRecommendedRestaurantIds: [],
-    lastRecommendedRestaurantIds: [] // 上一次推薦結果，用於「換一批」
+    lastRecommendedRestaurantIds: [],
+    _personalRecs: [],
+    _groupRecs: [],
+    _personalSort: 'dishes',
+    _groupSort: 'dishes'
 };
 
 // ============ 頁面導航 ============
@@ -48,6 +52,7 @@ function goPage(pageName) {
             const panel = document.getElementById('group-detail-panel');
             if (panel) panel.classList.add('hidden');
             state._activeGroupSessionId = null;
+            document.getElementById('my-groups-list').innerHTML = '';
         }
     }
 
@@ -132,6 +137,25 @@ function logout() {
     showToast("已登出", "success");
 }
 
+async function deleteAccount() {
+    if (!confirm("確定要刪除帳號嗎？此操作無法復原，所有資料都會被清除。")) return;
+    try {
+        const res = await fetch("/api/user/account", {
+            method: "DELETE",
+            headers: { "Authorization": "Bearer " + state.token }
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
+        setSession("", "", "");
+        state.currentExclusions = [];
+        state.userExclusionPreferences = [];
+        goPage("auth");
+        showToast("帳號已刪除", "success");
+    } catch (e) {
+        showToast("刪除失敗：" + e.message, "error");
+    }
+}
+
 // ============ 認證功能 ============
 
 // 註冊表單送出
@@ -139,6 +163,11 @@ document.getElementById("register-form").addEventListener("submit", async (e) =>
     e.preventDefault();
     try {
         const body = formDataToJson(e.target);
+        const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.(com|tw|com\.tw)$/;
+        if (!emailRegex.test(body.email)) {
+            showToast("Email 格式不正確，須為 xxx@xxx.com 或 xxx@xxx.tw", "error");
+            return;
+        }
         const data = await request("/api/auth/register", { method: "POST", body: JSON.stringify(body) });
         setSession(data.token, data.userId, data.name);
         showToast("註冊成功！歡迎 " + data.name, "success");
@@ -197,7 +226,6 @@ function renderRestaurants() {
                 </div>
             </div>
             <div class="list-item-badges">
-                <span class="list-badge">${r.category || '未分類'}</span>
                 <span class="list-badge">${r.priceRange || '價格未提供'}</span>
                 <span class="list-badge accent">⭐ ${Number(r.avgScore || 0).toFixed(1)}</span>
                 <span class="list-badge">${r.ratingCount || 0} 則評分</span>
@@ -602,6 +630,7 @@ async function getRecommendations() {
 
         const recs = await request("/api/recommend/personal");
         state.lastRecommendedRestaurantIds = (recs || []).map(r => r.restaurantId || r.id).filter(Boolean);
+        state._personalRecs = recs || [];
         const container = document.getElementById("recommend-list");
 
         if (!recs || !recs.length) {
@@ -628,6 +657,8 @@ async function getMoreRecommendations() {
         const excludeIds = (state.lastRecommendedRestaurantIds || []).join(",");
         const recs = await request(`/api/recommend/personal/random?excludeIds=${encodeURIComponent(excludeIds)}&limit=5`);
         state.lastRecommendedRestaurantIds = (recs || []).map(r => r.restaurantId || r.id).filter(Boolean);
+        state._personalRecs = recs || [];
+        state._personalSort = 'dishes';
         const container = document.getElementById("recommend-list");
 
         if (!recs || !recs.length) {
@@ -647,50 +678,45 @@ async function getMoreRecommendations() {
     }
 }
 
+function sortPersonalRecs() {
+    state._personalSort = state._personalSort === 'dishes' ? 'score' : 'dishes';
+    const container = document.getElementById("recommend-list");
+    renderRecommendationCards(container, state._personalRecs, true);
+}
+
 function renderRecommendationCards(container, recs, includeRefreshButton = false) {
-    const headerHtml = includeRefreshButton ? `
-        <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
-            <button type="button" class="btn-secondary" onclick="getMoreRecommendations()">不滿意，換一批</button>
-        </div>` : '';
+    const sorted = [...recs].sort((a, b) =>
+        state._personalSort === 'score'
+            ? (b.avgScore || 0) - (a.avgScore || 0)
+            : (b.availableDishCount || 0) - (a.availableDishCount || 0)
+    );
 
-    container.innerHTML = headerHtml + recs.map(r => {
+    const toggleLabel = state._personalSort === 'dishes' ? '依評分排序' : '依菜餚數排序';
+    const sortBar = `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <button type="button" class="btn-secondary" style="padding:5px 12px;font-size:12px;" onclick="sortPersonalRecs()">${toggleLabel}</button>
+            ${includeRefreshButton ? `<button type="button" class="btn-secondary" style="margin-left:auto;padding:5px 12px;font-size:12px;" onclick="getMoreRecommendations()">換一批</button>` : ''}
+        </div>`;
+
+    container.innerHTML = sortBar + sorted.map(r => {
             const targetId = r.restaurantId || r.id;
-            const score = Number(r.avgScore || 0).toFixed(1);
-
             return `
-                <div class="list-item" style="
-                    width: 100%;
-                    box-sizing: border-box;
-                    overflow: hidden;
-                    display: block;
-                ">
-                    <div class="list-item-title" style="
-                        white-space: normal;
-                        word-break: break-word;
-                    ">
-                        ${r.name || '未命名餐廳'}
+                <div class="list-item">
+                    <div class="list-item-header">
+                        <div>
+                            <div class="list-item-title">${r.name || '未命名餐廳'}</div>
+                            <div class="list-item-meta">${r.locationAt || '位置資訊未提供'}</div>
+                        </div>
                     </div>
-
-                    <div class="list-item-meta" style="
-                        white-space: normal;
-                        word-break: break-word;
-                        line-height: 1.6;
-                    ">
-                        分類：<strong>${r.category || '未分類'}</strong> |
-                        評分：⭐ ${score} |
-                        ${r.priceRange || ''}
+                    <div class="list-item-badges">
+                        <span class="list-badge">${r.priceRange || '價格未提供'}</span>
+                        <span class="list-badge accent">⭐ ${Number(r.avgScore || 0).toFixed(1)}</span>
+                        <span class="list-badge">${r.ratingCount || 0} 則評分</span>
+                        <span class="list-badge" style="color:var(--text-primary);">可吃 ${r.availableDishCount ?? '?'} 道</span>
                     </div>
-
-                    <div class="list-item-meta" style="
-                        white-space: normal;
-                        word-break: break-word;
-                    ">
-                        ${r.locationAt || ''}
-                    </div>
-
-                    <div class="button-group" style="margin-top: 12px;">
-                        <button type="button" style="padding: 4px 8px; margin-right: 5px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #f9f9f9;" onclick="viewMenu(${targetId}, 'view')">查看菜單</button>
-                        <button type="button" style="padding: 4px 8px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; background: #f9f9f9;" onclick="viewReviews(${targetId})">查看評論</button>
+                    <div class="list-item-actions">
+                        <button type="button" class="list-action-btn" onclick="viewMenu(${targetId}, 'view')">查看菜單</button>
+                        <button type="button" class="list-action-btn" onclick="viewReviews(${targetId})">查看評論</button>
                     </div>
                 </div>`;
         }).join("");
@@ -890,7 +916,7 @@ function renderMyGroups(groups) {
     if (!groups.length) {
         container.innerHTML = `
             <div class="empty-state">
-                <div class="empty-state-icon">👥</div>
+                <div class="empty-state-icon" style="color: var(--error);">✕</div>
                 <div class="empty-state-title">尚未加入群組</div>
                 <div class="empty-state-desc">先輸入邀請碼加入群組，或建立一個新的揪團。</div>
             </div>`;
@@ -1046,7 +1072,6 @@ async function loadGroupDetail(sessionId) {
     }
 
     await loadGroupMembers(sessionId);
-    await loadGroupRecommendations(sessionId);
     await loadGroupHistory(sessionId);
 }
 
@@ -1065,25 +1090,30 @@ async function loadGroupMembers(sessionId) {
         container.innerHTML = `
             <div style="font-size: 12px; font-weight: 600; text-transform: uppercase;
                         letter-spacing: 0.4px; color: var(--text-muted); margin-bottom: 6px;">
-                成員
+                選擇參與成員
             </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;">
+            <div id="group-member-checkboxes" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
                 ${members.map(m => {
                     const label = m.name ? m.name : `用戶 #${m.userId || m}`;
                     const isMe = String(m.userId) === String(state.userId);
                     return `
-                        <span style="background: var(--surface); border: 1px solid var(--border);
-                                     border-radius: 20px; padding: 3px 10px; font-size: 12px;
-                                     ${isMe ? 'font-weight:600;' : ''}">
+                        <label class="member-check-label" ${isMe ? 'style="font-weight:600;"' : ''}>
+                            <input type="checkbox" value="${m.userId}" checked>
+                            <span class="member-check-dot"></span>
                             ${label}${isMe ? ' （我）' : ''}
-                        </span>`;
+                        </label>`;
                 }).join('')}
             </div>
-            <button type="button" class="btn-secondary"
-                    style="width:100%;font-size:13px;"
-                    onclick="showMemberExclusions(${sessionId})">
-                成員排除項目
-            </button>`;
+            <div style="display:flex;gap:8px;">
+                <button type="button" class="btn-primary" style="flex:1;font-size:13px;"
+                        onclick="loadGroupRecommendations(${sessionId})">
+                    取得推薦
+                </button>
+                <button type="button" class="btn-secondary" style="font-size:13px;"
+                        onclick="showMemberExclusions(${sessionId})">
+                    成員排除項目
+                </button>
+            </div>`;
     } catch {
         container.innerHTML = '<p style="color:#999; font-size:13px;">無法載入成員</p>';
     }
@@ -1134,13 +1164,20 @@ window.showMemberExclusions = async function(sessionId) {
     }
 };
 
+function getCheckedMemberIds() {
+    return [...document.querySelectorAll('#group-member-checkboxes input[type=checkbox]:checked')]
+        .map(cb => cb.value).join(',');
+}
+
 async function loadGroupRecommendations(sessionId) {
     const container = document.getElementById("group-recommend-list");
     container.innerHTML = '<p style="color:#999; font-size:13px;">載入推薦中…</p>';
 
     try {
-        const recs = await request(`/api/groups/${sessionId}/recommend`);
+        const memberIds = getCheckedMemberIds();
+        const recs = await request(`/api/groups/${sessionId}/recommend?memberIds=${encodeURIComponent(memberIds)}`);
         state.lastGroupRecommendedRestaurantIds = (recs || []).map(r => r.restaurantId || r.id).filter(Boolean);
+        state._groupRecs = recs || [];
 
         if (!recs || !recs.length) {
             container.innerHTML = `
@@ -1164,8 +1201,11 @@ async function loadMoreGroupRecommendations(sessionId) {
     container.innerHTML = '<p style="color:#999; font-size:13px;">載入推薦中…</p>';
 
     try {
-        const recs = await request(`/api/groups/${sessionId}/recommend/random?limit=5`);
+        const memberIds = getCheckedMemberIds();
+        const recs = await request(`/api/groups/${sessionId}/recommend/random?limit=5&memberIds=${encodeURIComponent(memberIds)}`);
         state.lastGroupRecommendedRestaurantIds = (recs || []).map(r => r.restaurantId || r.id).filter(Boolean);
+        state._groupRecs = recs || [];
+        state._groupSort = 'dishes';
 
         if (!recs || !recs.length) {
             container.innerHTML = `
@@ -1184,37 +1224,47 @@ async function loadMoreGroupRecommendations(sessionId) {
     }
 }
 
-function renderGroupRecommendationCards(container, recs, sessionId, showRefreshButton = false) {
-    const refreshHtml = showRefreshButton ? `
-        <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
-            <button type="button" class="btn-secondary" onclick="loadMoreGroupRecommendations(${sessionId})">不滿意，換一批</button>
-        </div>` : '';
+function sortGroupRecs(sessionId) {
+    state._groupSort = state._groupSort === 'dishes' ? 'score' : 'dishes';
+    const container = document.getElementById("group-recommend-list");
+    renderGroupRecommendationCards(container, state._groupRecs, sessionId, true);
+}
 
-    container.innerHTML = refreshHtml + recs.map(r => {
+function renderGroupRecommendationCards(container, recs, sessionId, showRefreshButton = false) {
+    const sorted = [...recs].sort((a, b) =>
+        state._groupSort === 'score'
+            ? (b.avgScore || 0) - (a.avgScore || 0)
+            : (b.availableDishCount || 0) - (a.availableDishCount || 0)
+    );
+
+    const toggleLabel = state._groupSort === 'dishes' ? '依評分排序' : '依菜餚數排序';
+    const sortBar = `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <button type="button" class="btn-secondary" style="padding:5px 12px;font-size:12px;" onclick="sortGroupRecs(${sessionId})">${toggleLabel}</button>
+            ${showRefreshButton ? `<button type="button" class="btn-secondary" style="margin-left:auto;padding:5px 12px;font-size:12px;" onclick="loadMoreGroupRecommendations(${sessionId})">換一批</button>` : ''}
+        </div>`;
+
+    container.innerHTML = sortBar + sorted.map(r => {
             const rid = r.restaurantId || r.id;
-            const score = Number(r.avgScore || 0).toFixed(1);
             const safeName = String(r.name || '').replace(/'/g, "\\'");
 
             return `
                 <div class="list-item group-rec-card" id="group-rec-${rid}">
-                    <div class="list-item-title">${r.name || '未命名餐廳'}</div>
-
-                    <div class="list-item-meta">
-                        評分：⭐ ${score} |
-                        ${r.priceRange || ''}
+                    <div class="list-item-header">
+                        <div>
+                            <div class="list-item-title">${r.name || '未命名餐廳'}</div>
+                            <div class="list-item-meta">${r.locationAt || '位置資訊未提供'}</div>
+                        </div>
                     </div>
-
-                    <div class="list-item-meta">
-                        ${r.locationAt || ''}
+                    <div class="list-item-badges">
+                        <span class="list-badge">${r.priceRange || '價格未提供'}</span>
+                        <span class="list-badge accent">⭐ ${Number(r.avgScore || 0).toFixed(1)}</span>
+                        <span class="list-badge">${r.ratingCount || 0} 則評分</span>
+                        <span class="list-badge" style="color:var(--text-primary);">可吃 ${r.availableDishCount ?? '?'} 道</span>
                     </div>
-
-                    <div class="button-group" style="margin-top: 16px;">
-                        <button type="button" class="btn-secondary" style="margin-right: 8px;" onclick="pickGroupRestaurant(${rid}, '${safeName}'); viewMenu(${rid}, 'select')">
-                            選擇餐點
-                        </button>
-                        <button type="button" class="btn-secondary" onclick="viewReviews(${rid})">
-                            查看評論
-                        </button>
+                    <div class="list-item-actions">
+                        <button type="button" class="list-action-btn" onclick="pickGroupRestaurant(${rid}, '${safeName}'); viewMenu(${rid}, 'select')">選擇餐點</button>
+                        <button type="button" class="list-action-btn" onclick="viewReviews(${rid})">查看評論</button>
                     </div>
                 </div>`;
         }).join("");
@@ -1255,6 +1305,7 @@ async function loadGroupHistory(sessionId) {
                 <div class="list-item-meta">
                     餐廳：${h.restaurant?.name || `#${restaurantId}`} ｜ ${dateStr}
                 </div>
+                <div class="list-item-meta">建立者：${h.user?.name || '未知'}</div>
                 ${participants ? `<div class="list-item-meta">成員： ${participants}</div>` : ''}
                 <div class="list-item-meta">${h.note ? `小記： ${h.note}` : ''}</div>
                 <div id="record-edit-form-${h.recordId}" style="display:none;margin-top:10px;">
@@ -1649,9 +1700,6 @@ window.submitGroupDishesSelection = async function() {
             recordPanel.classList.remove("hidden");
         }
 
-        // 4. 載入群組成員產生勾選清單
-        await renderParticipantCheckboxes(state._activeGroupSessionId);
-
         showToast(`已選定 ${state.selectedDishes.length} 道餐點`, "success");
         closeModal('menu-modal'); // 關閉彈窗
         
@@ -1667,6 +1715,12 @@ async function renderParticipantCheckboxes(sessionId) {
     const container = document.getElementById("record-participants-list");
     if (!container || !sessionId) return;
 
+    // 讀取上方成員區已勾選的 ID
+    const checkedIds = new Set(
+        [...document.querySelectorAll('#group-member-checkboxes input[type=checkbox]:checked')]
+            .map(cb => cb.value)
+    );
+
     container.innerHTML = '<span style="font-size:12px;color:#999;">載入中…</span>';
     try {
         const members = await request(`/api/groups/${sessionId}/members`);
@@ -1677,13 +1731,11 @@ async function renderParticipantCheckboxes(sessionId) {
         container.innerHTML = members.map(m => {
             const uid = m.userId;
             const label = m.name || `用戶 #${uid}`;
-            const isMe = String(uid) === String(state.userId);
+            const isChecked = checkedIds.size > 0 ? checkedIds.has(String(uid)) : String(uid) === String(state.userId);
             return `
-            <label style="display:flex;align-items:center;gap:6px;
-                          background:var(--surface);border:1px solid var(--border);
-                          border-radius:20px;padding:4px 12px;cursor:pointer;font-size:13px;">
-                <input type="checkbox" value="${uid}" ${isMe ? 'checked' : ''}>
-                ${label}${isMe ? ' （我）' : ''}
+            <label class="member-check-label">
+                <input type="checkbox" class="member-checkbox" value="${uid}" ${isChecked ? 'checked' : ''}>
+                ${label}
             </label>`;
         }).join('');
     } catch {
@@ -1698,11 +1750,11 @@ window.saveGroupRecord = async function() {
         return;
     }
 
-    const participantIds = [...document.querySelectorAll('#record-participants-list input[type=checkbox]:checked')]
+    const participantIds = [...document.querySelectorAll('#group-member-checkboxes input[type=checkbox]:checked')]
         .map(cb => parseInt(cb.value));
 
     if (participantIds.length === 0) {
-        showToast("群組至少要包含一個成員", "error");
+        showToast("請至少勾選一位成員", "error");
         return;
     }
 

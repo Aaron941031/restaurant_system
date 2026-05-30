@@ -25,8 +25,14 @@ public class UserService {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
+    private static final java.util.regex.Pattern EMAIL_PATTERN =
+        java.util.regex.Pattern.compile("^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.(com|tw|com\\.tw)$");
+
     @Transactional
     public AuthResponse register(RegisterRequest request) throws Exception {
+        if (!EMAIL_PATTERN.matcher(request.getEmail()).matches())
+            throw new Exception("Email 格式不正確，須為 xxx@xxx.com");
+
         // Check if user already exists
         if (userRepository.existsByName(request.getName())) {
             throw new Exception("User with name '" + request.getName() + "' already exists");
@@ -80,6 +86,13 @@ public class UserService {
             throw new Exception("User not found");
         }
         return userOpt.get();
+    }
+
+    @Transactional
+    public void deleteUser(Integer userId) throws Exception {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (!userOpt.isPresent()) throw new Exception("User not found");
+        userRepository.deleteById(userId);
     }
 
     @Transactional

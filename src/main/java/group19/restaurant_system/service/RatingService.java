@@ -43,6 +43,11 @@ public class RatingService {
         if (score < 1 || score > 5) {
             throw new Exception("Score must be between 1 and 5");
         }
+
+        // Check duplicate review
+        if (ratingRepository.existsByUserUserIdAndRestaurantRestaurantId(userId, restaurantId)) {
+            throw new Exception("你已經評論過這間餐廳了");
+        }
         
         // Get user
         Optional<User> userOpt = userRepository.findById(userId);

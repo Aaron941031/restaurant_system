@@ -758,7 +758,7 @@ function renderMyReviews(reviews) {
                 <div class="list-item-title">${review.restaurantName || '未知餐廳'}</div>
                 <div class="list-item-meta">${stars} ${review.rating} 分 ・ ${dateStr} ${editedTag}</div>
                 <div class="list-item-meta" style="margin-top:4px;" id="review-comment-${review.id}">${review.comment || '(無評論內容)'}</div>
-                <div id="review-edit-form-${review.id}" style="display:none;margin-top:10px;">
+                <div id="review-edit-form-${review.id}" style="display:none;margin-top:10px;" data-orig-score="${review.rating}" data-orig-comment="${review.comment || ''}">
                     <select id="review-edit-score-${review.id}" style="width:100%;margin-bottom:8px;padding:8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;">
                         <option value="5" ${review.rating===5?'selected':''}>⭐⭐⭐⭐⭐ 非常好</option>
                         <option value="4" ${review.rating===4?'selected':''}>⭐⭐⭐⭐ 很好</option>
@@ -794,6 +794,11 @@ window.cancelEditReview = function(id) {
 window.submitEditReview = async function(id) {
     const score = parseInt(document.getElementById(`review-edit-score-${id}`).value);
     const comment = document.getElementById(`review-edit-comment-${id}`).value;
+    const form = document.getElementById(`review-edit-form-${id}`);
+    if (score === parseInt(form.dataset.origScore) && comment === form.dataset.origComment) {
+        cancelEditReview(id);
+        return;
+    }
     try {
         await request(`/api/restaurant/reviews/${id}`, {
             method: "PUT",
@@ -1298,7 +1303,7 @@ async function loadGroupHistory(sessionId) {
                 : '';
             const editedTag = h.isEdited ? `<span style="font-size:11px;color:var(--text-muted);margin-left:4px;">（已編輯）</span>` : '';
             const restaurantId = h.restaurant?.restaurantId;
-            _recordEditData[h.recordId] = { restaurantId, mealName: h.mealName || '' };
+            _recordEditData[h.recordId] = { restaurantId, mealName: h.mealName || '', note: h.note || '' };
             return `
             <div class="list-item" id="record-item-${h.recordId}">
                 <div class="list-item-title">${h.mealName || '未命名'}${editedTag}</div>
@@ -1429,6 +1434,11 @@ window.submitEditRecord = async function(recordId) {
     const dishNames = selected.map(d => `${d.name} × ${d.qty}`).join("、");
     const mealName = total > 0 ? `${dishNames}（合計 $${total}）` : dishNames;
     const note = document.getElementById(`record-edit-note-${recordId}`).value.trim();
+    const orig = _recordEditData[recordId] || {};
+    if (mealName === orig.mealName && note === orig.note) {
+        cancelEditRecord(recordId);
+        return;
+    }
     try {
         await request(`/api/history/${recordId}`, {
             method: "PUT",

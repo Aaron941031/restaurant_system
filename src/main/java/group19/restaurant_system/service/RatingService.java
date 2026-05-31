@@ -63,7 +63,11 @@ public class RatingService {
         
         // Create rating
         Rating rating = new Rating(userOpt.get(), restaurantOpt.get(), score, comment);
-        rating = ratingRepository.save(rating);
+        try {
+            rating = ratingRepository.save(rating);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            throw new Exception("你已經評論過這間餐廳了");
+        }
         
         // Update restaurant average score
         restaurantService.updateRestaurantRating(restaurantId);

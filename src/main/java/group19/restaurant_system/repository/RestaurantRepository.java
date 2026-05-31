@@ -132,6 +132,16 @@ public class RestaurantRepository {
         return findById(restaurant.getRestaurantId()).orElse(restaurant);
     }
 
+    public void updateRatingStats(Integer restaurantId) {
+        jdbcTemplate.update(
+            "UPDATE restaurants SET " +
+            "  avgScore   = (SELECT ROUND(IFNULL(AVG(score), 0), 1) FROM ratings WHERE restaurantId = ?), " +
+            "  ratingCount = (SELECT COUNT(*) FROM ratings WHERE restaurantId = ?) " +
+            "WHERE restaurantId = ?",
+            restaurantId, restaurantId, restaurantId
+        );
+    }
+
     public void deleteById(Integer restaurantId) {
         jdbcTemplate.update("DELETE FROM restaurants WHERE restaurantId = ?", restaurantId);
     }

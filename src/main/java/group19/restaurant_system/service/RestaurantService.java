@@ -26,9 +26,6 @@ public class RestaurantService {
     private RestaurantRepository restaurantRepository;
     
     @Autowired
-    private RatingRepository ratingRepository;
-    
-    @Autowired
     private UserExclusionRepository userExclusionRepository;
 
     @Autowired
@@ -49,28 +46,9 @@ public class RestaurantService {
 
     @Transactional
     public void updateRestaurantRating(Integer restaurantId) throws Exception {
-        Optional<Restaurant> restaurantOpt = restaurantRepository.findById(restaurantId);
-        if (!restaurantOpt.isPresent()) {
+        if (!restaurantRepository.findById(restaurantId).isPresent())
             throw new Exception("Restaurant not found");
-        }
-        
-        Restaurant restaurant = restaurantOpt.get();
-        List<Rating> ratings = ratingRepository.findByRestaurantRestaurantId(restaurantId);
-        
-        if (ratings.isEmpty()) {
-            restaurant.setAvgScore(0.0);
-            restaurant.setRatingCount(0);
-        } else {
-            double avgScore = ratings.stream()
-                    .mapToDouble(Rating::getScore)
-                    .average()
-                    .orElse(0.0);
-            
-            restaurant.setAvgScore(Math.round(avgScore * 10.0) / 10.0);
-            restaurant.setRatingCount(ratings.size());
-        }
-        
-        restaurantRepository.save(restaurant);
+        restaurantRepository.updateRatingStats(restaurantId);
     }
 
     @Transactional

@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS ratings (
     score INT NOT NULL CHECK (score >= 1 AND score <= 5),
     comment LONGTEXT,
     ratedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_user_restaurant (userId, restaurantId),
     FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE,
     FOREIGN KEY (restaurantId) REFERENCES restaurants(restaurantId) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

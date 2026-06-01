@@ -53,6 +53,11 @@ function goPage(pageName) {
             if (panel) panel.classList.add('hidden');
             state._activeGroupSessionId = null;
             document.getElementById('my-groups-list').innerHTML = '';
+            document.getElementById('group-display').innerHTML = '';
+            document.getElementById('create-group-panel').classList.add('hidden');
+            document.getElementById('btn-show-create-group').classList.remove('hidden');
+            document.getElementById('new-group-name').value = '';
+            loadMyGroups();
         }
     }
 
@@ -133,6 +138,8 @@ function logout() {
     setSession("", "", "");
     state.currentExclusions = [];
     state.userExclusionPreferences = [];
+    document.getElementById('my-groups-list').innerHTML = '';
+    document.getElementById('group-display').innerHTML = '';
     goPage("auth");
     showToast("已登出", "success");
 }

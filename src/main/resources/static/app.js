@@ -1333,10 +1333,11 @@ async function loadGroupHistory(sessionId) {
                         <button class="btn-secondary" onclick="cancelEditRecord(${h.recordId})">取消</button>
                     </div>
                 </div>
+                ${String(h.user?.userId) === String(state.userId) ? `
                 <div id="record-actions-${h.recordId}" style="display:flex;gap:8px;margin-top:10px;">
                     <button type="button" class="btn-warning" onclick="showEditRecord(${h.recordId})">編輯</button>
                     <button type="button" class="btn-danger" onclick="deleteHistoryRecord(${h.recordId})">刪除紀錄</button>
-                </div>
+                </div>` : ''}
             </div>`;
         }).join('');
     } catch {

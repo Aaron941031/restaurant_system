@@ -94,10 +94,12 @@ public class RecordService {
     }
 
     @Transactional
-    public void deleteRecord(Integer recordId) throws Exception {
-        Optional<Record> recordOpt = recordRepository.findById(recordId);
-        if (!recordOpt.isPresent()) throw new Exception("Record not found");
-        recordRepository.delete(recordOpt.get());
+    public void deleteRecord(Integer recordId, Integer userId) throws Exception {
+        Record record = recordRepository.findById(recordId)
+                .orElseThrow(() -> new Exception("Record not found"));
+        if (!record.getUser().getUserId().equals(userId))
+            throw new Exception("無權刪除此紀錄");
+        recordRepository.delete(record);
     }
 
     public void updateRecord(Integer recordId, Integer userId, String mealName, String note) throws Exception {

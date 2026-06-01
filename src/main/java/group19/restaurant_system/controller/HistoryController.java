@@ -73,8 +73,8 @@ public class HistoryController {
     public ResponseEntity<?> deleteRecord(@RequestHeader("Authorization") String authHeader,
                                           @PathVariable Integer recordId) {
         try {
-            getUserIdFromHeader(authHeader);
-            recordService.deleteRecord(recordId);
+            Integer userId = getUserIdFromHeader(authHeader);
+            recordService.deleteRecord(recordId, userId);
             return ResponseEntity.ok(new ApiResponse<>(true, "Record deleted"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage()));
